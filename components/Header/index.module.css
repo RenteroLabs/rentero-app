@@ -1,0 +1,51 @@
+.header {
+  width: 100%;
+  max-width: 1440px;
+  height: 6rem;
+  backdrop-filter: blur(10px);
+
+  display: flex;
+  justify-content: space-between;
+
+  border-bottom: 0.08rem solid rgba(255, 255, 255, 0.2);
+}
+
+.logo {
+  width: 10.5rem;
+  height: 3rem;
+  display: inline-block;
+  margin: 1.5rem 4rem;
+  width: 10.5rem;
+  height: 3rem;
+}
+
+.navList {
+  display: flex;
+  margin: 2rem auto;
+}
+
+.navList a {
+  font-size: 1.33rem;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 2rem;
+}
+
+.navList a:not(:first-child) {
+  margin-left: 5.33rem;
+}
+
+.connectButton {
+  background: linear-gradient(270deg, #b721ff 0%, #21d4fd 100%);
+  border-radius: 1.67rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: Agrandir-GrandHeavy, Agrandir;
+  font-weight: normal;
+  color: #ffffff;
+  line-height: 1.67rem;
+  display: block;
+  padding: 0.83rem 1.67rem;
+  margin: 1.33rem 3.33rem;
+}

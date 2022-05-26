@@ -1,0 +1,54 @@
+.card {
+  width: 22.17rem;
+  height: 31.83rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1.67rem;
+  padding: 1.33rem;
+  margin-bottom: 2rem;
+}
+
+.nftImage {
+  width: 19.5rem;
+  height: 19.5rem;
+  border-radius: 1rem;
+  background-color: #5f4e5f;
+  margin-bottom: 1.33rem;
+}
+
+.cardTitle {
+  display: flex;
+  vertical-align: middle;
+}
+.nftCollectionImage {
+  display: inline-block;
+  width: 2.67rem;
+  height: 2.67rem;
+  background: #ffffff;
+  border-radius: 0.59rem;
+  background-color: #93aba3;
+}
+.nftName {
+  display: inline-block;
+  margin: 0.33rem 1rem;
+  font-size: 1.33rem;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 2rem;
+}
+
+.nftDesc {
+  font-size: 1.17rem;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1.67rem;
+  margin: 1.33rem auto 1rem;
+}
+.nftNumber {
+  font-size: 1.17rem;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  color: #777e90;
+  line-height: 1.67rem;
+}
