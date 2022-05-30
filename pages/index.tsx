@@ -3,6 +3,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import NFTCard from '../components/NFTCard'
+import Link from 'next/link'
 
 const Home: NextPage = () => {
   return (
@@ -20,7 +21,7 @@ const Home: NextPage = () => {
         <section className={styles.introductCard}>
 
         </section>
-        <div className={styles.listTitle}>111 Items</div>
+        <Link href={"/detail/33"}><div className={styles.listTitle}>111 Items</div></Link>
         <div className={styles.nftCardList}>
           <NFTCard />
           <NFTCard />
@@ -30,8 +31,8 @@ const Home: NextPage = () => {
           <NFTCard />
           <NFTCard />
           <NFTCard />
-          <NFTCard />
         </div>
+        <div className={styles.showMore}>Show more</div>
       </div>
     </div>
   )

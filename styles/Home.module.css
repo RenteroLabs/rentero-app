@@ -47,3 +47,26 @@
   flex-wrap: wrap;
   justify-content: space-between;
 }
+
+.showMore {
+  width: 10.67rem;
+  height: 3.33rem;
+  /* border: 0.17rem solid; */
+  border-image: linear-gradient(
+      270deg,
+      rgba(183, 33, 255, 1),
+      rgba(90, 220, 254, 1)
+    )
+    0.17 0.17;
+  padding: 0.67rem 2rem;
+
+  margin: 1.33rem auto 4rem;
+  font-size: 1.17rem;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 2rem;
+  cursor: pointer;
+
+  background: linear-gradient(270deg, #B721FF 0%, #5ADCFE 100%);
+}
