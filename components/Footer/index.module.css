@@ -1,10 +1,19 @@
 .footer {
+  width: 100vw;
   height: 11.75rem;
-  /* width: 100vw; */
+  position: absolute;
+  left: 0;
   background: linear-gradient(180deg, #030305 0%, #150523 100%);
 }
+
+.context {
+  margin: 0px auto;
+  padding: 0px 10rem;
+}
+
 .iconList {
-  padding: 1.83rem 10rem;
+  padding: 1.83rem 0rem;
+  margin: auto;
   border-bottom: 0.08rem solid rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-between;
@@ -15,7 +24,7 @@
 }
 
 .copywrite {
-  margin: 1.3rem 10rem 2rem;
+  margin: 1.3rem 0rem 2rem;
   text-align: left;
   font-size: 1rem;
   font-family: Poppins-Regular, Poppins;
@@ -23,4 +32,21 @@
   color: #ffffff;
   line-height: 1.67rem;
   opacity: 0.4;
+}
+
+@media screen and (min-width: 1440px) {
+  .context {
+    width: 1440px;
+  }
+}
+
+@media screen  and (max-width: 980px){
+  .context {
+    padding: 0px 4rem;
+  }
+}
+@media screen  and (max-width: 680px){
+  .context {
+    padding: 0px 2rem;
+  }
 }

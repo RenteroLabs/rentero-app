@@ -18,3 +18,13 @@ a {
 * {
   box-sizing: border-box;
 }
+
+/* import fonts type */
+@font-face {
+  font-family: MonumentExtended;
+  src: url(../public/font/MonumentExtended.otf);
+}
+@font-face {
+  font-family: Agrandir-GrandHeavy;
+  src: url(../public/font/Agrandir-GrandHeavy.otf);
+}

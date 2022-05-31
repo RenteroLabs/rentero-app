@@ -1,0 +1,58 @@
+.card {
+  width: 27.67rem;
+  height: 33.33rem;
+  background: linear-gradient(180deg, #1a182e 0%, #1a182e 100%);
+  border-radius: 2.67rem;
+  position: relative;
+
+  .cover_image {
+    height: 13.83rem;
+    background-color: gray;
+    border-top-left-radius: 2.67rem;
+    border-top-right-radius: 2.67rem;
+  }
+
+  .game_logo {
+    position: absolute;
+    top: 10.83rem;
+    left: 1.67rem;
+    width: 6rem;
+    height: 6rem;
+    background: #272424;
+    border-radius: 1.33rem;
+  }
+
+  h4 {
+    font-size: 2rem;
+    font-family: Poppins-Bold, Poppins;
+    font-weight: bold;
+    color: #ffffff;
+    line-height: 2.33rem;
+    margin: 1.67rem 1.67rem 1.33rem;
+  }
+
+  p {
+    font-size: 1.33rem;
+    font-family: Poppins-Regular, Poppins;
+    font-weight: 400;
+    color: #ffffff;
+    line-height: 2rem;
+    opacity: 0.5;
+    margin: auto 1.67rem 2rem;
+  }
+
+  .depositButton {
+    cursor: pointer;
+    display: inline-block;
+    background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
+    font-size: 1.5rem;
+    font-family: Agrandir-GrandHeavy, Agrandir;
+    font-weight: normal;
+    color: #ffffff;
+    line-height: 2.67rem;
+    padding: 0.75rem 4.58rem;
+    user-select: none;
+    border-radius: 0.8rem;
+    border-top-right-radius: 2rem;
+  }
+}
