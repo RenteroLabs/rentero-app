@@ -4,10 +4,14 @@ import Layout from '../components/layout'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import AppTheme from '../theme'
+import Head from 'next/head'
 
 function MyApp({ Component, pageProps }: AppProps) {
   return <ThemeProvider theme={AppTheme}>
     <StyledEngineProvider injectFirst>
+      <Head>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+      </Head>
       <CssBaseline />
       <Layout>
         <Component {...pageProps} />
