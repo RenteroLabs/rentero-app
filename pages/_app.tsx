@@ -6,6 +6,33 @@ import CssBaseline from '@mui/material/CssBaseline'
 import AppTheme from '../theme'
 import Head from 'next/head'
 
+import { WagmiConfig, configureChains, createClient, defaultChains } from 'wagmi'
+import { infuraProvider } from 'wagmi/providers/infura'
+import { publicProvider } from 'wagmi/providers/public'
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
+
+const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
+const { chains, provider, webSocketProvider } = configureChains(defaultChains, [
+  infuraProvider({ infuraId }),
+  publicProvider()
+])
+
+const client = createClient({
+  autoConnect: true,
+  connectors: [
+    new MetaMaskConnector({ chains }),
+    new WalletConnectConnector({
+      chains,
+      options: {
+        qrcode: true
+      }
+    })
+  ],
+  provider,
+  webSocketProvider
+})
+
 function MyApp({ Component, pageProps }: AppProps) {
   return <ThemeProvider theme={AppTheme}>
     <StyledEngineProvider injectFirst>
@@ -13,9 +40,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <CssBaseline />
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <WagmiConfig client={client}>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </WagmiConfig>
     </StyledEngineProvider>
   </ThemeProvider>
 }
