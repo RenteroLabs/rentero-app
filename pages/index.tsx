@@ -1,19 +1,27 @@
-import type { NextPage } from 'next'
+import { useRef, useState } from 'react'
+import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
-import styles from '../styles/Home.module.scss'
-import NFTCard from '../components/NFTCard'
-import Link from 'next/link'
-import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
+import type { NextPage } from 'next'
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Accordion, AccordionDetails, AccordionSummary, Box, FormControl, MenuItem, Select, SelectChangeEvent, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
-import { useState } from 'react'
+import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
+import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Menu, MenuItem, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import NFTCard from '../components/NFTCard'
+import styles from '../styles/Home.module.scss'
+import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
+
 
 const Home: NextPage = () => {
   const [currentGame, setCurrentGame] = useState<string>('all')
-  const [selectedChain, setSelectChain] = useState<string>('')
-  const [sortBy, setSortBy] = useState<string>('')
+
+  const chainTypeRef = useRef<HTMLElement>()
+  const sortTypeRef = useRef<HTMLElement>()
+  const [chainTypeShow, setChainTypeShow] = useState<boolean>(false)
+  const [sortTypeShow, setSortTypeShow] = useState<boolean>(false)
+  const [selectedChain, setSelectedChain] = useState<number>(0)
+  const [selectedSortBy, setSelectedSortBy] = useState<number>(0)
 
   return (
     <div className={styles.container}>
@@ -78,42 +86,56 @@ const Home: NextPage = () => {
         </section>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.67rem' }}>
           <div className={styles.listTitle}>111 Items</div>
-          <Box>
-            <FormControl sx={{ minWidth: '10rem', mr: "2rem" }}>
-              <Select
-                // label="Blockchain"
-                placeholder='Blockchain'
-                value={selectedChain}
-                // displayEmpty
-                onChange={(e: SelectChangeEvent) => setSelectChain(e.target.value as string)}
-                renderValue={(selected) => {
-                  console.log(selected)
-                  if (!selected) {
-                    return <em>Blockchain</em>
-                  }
-                  // return selected
-                }}
-              >
-                <MenuItem value=""><em>All Chain</em></MenuItem>
-                <MenuItem value={"eth"}>Ethereum</MenuItem>
-                <MenuItem value={"bsc"}>Binance</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl sx={{ minWidth: '10rem' }}>
-              <Select
-                label="Sort By"
-                value={sortBy}
-                onChange={(e: SelectChangeEvent) => setSortBy(e.target.value as string)}
-              >
-                <MenuItem value={"price_desc"}>Price From Hight To Low</MenuItem>
-                <MenuItem value={"price_asc"}>Price From Low To High</MenuItem>
-              </Select>
-            </FormControl>
+          <Box className={styles.sortList}>
+            <Box
+              ref={chainTypeRef}
+              onClick={() => setChainTypeShow(true)}
+            >
+              {CHAINTYPE_SUPPORTED[selectedChain]}
+              <KeyboardArrowDownOutlinedIcon />
+            </Box>
+            <Menu
+              anchorEl={chainTypeRef.current}
+              open={chainTypeShow}
+              onClose={() => setChainTypeShow(false)}
+            >
+              {CHAINTYPE_SUPPORTED.map((item, index) =>
+                <MenuItem
+                  onClick={() => {
+                    setChainTypeShow(false)
+                    setSelectedChain(index)
+                  }}>
+                  {item}
+                </MenuItem>)}
+            </Menu>
+            <Box
+              ref={sortTypeRef}
+              onClick={() => setSortTypeShow(true)}
+            >
+              {SORT_BY[selectedSortBy]}
+              <KeyboardArrowDownOutlinedIcon />
+            </Box>
+            <Menu
+              anchorEl={sortTypeRef.current}
+              open={sortTypeShow}
+              onClose={() => setSortTypeShow(false)}
+            >
+              {SORT_BY.map((item, index) =>
+                <MenuItem
+                  onClick={() => {
+                    setSortTypeShow(false)
+                    setSelectedSortBy(index)
+                  }}
+                >
+                  {item}
+                </MenuItem>
+              )}
+            </Menu>
 
           </Box>
         </Box>
         <div className={styles.nftCardList}>
-          <NFTCard />
+          <a href="/detail/100"><NFTCard /></a>
           <NFTCard />
           <NFTCard />
           <NFTCard />
@@ -124,7 +146,7 @@ const Home: NextPage = () => {
         </div>
         <div className={styles.showMore}>Show more</div>
       </div>
-    </div>
+    </div >
   )
 }
 

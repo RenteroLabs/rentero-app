@@ -49,3 +49,24 @@
   padding: 0.83rem 1.67rem;
   margin: 1.33rem 3.33rem;
 }
+
+.accountBox {
+  margin: auto;
+  margin-right: 0;
+
+  .addressOrEns {
+    display: flex;
+    align-items: center;
+    font-size: 1.17rem;
+    font-family: Poppins-Medium, Poppins;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 1.67rem;
+  }
+  
+  .downIcon {
+    font-size: 2rem;
+    color: #777e90;
+    margin-left: 1.33rem;
+  }
+}

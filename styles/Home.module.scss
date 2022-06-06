@@ -274,3 +274,25 @@
 
   background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
 }
+
+.sortList {
+  display: flex;
+
+  div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 18.67rem;
+    border-radius: 1rem;
+    border: 0.17rem solid  rgba($color: #777e91, $alpha: 0.3);
+    padding: 0.83rem 1.33rem;
+    font-size: 1.17rem;
+    font-family: Poppins-Medium, Poppins;
+    font-weight: 500;
+    color: #777e90;
+    line-height: 1.67rem;
+    & + div {
+      margin-left: 2rem;
+    }
+  }
+}
