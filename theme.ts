@@ -1,5 +1,6 @@
 import { createTheme } from '@mui/material'
 
+// Material UI theme global config
 const AppTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -11,7 +12,14 @@ const AppTheme = createTheme({
     },
     background: {
       default: '#000032',
+      paper: '#1a1a46',
     },
+  },
+  typography: {
+    fontFamily: 'Poppins',
+    fontSize: 12,
+    fontWeightLight: 300,
+    htmlFontSize: 12,
   },
 })
 

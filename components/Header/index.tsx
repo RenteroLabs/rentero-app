@@ -7,11 +7,16 @@ import ConnectWallet from '../ConnectWallet'
 import { useIsMounted } from '../../hooks'
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect } from 'wagmi'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
-import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList } from '@mui/material'
+import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList, Slide, Snackbar } from '@mui/material'
 import { useRef, useState } from 'react'
+import { TransitionProps } from '@mui/material/transitions'
+import { useRouter } from 'next/router'
 
 export default function Header() {
+  const router = useRouter()
   const isMounted = useIsMounted()
   const { data: account } = useAccount()
   const { data: ensAvatar } = useEnsAvatar({ addressOrName: account?.address })
@@ -19,6 +24,8 @@ export default function Header() {
   const { disconnect } = useDisconnect()
   const [openSetting, setOpenSetting] = useState<boolean>(false)
   const anchorRef = useRef<HTMLElement>(null)
+
+  const [showAlertMessage, setShowAlertMessage] = useState<boolean>(false)
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
     if (
@@ -35,14 +42,31 @@ export default function Header() {
     disconnect()
     handleClose(event)
   }
+
+  const handleLinkToSupport = (event: Event) => {
+    event.preventDefault()
+    setShowAlertMessage(true)
+  }
+
   return <header className={styles.header}>
     <div className={styles.logo}>
       <Image src={Logo} alt="Rentero Logo" />
     </div>
     <nav className={styles.navList}>
-      <Link href="/" >Market</Link>
-      <Link href="/lend">Lend NFTs</Link>
-      <Link href="/support">Support</Link>
+      <Link href="/"  >
+        <a className={router.pathname === '/' ? styles.activeNavItem : undefined}>Market</a></Link>
+      <Link href="/lend">
+        <a className={router.pathname === '/lend' ? styles.activeNavItem : undefined}>Lend NFTs</a>
+      </Link>
+      <a onClick={handleLinkToSupport} className={styles.supportNav}>Support</a>
+      <Snackbar
+        open={showAlertMessage}
+        message="WIP: Coming soon！"
+        autoHideDuration={3000}
+        onClose={() => setShowAlertMessage(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        TransitionComponent={(props: TransitionProps) => <Slide {...props} direction="right" />}
+      />
     </nav>
     {
       (isMounted && account) ?
@@ -59,19 +83,6 @@ export default function Header() {
           trigger={<span className={styles.connectButton}>Connect Wallet</span>}
         />
     }
-    {/* {
-      (isMounted && account) ?
-        <div ref={anchorRef} className={styles.accountBox} onClick={() => setOpenSetting(true)}>
-          {ensAvatar ? <img src={ensAvatar} alt="account_avatar" /> : <AccountCircleIcon className={styles.addressLogo} />}
-          <div className={styles.addressOrEns}>
-            {ensName ? `${ensName} (${formatAddress(account.address, 4)})` : formatAddress(account.address, 4)}
-          </div>
-          <KeyboardArrowDownOutlinedIcon className={styles.downIcon} />
-        </div>
-        : <ConnectWallet
-        trigger={<span className={styles.connectButton}>Connect Wallet</span>}
-      />
-    } */}
     <ClickAwayListener onClickAway={handleClose}>
       <Menu
         open={openSetting}
@@ -86,8 +97,14 @@ export default function Header() {
           horizontal: 'center',
         }}
       >
-        <MenuItem onClick={handleClose}>Dashboard</MenuItem>
-        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+        <MenuItem onClick={handleClose}>
+          <DashboardIcon />
+          <span className={styles.menuText}>Dashboard</span>
+        </MenuItem>
+        <MenuItem onClick={handleLogout}>
+          <LogoutIcon />
+          <span className={styles.menuText}>Logout</span>
+        </MenuItem>
       </Menu>
     </ClickAwayListener>
   </header >

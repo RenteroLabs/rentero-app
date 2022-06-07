@@ -63,20 +63,18 @@
         margin-top: 0.67rem !important;
         padding: 0.67rem 1.33rem;
       }
-      .Mui-selected {
-        background: #aa3ff8;
-        font-size: 1.17rem;
-        font-family: Poppins-SemiBold, Poppins;
-        font-weight: 600;
-        color: #ffffff;
-        line-height: 2rem;
-      }
       .MuiBox-root {
         width: 100%;
         text-align: left;
         display: flex;
         justify-content: left;
         align-items: center;
+        font-size: 1.17rem;
+        font-family: Poppins-Medium, Poppins;
+        font-weight: 500;
+        line-height: 2rem;
+        color: #777e90;
+
         img {
           display: inline-block;
           width: 2rem;
@@ -84,6 +82,20 @@
           background: #ffffff;
           border-radius: 0.53rem;
           margin-right: 0.67rem;
+        }
+      }
+      .Mui-selected {
+        background: #aa3ff8;
+        font-size: 1.17rem;
+        font-family: Poppins-SemiBold, Poppins;
+        font-weight: 600;
+        color: #ffffff;
+        line-height: 2rem;
+
+        :global {
+          .MuiBox-root {
+            color: #fff;
+          }
         }
       }
     }
@@ -195,11 +207,12 @@
       );
       border-radius: 0.5rem;
       font-size: 1rem;
-      font-family: Averta-Semibold, Averta;
+      font-family: Poppins-SemiBold, Poppins;
       font-weight: 600;
       color: #ffffff;
       line-height: 1.33rem;
       padding: 0.17rem 0.66rem;
+      user-select: none;
     }
     .releaseTime {
       margin: 0 1rem 0 0.67rem;
@@ -253,26 +266,29 @@
 }
 
 .showMore {
-  width: 10.67rem;
-  height: 3.33rem;
-  /* border: 0.17rem solid; */
-  border-image: linear-gradient(
-      270deg,
-      rgba(183, 33, 255, 1),
-      rgba(90, 220, 254, 1)
-    )
-    0.17 0.17;
-  padding: 0.67rem 2rem;
-
+  // border: 0.17rem solid linear-gradient(
+  //   270deg,
+  //   rgba(183, 33, 255, 1),
+  //   rgba(90, 220, 254, 1)
+  // );
   margin: 1.33rem auto 4rem;
   font-size: 1.17rem;
   font-family: Poppins-SemiBold, Poppins;
   font-weight: 600;
-  color: #ffffff;
-  line-height: 2rem;
-  cursor: pointer;
-
-  background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
+  display: flex;
+  justify-content: center;
+  
+  span {
+    display: inline-block;
+    width: auto;
+    margin: 0 auto;
+    padding: 0.67rem 2rem;
+    line-height: 2rem;
+    color: #ffffff;
+    cursor: pointer;
+    border: 0.167rem solid #1a1a46;
+    border-radius: 1rem;
+  }
 }
 
 .sortList {
@@ -284,7 +300,7 @@
     justify-content: space-between;
     min-width: 18.67rem;
     border-radius: 1rem;
-    border: 0.17rem solid  rgba($color: #777e91, $alpha: 0.3);
+    border: 0.17rem solid rgba($color: #777e91, $alpha: 0.3);
     padding: 0.83rem 1.33rem;
     font-size: 1.17rem;
     font-family: Poppins-Medium, Poppins;

@@ -10,6 +10,11 @@
   border-bottom: 0.08rem solid rgba(255, 255, 255, 0.2);
 }
 
+.menuText {
+  display: inline-block;
+  margin-left: 1rem;
+}
+
 .logo {
   width: 10.5rem;
   height: 3rem;
@@ -21,15 +26,44 @@
 
 .navList {
   display: flex;
+  align-items: center;
   margin: 2rem auto;
+
+  .supportNav {
+    cursor: pointer;
+  }
+  .activeNavItem {
+    font-size: 1.33rem;
+    font-family: Poppins-Bold, Poppins;
+    font-weight: bold;
+    color: #ffffff;
+    line-height: 2rem;
+    opacity: 1;
+    position: relative;
+
+    &:after {
+      display: inline-block;
+      content: '';
+      position: absolute;
+      top: 2.7rem;
+      left: calc(50% - 1.67rem);
+      width: 3.33rem;
+      height: 0.25rem;
+      background: #5adcfe;
+      border-radius: 8.33rem;
+    }
+  }
 }
 
 .navList a {
-  font-size: 1.33rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #ffffff;
-  line-height: 2rem;
+  opacity: 0.4;
+  font-size: 1.33rem;
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .navList a:not(:first-child) {
@@ -51,8 +85,7 @@
 }
 
 .accountBox {
-  margin: auto;
-  margin-right: 0;
+  margin: auto 0;
 
   .addressOrEns {
     display: flex;
@@ -63,7 +96,7 @@
     color: #ffffff;
     line-height: 1.67rem;
   }
-  
+
   .downIcon {
     font-size: 2rem;
     color: #777e90;

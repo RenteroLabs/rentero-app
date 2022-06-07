@@ -61,7 +61,7 @@ const Detail: NextPage = () => {
         </Stack>
       </Box>
     </Box>
-    <Box maxWidth="94.66rem" margin="auto" marginTop="8.33rem" overflow="hidden">
+    <Box maxWidth="94.66rem" margin="auto" marginTop="8.33rem">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.67rem' }} className={styles.moreNFTtitle}>
         <Typography variant="h3">More NFTs</Typography>
         <Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography>

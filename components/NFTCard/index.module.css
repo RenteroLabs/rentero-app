@@ -8,6 +8,11 @@
   cursor: pointer;
 }
 
+.card:hover {
+  box-shadow: rgba(123, 171, 217, 0.7) 0px 0px 8px 0px;
+  transition: all 0.1s ease 0s;
+}
+
 .nftImage {
   width: 19.5rem;
   height: 19.5rem;

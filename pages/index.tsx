@@ -144,7 +144,7 @@ const Home: NextPage = () => {
           <NFTCard />
           <NFTCard />
         </div>
-        <div className={styles.showMore}>Show more</div>
+        <div className={styles.showMore}><span>Show more</span></div>
       </div>
     </div >
   )
