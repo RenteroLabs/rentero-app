@@ -54,7 +54,7 @@ export default function Header() {
     </div>
     <nav className={styles.navList}>
       <Link href="/"  >
-        <a className={router.pathname === '/' ? styles.activeNavItem : undefined}>Market</a></Link>
+        <a className={router.pathname === '/' || ['/detail'].some(item => item.indexOf(router.pathname) === 0) ? styles.activeNavItem : undefined}>Market</a></Link>
       <Link href="/lend">
         <a className={router.pathname === '/lend' ? styles.activeNavItem : undefined}>Lend NFTs</a>
       </Link>
@@ -103,7 +103,7 @@ export default function Header() {
         </MenuItem>
         <MenuItem onClick={handleLogout}>
           <LogoutIcon />
-          <span className={styles.menuText}>Logout</span>
+          <span className={styles.menuText}>Disconnect</span>
         </MenuItem>
       </Menu>
     </ClickAwayListener>

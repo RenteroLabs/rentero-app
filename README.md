@@ -1,3 +1,3 @@
 ## Rentero Market
 
-Next.js + Material-UI
+React + Next.js + Material-UI + ether.js + wagmi

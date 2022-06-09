@@ -6,9 +6,18 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import styles from '../../styles/detail.module.scss'
 import NFTCard from "../../components/NFTCard";
+import ConnectWallet from "../../components/ConnectWallet";
+import { useAccount } from "wagmi";
+import { useIsMounted } from "../../hooks";
+import classNames from "classnames/bind";
+
+const cx = classNames.bind(styles)
 
 const Detail: NextPage = () => {
   const router = useRouter()
+  const { data: account } = useAccount()
+  const isMounted = useIsMounted()
+
   const { id } = router.query
 
   return <div>
@@ -33,7 +42,13 @@ const Detail: NextPage = () => {
             <Typography className={styles.earnRatio}>RATIO OF PLAYER EARNINGS:</Typography>
             <Typography variant="h4" className={styles.earnRatioValue}>25%</Typography>
           </Paper>
-          <Box className={styles.rentButton}>Rent</Box>
+          {isMounted && account ?
+            <Box className={cx({
+              'rentButton': true,
+              // TODO: checkout current NFT if rented
+              'rentedButton': false,
+            })} >Rent</Box> :
+            <ConnectWallet trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />}
         </Stack>
       </Box>
       <Box className={styles.rightBox} sx={{ marginLeft: '5.33rem' }}>

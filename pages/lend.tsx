@@ -17,7 +17,7 @@ const Lend: NextPage = () => {
         platform
       </Typography>
       <Typography className={styles.subTitle}>
-        Make the best use of your NFTs, earn a great share of players' earnings and withdraw at anytime.
+        Make the best use of your NFTs, earn a great share of players&#39; earnings and withdraw at anytime.
       </Typography>
       <div className={styles.lendButton}>Lend NFTs</div>
     </Box>
@@ -57,7 +57,7 @@ const Lend: NextPage = () => {
           <span className="stepIcon"></span>
           <div>
             <h4 >Create your account</h4>
-            <p>After you create your account, you'll get access to our service</p>
+            <p>After you create your account, you&#39;ll get access to our service</p>
           </div>
         </div>
         <div></div>
@@ -73,7 +73,7 @@ const Lend: NextPage = () => {
           <span className="stepIcon"></span>
           <div>
             <h4 >Pay for it</h4>
-            <p>After paying for the portfolio,you'll start to get earnings</p>
+            <p>After paying for the portfolio,you&#39;ll start to get earnings</p>
           </div>
         </div>
       </Box>

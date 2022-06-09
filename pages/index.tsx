@@ -101,6 +101,7 @@ const Home: NextPage = () => {
             >
               {CHAINTYPE_SUPPORTED.map((item, index) =>
                 <MenuItem
+                  key={index}
                   onClick={() => {
                     setChainTypeShow(false)
                     setSelectedChain(index)
@@ -122,6 +123,7 @@ const Home: NextPage = () => {
             >
               {SORT_BY.map((item, index) =>
                 <MenuItem
+                  key={index}
                   onClick={() => {
                     setSortTypeShow(false)
                     setSelectedSortBy(index)
@@ -135,7 +137,7 @@ const Home: NextPage = () => {
           </Box>
         </Box>
         <div className={styles.nftCardList}>
-          <a href="/detail/100"><NFTCard /></a>
+          <Link href="/detail/100"><NFTCard /></Link>
           <NFTCard />
           <NFTCard />
           <NFTCard />
