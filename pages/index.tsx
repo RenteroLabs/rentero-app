@@ -11,7 +11,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Box, Menu, MenuItem, Tog
 import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
 import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
-
+import { useRequest } from 'ahooks'
 
 const Home: NextPage = () => {
   const [currentGame, setCurrentGame] = useState<string>('all')
@@ -22,6 +22,8 @@ const Home: NextPage = () => {
   const [sortTypeShow, setSortTypeShow] = useState<boolean>(false)
   const [selectedChain, setSelectedChain] = useState<number>(0)
   const [selectedSortBy, setSelectedSortBy] = useState<number>(0)
+
+  // useRequest()
 
   return (
     <div className={styles.container}>
@@ -133,11 +135,10 @@ const Home: NextPage = () => {
                 </MenuItem>
               )}
             </Menu>
-
           </Box>
         </Box>
         <div className={styles.nftCardList}>
-          <Link href="/detail/100"><NFTCard /></Link>
+          <NFTCard />
           <NFTCard />
           <NFTCard />
           <NFTCard />

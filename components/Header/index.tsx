@@ -97,10 +97,12 @@ export default function Header() {
           horizontal: 'center',
         }}
       >
-        <MenuItem onClick={handleClose}>
-          <DashboardIcon />
-          <span className={styles.menuText}>Dashboard</span>
-        </MenuItem>
+        <Link href="/dashboard">
+          <MenuItem onClick={handleClose}>
+            <DashboardIcon />
+            <span className={styles.menuText}>Dashboard</span>
+          </MenuItem>
+        </Link>
         <MenuItem onClick={handleLogout}>
           <LogoutIcon />
           <span className={styles.menuText}>Disconnect</span>

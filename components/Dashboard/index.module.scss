@@ -1,0 +1,155 @@
+.tableSearch {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .toggleBtnGroup {
+    display: flex;
+    border-radius: 2rem;
+    border: 0.17rem solid rgba($color: #777e91, $alpha: 0.3);
+
+    :global {
+      .MuiChip-root,
+      .MuiButtonBase-root {
+        cursor: pointer;
+        width: 10.67rem;
+        height: 3.33rem;
+        border-radius: 1.67rem;
+        border: none;
+        background: transparent;
+
+        span {
+          display: block;
+          padding: 0.65rem 1.85rem;
+          font-size: 1.17rem;
+          font-family: Poppins-Medium, Poppins;
+          font-weight: 500;
+          color: rgba($color: white, $alpha: 0.5);
+          line-height: 1.67rem;
+          border-radius: 2rem;
+          background-color: #000030;
+        }
+      }
+    }
+
+    .activeButton {
+      background: linear-gradient(
+        270deg,
+        rgba(183, 33, 255, 1),
+        rgba(90, 220, 254, 1)
+      );
+      transition: background ease-out 1s;
+      span {
+        color: white;
+      }
+      // span {
+      //   display: block;
+      //   padding: 0.65rem 1.85rem;
+      //   font-size: 1.17rem;
+      //   font-family: Poppins-Medium, Poppins;
+      //   font-weight: 500;
+      //   color: #ffffff;
+      //   line-height: 1.67rem;
+      //   border-radius: 2rem;
+      //   background-color: #000030;
+      // }
+    }
+  }
+  .searchInput {
+    display: flex;
+    justify-content: space-around;
+    width: 28rem;
+    border-radius: 1rem;
+    border: 0.17rem solid rgba($color: #777e91, $alpha: 0.2);
+    background-color: transparent;
+    color: #777e90;
+  }
+}
+
+.returnButton {
+  display: inline-block;
+  background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
+  border-radius: 1rem;
+  color: white;
+  padding: 0.5rem 1.33rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 1rem;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.67rem;
+}
+.returnButton_disable {
+  @extend .returnButton;
+  background: #777e90;
+  color: rgba($color: white, $alpha: 0.7);
+  cursor: not-allowed;
+}
+
+.tableHeader {
+  background-color: #272750;
+  border-radius: 1.67rem 1.67rem 0rem 0rem;
+}
+
+.tableBody {
+  background-color: #1a1a46 !important;
+}
+
+.tableFooter {
+  background: #1a1a46;
+  border-radius: 0 1.67rem 1.67rem 0;
+  padding: 4.67rem;
+  :global {
+    .MuiTableCell-footer {
+      text-align: center;
+      padding: 4rem;
+      & > p {
+        font-size: 1.17rem;
+        color: #777e90;
+        line-height: 1.67rem;
+        margin-top: 1.33rem;
+      }
+    }
+  }
+}
+
+.tableBox {
+  border-radius: 1.67rem;
+  overflow: hidden;
+  :global {
+    .MuiTableCell-root {
+      border-bottom: 0.04rem solid rgba($color: #979797, $alpha: 0.08) !important;
+      font-size: 1.17rem;
+      font-family: Poppins-Medium, Poppins;
+      font-weight: 500;
+      color: #ffffff;
+      line-height: 1.67rem;
+    }
+    .MuiTableCell-head {
+      font-size: 1.17rem;
+      font-family: Poppins-Medium, Poppins;
+      font-weight: 500;
+      color: #777e90;
+      line-height: 1.67rem;
+    }
+  }
+}
+
+.pagination {
+  :global {
+    .MuiPagination-ul {
+      justify-content: center;
+      margin-top: 3.33rem;
+    }
+  }
+}
+
+.tableTitle {
+  font-size: 2rem;
+  font-family: Poppins-SemiBold, Poppins;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 2.67rem;
+}
