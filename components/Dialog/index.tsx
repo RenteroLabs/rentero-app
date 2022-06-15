@@ -8,12 +8,13 @@ export interface AppDialogProps {
   trigger: React.ReactNode;
   title: string;
   hiddenDialog?: boolean;
-  children?: React.ReactNode
+  children?: React.ReactNode;
+  width?: string;
 }
 
 const AppDialog: React.FC<AppDialogProps> = (props) => {
+  const { children, title, trigger, hiddenDialog, width } = props
   const [visibile, setVisibile] = useState<boolean>(false)
-  const { children, title, trigger, hiddenDialog } = props
 
   useEffect(() => {
     if (hiddenDialog) {
@@ -26,7 +27,7 @@ const AppDialog: React.FC<AppDialogProps> = (props) => {
       {trigger}
     </div>
     <Dialog open={visibile} className={styles.container} >
-      <DialogTitle className={styles.dialogTitle}>
+      <DialogTitle className={styles.dialogTitle} sx={{ width: width || 'auto' }}>
         {title}
         <IconButton
           aria-label="close"
@@ -41,7 +42,9 @@ const AppDialog: React.FC<AppDialogProps> = (props) => {
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      {children}
+      <div className={styles.dialogContent}>
+        {children}
+      </div>
     </Dialog>
   </React.Fragment >
 

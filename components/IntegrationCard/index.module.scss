@@ -4,6 +4,7 @@
   background: linear-gradient(180deg, #1a182e 0%, #1a182e 100%);
   border-radius: 2.67rem;
   position: relative;
+  text-align: center;
 
   .cover_image {
     height: 13.83rem;
@@ -42,17 +43,29 @@
   }
 
   .depositButton {
+    width: 20rem;
+    height: 4.17rem;
     cursor: pointer;
-    display: inline-block;
     background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
     font-size: 1.5rem;
     font-family: Agrandir-GrandHeavy, Agrandir;
     font-weight: normal;
     color: #ffffff;
-    line-height: 2.67rem;
-    padding: 0.75rem 4.58rem;
+    line-height: 4.17rem;
+    text-align: center;
     user-select: none;
     border-radius: 0.8rem;
-    border-top-right-radius: 2rem;
+    border-top-right-radius: 2.2rem;
+    margin: auto;
+    clip-path: polygon(
+      30% 0%,
+      92% 0%,
+      100% 40%,
+      100% 100%,
+      70% 100%,
+      0 100%,
+      0% 70%,
+      0 0
+    );
   }
 }

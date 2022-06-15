@@ -6,6 +6,8 @@ import Image from "next/image"
 import { useIsMounted } from "../../hooks"
 import SearchIcon from '@mui/icons-material/Search';
 import { useState } from "react"
+import ReturnNFTModal from "./Modals/ReturnNFT"
+import WithdrawNFTModal from "./Modals/WithdrawNFT"
 
 const cx = classNames.bind(styles)
 
@@ -137,7 +139,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
               <TableCell>{item.time}</TableCell>
               <TableCell>{item.status}</TableCell>
               <TableCell align="center">
-                <span className={cx({ "returnButton": true, "returnButton_disable": index === 0 })}>Return</span>
+                {tableType === 'RENT' && <ReturnNFTModal
+                  trigger={<span className={cx({ "returnButton": true, "returnButton_disable": index === 0 })}>Return</span>} />}
+                {tableType === 'LEND' && <WithdrawNFTModal
+                  trigger={<span className={cx({ "returnButton": true, "returnButton_disable": index === 0 })}>Withdraw</span>} />}
               </TableCell>
             </TableRow>
           })

@@ -7,6 +7,7 @@ import { Grid, Typography } from "@mui/material";
 import styles from '../styles/lend.module.scss'
 import IntegrationCard from "../components/IntegrationCard";
 import Footer from "../components/Footer";
+import LendNFTModal from "../components/LendNFT/ChooseGameModal";
 
 const Lend: NextPage = () => {
   return <Container maxWidth={false} >
@@ -19,7 +20,7 @@ const Lend: NextPage = () => {
       <Typography className={styles.subTitle}>
         Make the best use of your NFTs, earn a great share of players&#39; earnings and withdraw at anytime.
       </Typography>
-      <div className={styles.lendButton}>Lend NFTs</div>
+      <LendNFTModal trigger={<div className={styles.lendButton}>Lend NFTs</div>} />
     </Box>
     <Box textAlign="center" className={styles.overview}>
       <Typography variant="h3" className={styles.overviewTitle}>Overview</Typography>

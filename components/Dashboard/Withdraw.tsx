@@ -5,6 +5,8 @@ import styles from './index.module.scss'
 import classNames from 'classnames/bind';
 import NotFound from '../../public/table_not_found.svg'
 import { useIsMounted } from '../../hooks';
+import WithdrawEarningModal from './Modals/WithdrawEarning';
+import Image from 'next/image';
 
 const cx = classNames.bind(styles)
 
@@ -32,6 +34,28 @@ const columns = [
     dataIndex: 'time',
   }, {
     title: 'Manage'
+  }
+]
+
+const nftColumns = [
+  {
+    title: 'ID',
+    dataIndex: 'id'
+  }, {
+    title: 'NFT',
+    dataindex: 'nft',
+  }, {
+    title: 'Address',
+    dataIndex: 'address',
+  }, {
+    title: 'Game Name',
+    dataIndex: 'gameName',
+  }, {
+    title: 'Status',
+    dataIndex: 'status',
+  }, {
+    title: 'Time',
+    dataIndex: 'time',
   }
 ]
 
@@ -65,6 +89,7 @@ const dataSource = [
     time: '',
   },
 ]
+
 const Withdraw: React.FC<WithdrawProps> = (props) => {
   const { } = props
   const isMounted = useIsMounted()
@@ -72,7 +97,8 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
 
   return <div>
     <Box className={styles.tableSearch}>
-      <Box className={styles.toggleBtnGroup}>
+      <Typography className={styles.tableTitle}>Withdraw</Typography>
+      {/* <Box className={styles.toggleBtnGroup}>
         <div onClick={() => setTableType('EARNING')}>
           <Chip
             label="Earnings"
@@ -87,7 +113,7 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
             className={cx({ 'activeButton': tableType === "NFT" })}
           />
         </div>
-      </Box>
+      </Box> */}
       <Paper component="form" className={styles.searchInput}>
         <IconButton>
           <SearchIcon sx={{ color: '#777E90' }} />
@@ -100,11 +126,14 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
     </Box>
     <Table className={styles.tableBox}>
       <TableHead className={styles.tableHeader}>
-        <TableRow>
+        {tableType === 'EARNING' && <TableRow>
           {columns.map((item, index) => {
             return <TableCell align={index === columns.length - 1 ? 'center' : 'left'}>{item.title}</TableCell>
           })}
-        </TableRow>
+        </TableRow>}
+        {tableType === 'NFT' && <TableRow>
+          {nftColumns.map((item, index) => <TableCell >{item.title}</TableCell>)}
+        </TableRow>}
       </TableHead>
       <TableBody className={styles.tableBody}>
         {
@@ -116,9 +145,11 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
               <TableCell>{item.ratio}</TableCell>
               <TableCell>{item.gameName}</TableCell>
               <TableCell>{item.time}</TableCell>
-              <TableCell align="center">
-                <span className={cx({ "returnButton": true, "returnButton_disable": index === 1 })}>Withdraw</span>
-              </TableCell>
+              {tableType === 'EARNING' && <TableCell align="center">
+                <WithdrawEarningModal
+                  trigger={<span className={cx({ "returnButton": true, "returnButton_disable": index === 1 })}>Withdraw</span>}
+                />
+              </TableCell>}
             </TableRow>
           })
         }

@@ -4,6 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import classNames from "classnames/bind";
 import NotFound from '../../public/table_not_found.svg'
 import { useIsMounted } from "../../hooks";
+import Image from "next/image";
 
 export interface PayoutProps {
 
