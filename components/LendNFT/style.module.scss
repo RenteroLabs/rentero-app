@@ -1,0 +1,55 @@
+.baseButton {
+  width: 20rem;
+  height: 4.17rem;
+  border-radius: 12px;
+  border-top-right-radius: 24px;
+  font-size: 1.5rem;
+  font-family: Agrandir-GrandHeavy, Agrandir;
+  font-weight: normal;
+  color: #ffffff;
+  line-height: 4.17rem;
+  text-align: center;
+  user-select: none;
+  cursor: pointer;
+  clip-path: polygon(
+    30% 0%,
+    93% 0%,
+    100% 40%,
+    100% 100%,
+    70% 100%,
+    0 100%,
+    0% 70%,
+    0 0
+  );
+}
+
+.defaultButton {
+  @extend .baseButton;
+  clip-path: polygon(
+    30% 0%,
+    95% 0%,
+    100% 45%,
+    100% 100%,
+    70% 100%,
+    0 100%,
+    0% 70%,
+    0 0
+  );
+  border-top-right-radius: 28px;
+  border: 0.17rem solid rgba($color: white, $alpha: 0.2);
+}
+
+.primaryButton {
+  @extend .baseButton;
+  background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
+}
+
+.selectedMessage {
+  font-size: 1.33rem;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #dedede;
+  line-height: 2rem;
+  text-align: center;
+  margin-top: 1.33rem;
+}

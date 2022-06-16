@@ -102,14 +102,14 @@ const Payout: React.FC<PayoutProps> = (props) => {
       <TableHead className={styles.tableHeader}>
         <TableRow>
           {columns.map((item, index) => {
-            return <TableCell align={index === columns.length - 1 ? 'center' : 'left'}>{item.title}</TableCell>
+            return <TableCell key={index} align={index === columns.length - 1 ? 'center' : 'left'}>{item.title}</TableCell>
           })}
         </TableRow>
       </TableHead>
       <TableBody className={styles.tableBody}>
         {
           dataSource.map((item, index) => {
-            return <TableRow>
+            return <TableRow key={index}>
               <TableCell>{item.id}</TableCell>
               <TableCell>{item.nftImageUrl}</TableCell>
               <TableCell>{item.totalEarning}</TableCell>
