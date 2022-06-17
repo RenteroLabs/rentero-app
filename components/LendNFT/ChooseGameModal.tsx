@@ -34,23 +34,14 @@ const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
         rowSpacing="2.67rem"
         columnSpacing="2.5rem"
         sx={{ p: '3.33rem', maxHeight: '46.66rem', overflowY: 'scroll' }} >
+
+        {/* TODO: 判断当前是否正确处于当前游戏所在区块链网络 */}
         {GameList.map((item, index) => {
           return <Grid item xs="auto" key={index}>
-            <IntegrationCard key={1} callback={() => setHiddenModal(true)} />
+            <IntegrationCard key={1} callback={() => { }} />
           </Grid>
         })}
-        {/* <Grid item xs="auto">
-          <IntegrationCard key={1} callback={() => setHiddenModal(true)} />
-        </Grid>
-        <Grid item xs="auto">
-          <IntegrationCard key={2} callback={() => setHiddenModal(true)} />
-        </Grid>
-        <Grid item xs="auto">
-          <IntegrationCard key={3} callback={() => setHiddenModal(true)} />
-        </Grid>
-        <Grid item xs="auto">
-          <IntegrationCard key={4} callback={() => setHiddenModal(true)} />
-        </Grid> */}
+
       </Grid>
     </Box>
   </AppDialog>

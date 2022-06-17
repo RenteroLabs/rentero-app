@@ -104,7 +104,7 @@
     color: white;
   }
 
-  img {
+  .nftCover {
     width: 25rem;
     height: 25rem;
     border-radius: 1rem;
@@ -123,5 +123,7 @@
     font-weight: 500;
     color: #777e90;
     line-height: 1.67rem;
+    display: flex;
+    align-items: center;
   }
 }

@@ -2,7 +2,7 @@ import Image from 'next/image'
 import FooterLogo from '../../public/header_logo.svg'
 import DiscordLogo from '../../public/discord_logo.svg'
 import TwitterLogo from '../../public/twitter.svg'
-import TelegramLogo from '../../public/telegram.svg'
+import MediumLogo from '../../public/medium_logo.png'
 import styles from './index.module.css'
 import { Container } from '@mui/material'
 
@@ -13,9 +13,9 @@ export default function Footer() {
       <div className={styles.iconList}>
         <Image src={FooterLogo} />
         <div className={styles.communityList}>
-          <a href='' ><Image src={DiscordLogo} /></a>
-          <a href='' ><Image src={TwitterLogo} /></a>
-          <a href='' ><Image src={TelegramLogo} /></a>
+          <a href='https://discord.io/rentero' target="_blank" ><Image src={DiscordLogo} /></a>
+          <a href='https://twitter.com/RenteroProtocol' target="_blank"><Image src={TwitterLogo} /></a>
+          <a href='https://medium.com/@renteroprotocol' target="_blank"><Image src={MediumLogo} width={32} height={32} /></a>
         </div>
       </div>
       <p className={styles.copywrite}>Copyright 2021-{new Date().getFullYear()} Rentero.All rights reserved</p>

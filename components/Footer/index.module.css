@@ -18,9 +18,21 @@
   display: flex;
   justify-content: space-between;
 }
-
 .communityList a {
+  opacity: 0.8;
+}
+
+.communityList a + a {
   margin-left: 2rem;
+}
+
+.communityList a:hover {
+  opacity: 1;
+}
+
+.communityList a img {
+  width: 32px;
+  height: 32px;
 }
 
 .copywrite {
@@ -40,12 +52,12 @@
   }
 }
 
-@media screen  and (max-width: 980px){
+@media screen and (max-width: 980px) {
   .context {
     padding: 0px 4rem;
   }
 }
-@media screen  and (max-width: 680px){
+@media screen and (max-width: 680px) {
   .context {
     padding: 0px 2rem;
   }

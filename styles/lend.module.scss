@@ -127,17 +127,20 @@
     justify-content: space-between;
 
     .stepCard {
+      width: 30%;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       text-align: left;
 
       span {
-        display: block;
+        display: flex;
+        align-items: center;
         width: 4rem;
         height: 4rem;
-        background: rgba(255, 255, 255, 0.1);
+        // background: rgba(255, 255, 255, 0.1);
         border-radius: 1rem;
+
       }
       div > h4 {
         margin: 0.75rem 0.92rem 0.92rem;
@@ -155,6 +158,14 @@
         line-height: 1.67rem;
         margin-left: 0.92rem;
       }
+    }
+
+    .stepNext {
+      flex-grow: 0.5;
+      display: flex;
+      align-items: flex-start;
+      padding-top: 13px;
+      opacity: 0.8;
     }
   }
 }

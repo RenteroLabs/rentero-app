@@ -5,25 +5,43 @@ import Image from 'next/image'
 import Link from 'next/link'
 import ConnectWallet from '../ConnectWallet'
 import { useIsMounted } from '../../hooks'
-import { useAccount, useEnsAvatar, useEnsName, useDisconnect } from 'wagmi'
+import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain } from 'wagmi'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
-import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList, Slide, Snackbar } from '@mui/material'
-import { useRef, useState } from 'react'
+import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList, Slide, Snackbar, Typography, Box } from '@mui/material'
+import { useMemo, useRef, useState } from 'react'
 import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
+import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
 
 export default function Header() {
   const router = useRouter()
   const isMounted = useIsMounted()
   const { data: account } = useAccount()
-  const { data: ensAvatar } = useEnsAvatar({ addressOrName: account?.address })
-  const { data: ensName } = useEnsName({ address: account?.address })
+  const {
+    activeChain,
+    error,
+    isLoading,
+    pendingChainId,
+    switchNetwork, } = useNetwork()
+
+  const isEth = useMemo(() => {
+    if (activeChain && activeChain.id === 1) {
+      return true
+    }
+    return false
+  }, [activeChain])
+
+  const { data: ensAvatar } = useEnsAvatar({ addressOrName: account?.address, enabled: isEth })
+  const { data: ensName } = useEnsName({ address: account?.address, enabled: isEth })
   const { disconnect } = useDisconnect()
+
   const [openSetting, setOpenSetting] = useState<boolean>(false)
   const anchorRef = useRef<HTMLElement>(null)
+  const networkListAnchorRef = useRef<HTMLElement>(null)
+  const [networkListOpen, setNetworkListOpen] = useState<boolean>(false)
 
   const [showAlertMessage, setShowAlertMessage] = useState<boolean>(false)
 
@@ -48,6 +66,13 @@ export default function Header() {
     setShowAlertMessage(true)
   }
 
+  const chooseSwitchNetwork = (id) => {
+    setNetworkListOpen(false)
+    if ((activeChain?.id !== id || pendingChainId !== id)) {
+      switchNetwork(id)
+    }
+  }
+
   return <header className={styles.header}>
     <div className={styles.logo}>
       <Image src={Logo} alt="Rentero Logo" />
@@ -68,20 +93,58 @@ export default function Header() {
         TransitionComponent={(props: TransitionProps) => <Slide {...props} direction="right" />}
       />
     </nav>
-    {
-      (isMounted && account) ?
-        <Chip
-          avatar={<Avatar src={ensAvatar} alt="account_avatar" />}
-          label={<div className={styles.addressOrEns}>
-            {ensName ? ensName : formatAddress(account.address, 4)}
-            <KeyboardArrowDownOutlinedIcon className={styles.downIcon} />
-          </div>}
-          className={styles.accountBox}
-          onClick={() => setOpenSetting(true)}
-          ref={anchorRef}
-        /> : <ConnectWallet
-          trigger={<span className={styles.connectButton}>Connect Wallet</span>}
-        />
+
+    {(isMounted && account) &&
+      <Chip
+        avatar={<Avatar alt={activeChain?.name} className={styles.networkIcon} src={CHAIN_ICON[activeChain?.id || chain.mainnet.id]} />}
+        label={activeChain?.name || chain.mainnet.name}
+        className={styles.networkList}
+        ref={networkListAnchorRef}
+        onDelete={() => setNetworkListOpen(true)}
+        deleteIcon={<KeyboardArrowDownOutlinedIcon className={styles.downIcon} />}
+        onClick={() => setNetworkListOpen(true)}
+      />}
+    <Menu
+      anchorEl={networkListAnchorRef.current}
+      open={networkListOpen}
+      onClose={() => setNetworkListOpen(false)}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+      sx={{ width: '200px' }}
+    >
+      <MenuItem disabled>
+        <Typography className={styles.networkListTitle}>Switch Network</Typography>
+      </MenuItem>
+      {
+        SUPPORT_CHAINS.map(item => {
+          return <MenuItem key={item.id} onClick={() => chooseSwitchNetwork(item.id)} className={styles.networkListItem}>
+            <Avatar src={CHAIN_ICON[item.id]} alt={item.name} sx={{ width: '20px', height: '20px', marginRight: '0.8rem' }} />
+            <span>{item.name}</span>
+            {activeChain && <Box className={item.id === activeChain.id && styles.currentNetwork}></Box>}
+          </MenuItem>
+        })
+      }
+    </Menu>
+
+    {(isMounted && account) ?
+      <Chip
+        avatar={<Avatar src={ensAvatar} alt="account_avatar" />}
+        label={<div className={styles.addressOrEns}>
+          {ensName ? ensName : formatAddress(account.address, 4)}
+          <KeyboardArrowDownOutlinedIcon className={styles.downIcon} />
+        </div>}
+        className={styles.accountBox}
+        onClick={() => setOpenSetting(true)}
+        ref={anchorRef}
+      /> : <ConnectWallet
+        trigger={<span className={styles.connectButton}>Connect Wallet</span>}
+      />
     }
     <ClickAwayListener onClickAway={handleClose}>
       <Menu

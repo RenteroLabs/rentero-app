@@ -103,3 +103,37 @@
     margin-left: 1.33rem;
   }
 }
+
+.networkList {
+  display: flex;
+  align-items: center;
+  margin: auto 1rem;
+  font-family: Poppins;
+  font-weight: 400;
+  font-size: 1.1428571428571428rem;
+  line-height: 1.5;
+}
+
+.networkListTitle {
+  font-size: 1rem;
+}
+.networkListItem {
+  display: flex;
+  justify-content: space-between;
+
+  & > span {
+    flex-grow: 1;
+    text-align: left;
+    margin-right: 1rem;
+  }
+  :global {
+    .MuiBox-root {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+  }
+  .currentNetwork {
+    background: #55ab68;
+  }
+}

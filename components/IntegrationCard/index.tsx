@@ -19,7 +19,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = (props) => {
     {/* Hide current choose game modal, show choose NFT modal */}
     <ChooseNFTModal
       gameName="Axie infinity"
-      NFTCollectionAddress=""
+      NFTCollectionAddress="0xb9619cf4f875cdf0e3ce48b28a1c725bc4f6c0fb"
       trigger={<div
         className={styles.depositButton}
         onClick={() => { callback && callback() }}
