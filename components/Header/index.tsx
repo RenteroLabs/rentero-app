@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import ConnectWallet from '../ConnectWallet'
 import { useIsMounted } from '../../hooks'
-import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain } from 'wagmi'
+import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner } from 'wagmi'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -14,7 +14,9 @@ import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList, Slide, Snack
 import { useMemo, useRef, useState } from 'react'
 import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
+import { utils } from 'ethers'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
+import { ERC721DemoABI, Ropsten_ERC721Demo_Contract } from '../../constants/contractABI'
 
 export default function Header() {
   const router = useRouter()
@@ -44,6 +46,23 @@ export default function Header() {
   const [networkListOpen, setNetworkListOpen] = useState<boolean>(false)
 
   const [showAlertMessage, setShowAlertMessage] = useState<boolean>(false)
+
+  // const provider = useProvider()
+  const { data: signer } = useSigner()
+
+  const contract = useContract({
+    addressOrName: Ropsten_ERC721Demo_Contract,
+    contractInterface: ERC721DemoABI,
+    signerOrProvider: signer
+  })
+
+  const mint721 = async () => {
+    // try {
+    //   await contract.mint(account?.address, 102)
+    // } catch (err) {
+    //   console.log(err.message)
+    // }
+  }
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
     if (
@@ -93,7 +112,7 @@ export default function Header() {
         TransitionComponent={(props: TransitionProps) => <Slide {...props} direction="right" />}
       />
     </nav>
-
+    {/* <button onClick={mint721}>Click</button> */}
     {(isMounted && account) &&
       <Chip
         avatar={<Avatar alt={activeChain?.name} className={styles.networkIcon} src={CHAIN_ICON[activeChain?.id || chain.mainnet.id]} />}

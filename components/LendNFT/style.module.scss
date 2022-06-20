@@ -53,3 +53,32 @@
   text-align: center;
   margin-top: 1.33rem;
 }
+
+.lendStep {
+  padding: 2.67rem;
+
+  span {
+    font-size: 1.33rem;
+  }
+}
+
+.lendStepTitle {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 1.33rem;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+
+  button {
+    margin-right: 1rem;
+    font-size: 1.33rem;
+  }
+  :global {
+    .MuiTypography-root {
+      font-size: 1.33rem !important;
+      opacity: 0.8;
+    }
+  }
+}

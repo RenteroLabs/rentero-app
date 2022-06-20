@@ -35,10 +35,10 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     <Typography variant='h3' className={styles.nftName}>{nftName}</Typography>
     <Typography variant="body2" className={styles.nftNumber} >
       #{nftNumber}
-      {activeChain && <Avatar 
-      src={CHAIN_ICON[activeChain?.id]} 
-      alt={activeChain?.name} 
-      sx={{ width: '1.67rem', height: '1.67rem', marginLeft: '1rem' }}
+      {activeChain && <Avatar
+        src={CHAIN_ICON[activeChain?.id]}
+        alt={activeChain?.name}
+        sx={{ width: '1.67rem', height: '1.67rem', marginLeft: '1rem' }}
       />}
     </Typography>
   </Box>

@@ -1,31 +1,44 @@
 import React from 'react'
+import Image from 'next/image'
+import { GameItem } from '../../types'
 import ChooseNFTModal from '../LendNFT/ChooseNFTModal'
 import styles from './index.module.scss'
 
 interface IntegrationCardProps {
+  gameItem: GameItem
   callback?: () => any
 }
 
 const IntegrationCard: React.FC<IntegrationCardProps> = (props) => {
-  const { callback } = props
+  const { callback, gameItem } = props
 
   return <div className={styles.card}>
-    <div className={styles.cover_image}></div>
-    <div className={styles.game_logo}></div>
+    <div className={styles.cover_image}>
+      {gameItem.gameStatus === 0 && <Image src={gameItem.gameCover} alt="game_cover" layout="fill" />
+      }
+    </div>
+    {gameItem.gameStatus === 0 && <div className={styles.game_logo}>
+      <Image alt='game_logo' src={gameItem.gameLogo} layout="fill" />
+    </div>}
     <div >
-      <h4>GameName</h4>
-      <p>game introduce game introduce game introduce game introduce game introduce game introduce</p>
+      <h4>{gameItem.gameName || 'Upcoming...'}</h4>
+      <p>{gameItem.gameDesc || 'Submit the game name and reasons for us to support in time.'}</p>
     </div>
     {/* Hide current choose game modal, show choose NFT modal */}
-    <ChooseNFTModal
-      gameName="Axie infinity"
-      NFTCollectionAddress="0xb9619cf4f875cdf0e3ce48b28a1c725bc4f6c0fb"
-      trigger={<div
-        className={styles.depositButton}
-        onClick={() => { callback && callback() }}
-      >Deposit</div>}
-    />
-  </div>
+    {
+      gameItem.gameStatus === 0 ?
+        <ChooseNFTModal
+          gameName={gameItem.gameName}
+          gameNFTCollection={gameItem.gameNFTCollection}
+          trigger={<div
+            className={styles.depositButton}
+            onClick={() => { callback && callback() }}
+          >Deposit</div>
+          }
+        /> : <div className={`${styles.depositButton} ${styles.disableButton}`} >
+          Deposit
+        </div>}
+  </div >
 }
 
 export default IntegrationCard

@@ -1,25 +1,31 @@
 .card {
   width: 27.67rem;
   height: 33.33rem;
-  background: linear-gradient(180deg, #1a182e 0%, #1a182e 100%);
+  background-color: #313158;
   border-radius: 2.67rem;
   position: relative;
   text-align: center;
 
   .cover_image {
     height: 13.83rem;
-    background-color: gray;
+    background-color: #464669;
     border-top-left-radius: 2.67rem;
     border-top-right-radius: 2.67rem;
+    overflow: hidden;
+    position: relative;
+    background-image: url(../../public/game-upcoming.svg);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
   }
 
   .game_logo {
     position: absolute;
+    overflow: hidden;
     top: 10.83rem;
     left: 1.67rem;
     width: 6rem;
     height: 6rem;
-    background: #272424;
+    background: #5a5858;
     border-radius: 1.33rem;
   }
 
@@ -59,7 +65,7 @@
     margin: auto;
     clip-path: polygon(
       30% 0%,
-      92% 0%,
+      92.5% 0%,
       100% 40%,
       100% 100%,
       70% 100%,
@@ -67,6 +73,12 @@
       0% 70%,
       0 0
     );
+  }
+
+  .disableButton {
+    background: #777e90;
+    cursor: not-allowed;
+    opacity: 0.8;
   }
 }
 
