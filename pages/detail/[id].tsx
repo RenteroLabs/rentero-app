@@ -10,6 +10,7 @@ import ConnectWallet from "../../components/ConnectWallet";
 import { useAccount } from "wagmi";
 import { useIsMounted } from "../../hooks";
 import classNames from "classnames/bind";
+import RentNFTModal from "../../components/RentNFT/RentNFTModal";
 
 const cx = classNames.bind(styles)
 
@@ -42,12 +43,15 @@ const Detail: NextPage = () => {
             <Typography className={styles.earnRatio}>RATIO OF PLAYER EARNINGS:</Typography>
             <Typography variant="h4" className={styles.earnRatioValue}>25%</Typography>
           </Paper>
+
           {isMounted && account ?
-            <Box className={cx({
-              'rentButton': true,
-              // TODO: checkout current NFT if rented
-              'rentedButton': false,
-            })} >Rent</Box> :
+            <RentNFTModal trigger={<Box
+              className={cx({
+                'rentButton': true,
+                // TODO: checkout current NFT if rented
+                'rentedButton': false,
+              })}
+            >Rent</Box>} /> :
             <ConnectWallet trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />}
         </Stack>
       </Box>
@@ -76,6 +80,7 @@ const Detail: NextPage = () => {
         </Stack>
       </Box>
     </Box>
+
     <Box maxWidth="94.66rem" margin="auto" marginTop="8.33rem">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.67rem' }} className={styles.moreNFTtitle}>
         <Typography variant="h3">More NFTs</Typography>

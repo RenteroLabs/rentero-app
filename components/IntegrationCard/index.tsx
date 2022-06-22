@@ -6,11 +6,11 @@ import styles from './index.module.scss'
 
 interface IntegrationCardProps {
   gameItem: GameItem
-  callback?: () => any
+  changeModal: () => any
 }
 
 const IntegrationCard: React.FC<IntegrationCardProps> = (props) => {
-  const { callback, gameItem } = props
+  const { changeModal, gameItem } = props
 
   return <div className={styles.card}>
     <div className={styles.cover_image}>
@@ -32,10 +32,9 @@ const IntegrationCard: React.FC<IntegrationCardProps> = (props) => {
           gameNFTCollection={gameItem.gameNFTCollection}
           trigger={<div
             className={styles.depositButton}
-            onClick={() => { callback && callback() }}
           >Deposit</div>
           }
-        /> : <div className={`${styles.depositButton} ${styles.disableButton}`} >
+        /> : <div className={`${styles.depositButton} ${styles.disableButton}`}  >
           Deposit
         </div>}
   </div >

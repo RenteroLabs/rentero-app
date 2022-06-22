@@ -26,7 +26,7 @@ const AppDialog: React.FC<AppDialogProps> = (props) => {
     <div onClick={() => { setVisibile(true) }}>
       {trigger}
     </div>
-    <Dialog open={visibile} className={styles.container} >
+    <Dialog open={visibile} className={styles.container} key={title} >
       <DialogTitle className={styles.dialogTitle} sx={{ width: width || 'auto' }}>
         {title}
         <IconButton

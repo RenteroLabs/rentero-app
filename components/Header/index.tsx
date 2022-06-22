@@ -56,13 +56,13 @@ export default function Header() {
     signerOrProvider: signer
   })
 
-  const mint721 = async () => {
-    // try {
-    //   await contract.mint(account?.address, 102)
-    // } catch (err) {
-    //   console.log(err.message)
-    // }
-  }
+  // const mint721 = async () => {
+  //   try {
+  //     await contract.mint(account?.address, 105)
+  //   } catch (err) {
+  //     console.log(err.message)
+  //   }
+  // }
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
     if (
