@@ -117,26 +117,23 @@
   background-position: 50% 50%;
   border-radius: 1.67rem;
   margin-bottom: 5.33rem;
+  position: relative;
 
   .topCoverInfo {
-    margin: 33.92rem 2rem 2.33rem;
+    position: absolute;
+    bottom: 2.22rem;
+    left: 2rem;
 
     .websiteBtn {
-      // width: 10.67rem 3.33rem;
       padding: 0.67rem 1.67rem;
       margin-right: 0.33rem;
-      // background: linear-gradient(
-      //   270deg,
-      //   rgba(183, 33, 255, 1),
-      //   rgba(90, 220, 254, 1)
-      // );
       background: linear-gradient(
         270deg,
         rgba(183, 33, 255, 1),
         rgba(90, 220, 254, 1)
       );
       border-radius: 1.6rem;
-      border-top-right-radius: 5rem;
+      border-top-right-radius: 2rem;
       font-size: 1.17rem;
       font-family: Poppins-SemiBold, Poppins;
       font-weight: 600;
@@ -145,6 +142,17 @@
       display: flex;
       align-items: center;
       cursor: pointer;
+
+      clip-path: polygon(
+        30% 0%,
+        92.5% 0%,
+        100% 40%,
+        100% 100%,
+        70% 100%,
+        0 100%,
+        0% 70%,
+        0 0
+      );
 
       &:hover {
         background: linear-gradient(
@@ -156,6 +164,7 @@
     }
 
     .baseLink {
+      display: block;
       width: 2.67rem;
       height: 2.67rem;
       margin-left: 1rem;
@@ -277,7 +286,7 @@
   font-weight: 600;
   display: flex;
   justify-content: center;
-  
+
   span {
     display: inline-block;
     width: auto;

@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { erc721ABI, useAccount, useContract, useNetwork, useSigner } from 'wagmi'
 import { createAlchemyWeb3 } from "@alch/alchemy-web3";
-import { Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../constants/contractABI'
+import { ROPSTEN_MARKET, ROPSTEN_MARKET_ABI, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../constants/contractABI'
 import NFTCard from '../IntegrationCard/NFTCard'
 import styles from './style.module.scss'
 import { ALCHEMY_ETHEREUM_URL, ALCHEMY_POLYGON_URL, ALCHEMY_ROPSTEN_URL } from '../../constants';
@@ -56,6 +56,11 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
+  const contractMarket = useContract({
+    addressOrName: ROPSTEN_MARKET,
+    contractInterface: ROPSTEN_MARKET_ABI,
+    signerOrProvider: signer
+  })
 
   const Web3 = useMemo(() => {
     let archemyUrl
@@ -76,7 +81,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
         setIsRequestingNFT(true)
         // https://docs.alchemy.com/alchemy/enhanced-apis/nft-api/getnfts
         const nft = await Web3.alchemy.getNfts({
-          owner: account.address,
+          owner: account?.address || '',
           contractAddresses: [gameNFTCollection]
         })
         setNFTList(formatNFTdata(nft.ownedNfts))
@@ -113,8 +118,8 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       await contract721.approve(Ropsten_WrapNFT, parseInt(selectedNFT))
       setStepComplete({ ...stepComplete, [activeStep]: true })
       setActiveStep(activeStep + 1)
-    } catch (err) {
-      setErrorMessage(err.message)
+    } catch (err: any) {
+      setErrorMessage(err?.message)
     }
     setIsLoading(false)
   }
@@ -128,7 +133,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       await contractWrap.stake(parseInt(selectedNFT))
       setStepComplete({ ...stepComplete, [activeStep]: true })
       setActiveStep(activeStep + 1)
-    } catch (err) {
+    } catch (err: any) {
       setErrorMessage(err.message)
     }
     setIsLoading(false)
@@ -143,10 +148,31 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       await contractWrap.approve(Ropsten_WrapNFT, parseInt(selectedNFT))
       setStepComplete({ ...stepComplete, [activeStep]: true })
       setActiveStep(activeStep + 1)
-    } catch (err) {
+    } catch (err: any) {
       setErrorMessage(err.message)
     }
     setIsLoading(false)
+  }
+
+  const handleListToMarket = async () => {
+    setErrorMessage('')
+    if (isLoading) return
+    setIsLoading(true)
+
+    try {
+      const result = await contractMarket.createSkunInfo(parseInt(selectedNFT), Ropsten_WrapNFT)
+      console.log(result)
+      setStepComplete({ ...stepComplete, [activeStep]: true })
+      setActiveStep(activeStep + 1)
+    } catch (err: any) {
+      console.log(err.message)
+    }
+    setIsLoading(false)
+  }
+
+  const createOrder = async () => {
+    const result = await contractMarket.createOrder(10000)
+    console.log(result)
   }
 
   const handleStepClick = (index: number) => {
@@ -182,6 +208,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       </DialogTitle>
       <div className={styles.dialogContent}>
         {isChooseNFT && <Box maxWidth="95rem" minWidth="65rem" minHeight="36rem">
+          <Button onClick={createOrder}>createOrder</Button>
           {/*  TODO: 判断当前链环节，申请切换至正确链 */}
           <Grid
             container
@@ -263,7 +290,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                 </StepButton>
 
                 <StepContent>
-                  <Typography>Stake your game NFT and receive a new WrapNFT, WrapNFT is to withdraw the credentials of your original NFT, don't lose it!</Typography>
+                  <Typography>Stake your game NFT and receive a new WrapNFT, WrapNFT is to withdraw the credentials of your original NFT, don&#39;t lose it!</Typography>
                   {
                     !stepComplete[1] ?
                       <LoadingButton
@@ -291,19 +318,40 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                 </StepButton>
 
                 <StepContent >
+                  {
+                    !stepComplete[2] ? <LoadingButton
+                      loading={isLoading}
+                      variant="contained"
+                      onClick={handleApproveWrapNFT}
+                    >
+                      Approve
+                    </LoadingButton> : <>
+                      <Button color='success'>🎉 &nbsp;Staked</Button>
+                      <IconButton onClick={() => setActiveStep(activeStep + 1)}><NavigateNextIcon sx={{ transform: 'rotate(90deg)', opacity: '0.8' }} /></IconButton>
+                    </>
+                  }
+
+                </StepContent>
+              </Step>
+              <Step key="ListToMarket" completed={stepComplete[3]}>
+                <StepButton onClick={() => handleStepClick(3)}>
+                  <StepLabel>
+                    List To Market
+                  </StepLabel>
+                </StepButton>
+                <StepContent >
                   <LoadingButton
                     loading={isLoading}
                     variant="contained"
-                    onClick={handleApproveWrapNFT}
+                    onClick={handleListToMarket}
                   >
-                    Approve
+                    List
                   </LoadingButton>
                 </StepContent>
-
               </Step>
             </Stepper>
 
-            {stepComplete[2] && <Box sx={{ mt: '3rem' }}>
+            {stepComplete[3] && <Box sx={{ mt: '3rem' }}>
               <Typography variant='h3' sx={{ fontSize: '2.5rem', textAlign: 'center' }}>🎉 Successful Lend Your NFT 🎉</Typography>
               <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: '1rem', fontSize: '1.5rem' }}>Your Lend NFT Will List In Market In Minutes</Typography>
             </Box>}

@@ -45,7 +45,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
         <Stack sx={{ mt: '1rem', opacity: '0.6', lineHeight: '1.5rem' }}>
           <Box sx={{ lineHeight: '1.5rem', marginBottom: '0.5rem' }}>Tips:</Box>
           <Box>1. The security deposit is used to ensure that the lessor receives the minimum benefit during each rental cycle</Box>
-          <Box>2. If the borrower's average return per cycle is less than the deposit amount, it will be paid to the lessor</Box>
+          <Box>2. If the borrower&#39;s average return per cycle is less than the deposit amount, it will be paid to the lessor</Box>
         </Stack>
       </Box>
       <Box sx={{ mt: '2rem', textAlign: 'center', color: 'white' }}  >

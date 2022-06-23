@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -12,9 +12,11 @@ import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
 import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
 import { useRequest } from 'ahooks'
+import { getGameInfos } from '../services/market'
+import { dateFormat } from '../utils/format'
 
-const Home: NextPage = () => {
-  const [currentGame, setCurrentGame] = useState<string>('all')
+const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
+  const [currentGame, setCurrentGame] = useState<string>("0")
 
   const chainTypeRef = useRef<HTMLElement>()
   const sortTypeRef = useRef<HTMLElement>()
@@ -23,7 +25,10 @@ const Home: NextPage = () => {
   const [selectedChain, setSelectedChain] = useState<number>(0)
   const [selectedSortBy, setSelectedSortBy] = useState<number>(0)
 
-  // useRequest()
+
+  const currentGameInfo = useMemo(() => {
+    return gamesInfo[parseInt(currentGame)] || {}
+  }, [currentGame, gamesInfo])
 
   return (
     <div className={styles.container}>
@@ -46,16 +51,18 @@ const Home: NextPage = () => {
               fullWidth={true}
               orientation="vertical"
               value={currentGame}
-              onChange={(_, val) => setCurrentGame(val)}
+              onChange={(_, val) => {
+                if (val) { setCurrentGame(val) }
+              }}
               sx={{ textAlign: 'left' }}
             >
-              <ToggleButton value="all" >
+              <ToggleButton value="0" >
                 <Box>All games</Box>
               </ToggleButton>
-              <ToggleButton value="game1">
+              <ToggleButton value="1">
                 <Box><img src='/axie-logo.png' alt='game_logo' />Axie</Box>
               </ToggleButton>
-              <ToggleButton value="game2">
+              <ToggleButton value="2">
                 <Box><img src='/stepn-logo.jpeg' alt='game_logo_stepn' />Stepn</Box>
               </ToggleButton>
             </ToggleButtonGroup>
@@ -65,10 +72,14 @@ const Home: NextPage = () => {
       <div className={styles.contentBox}>
         <section className={styles.topCover}>
           <Box className={styles.topCoverInfo}>
-            <Typography variant='h4' className={styles.gameTitle}>Rentero NFT Market</Typography>
+            <Typography variant='h4' className={styles.gameTitle}>
+              {currentGameInfo.gameName}
+            </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ScheduleIcon style={{ color: '#48475b', fontSize: "1.8rem" }} />
-              <Typography variant="body2" display="block" className={styles.releaseTime}>Released at 22/06/01</Typography>
+              <Typography variant="body2" display="block" className={styles.releaseTime}>
+                Released at {dateFormat("YYYY-mm-dd", new Date(currentGameInfo.releaseTime))}
+              </Typography>
               <Box className={styles.gameStatus}>Beta</Box>
             </Box>
             <Typography className={styles.tagList}>
@@ -76,13 +87,37 @@ const Home: NextPage = () => {
               <span>Rent</span>
               <span>Lend</span>
             </Typography>
-            <Typography className={styles.gameDesc}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur...</Typography>
-            <Box justifyContent="left" sx={{ display: 'flex', alignItems: 'center', mt: '1rem' }}>
-              <span className={styles.websiteBtn}>Website &nbsp;&nbsp;&nbsp; <ArrowRightAltRoundedIcon /></span>
-              <span className={styles.discordLink}></span>
-              <span className={styles.twitterLink}></span>
-              <span className={styles.telegramLink}></span>
-              <span className={styles.facebookLink}></span>
+            <Typography className={styles.gameDesc}>{currentGameInfo.gameDesc}</Typography>
+            <Box justifyContent="left" sx={{ display: 'flex', alignItems: 'center', mt: '1rem' }} >
+              <a href={currentGameInfo.gameHomeUrl} target="_blank" rel="noreferrer">
+                <span className={styles.websiteBtn}>
+                  Website &nbsp;&nbsp;&nbsp; <ArrowRightAltRoundedIcon />
+                </span>
+              </a>
+              {
+                currentGameInfo.discordUrl &&
+                <a href={currentGameInfo.discordUrl} target="_blank" rel="noreferrer">
+                  <span className={styles.discordLink}></span>
+                </a>
+              }
+              {
+                currentGameInfo.twitterUrl &&
+                <a href={currentGameInfo.twitterUrl} target="_blank" rel="noreferrer">
+                  <span className={styles.twitterLink}></span>
+                </a>
+              }
+              {
+                currentGameInfo.telegramUrl &&
+                <a href={currentGameInfo.telegramUrl} target="_blank" rel="noreferrer">
+                  <span className={styles.telegramLink}></span>
+                </a>
+              }
+              {
+                currentGameInfo.facebookUrl &&
+                <a href={currentGameInfo.facebookUrl} target="_blank" rel="noreferrer">
+                  <span className={styles.facebookLink}></span>
+                </a>
+              }
             </Box>
           </Box>
         </section>
@@ -151,6 +186,16 @@ const Home: NextPage = () => {
       </div>
     </div >
   )
+}
+
+// SSG 在构建 build 时获取各游戏介绍信息
+export async function getStaticProps() {
+  const data = await getGameInfos()
+  return {
+    props: {
+      gamesInfo: data.data
+    }
+  }
 }
 
 export default Home

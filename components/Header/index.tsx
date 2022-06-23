@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import ConnectWallet from '../ConnectWallet'
 import { useIsMounted } from '../../hooks'
-import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner } from 'wagmi'
+import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner, erc721ABI } from 'wagmi'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -16,7 +16,7 @@ import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
 import { utils } from 'ethers'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
-import { ERC721DemoABI, Ropsten_ERC721Demo_Contract } from '../../constants/contractABI'
+import { ERC721DemoABI, Ropsten_ERC721Demo_Contract, AXE_ABI } from '../../constants/contractABI'
 
 export default function Header() {
   const router = useRouter()
@@ -51,18 +51,18 @@ export default function Header() {
   const { data: signer } = useSigner()
 
   const contract = useContract({
-    addressOrName: Ropsten_ERC721Demo_Contract,
-    contractInterface: ERC721DemoABI,
+    addressOrName: '0x6AaDFE9441c35645D452bc7050cd53E43d104C18',
+    contractInterface: AXE_ABI,
     signerOrProvider: signer
   })
 
-  // const mint721 = async () => {
-  //   try {
-  //     await contract.mint(account?.address, 105)
-  //   } catch (err) {
-  //     console.log(err.message)
-  //   }
-  // }
+  const mint721 = async () => {
+    try {
+      await contract.mint(account?.address, 105)
+    } catch (err) {
+      console.log(err.message)
+    }
+  }
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
     if (
@@ -102,7 +102,7 @@ export default function Header() {
       <Link href="/lend">
         <a className={router.pathname === '/lend' ? styles.activeNavItem : undefined}>Lend NFTs</a>
       </Link>
-      <a onClick={handleLinkToSupport} className={styles.supportNav}>Support</a>
+      <a className={styles.supportNav}>Support</a>
       <Snackbar
         open={showAlertMessage}
         message="WIP: Coming soon！"
