@@ -12,7 +12,7 @@ import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
 import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
 import { useRequest } from 'ahooks'
-import { getGameInfos } from '../services/market'
+import { getGameInfos, getMarketNFTList } from '../services/market'
 import { dateFormat } from '../utils/format'
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
@@ -25,10 +25,26 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [selectedChain, setSelectedChain] = useState<number>(0)
   const [selectedSortBy, setSelectedSortBy] = useState<number>(0)
 
+  const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
+  const [NFTTotal, setNFTTotal] = useState<number>()
+
 
   const currentGameInfo = useMemo(() => {
     return gamesInfo[parseInt(currentGame)] || {}
   }, [currentGame, gamesInfo])
+
+  const { run: fetchNFTList, loading } = useRequest(getMarketNFTList, {
+    manual: true,
+    onSuccess: ({ data }) => {
+      const { totalRemain, pageContent } = data
+      setNFTList(pageContent)
+      setNFTTotal(totalRemain)
+    }
+  })
+
+  useEffect(() => {
+    fetchNFTList({ pageIndex: 1, pageSize: 10 })
+  }, [])
 
   return (
     <div className={styles.container}>
@@ -122,7 +138,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </section>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.67rem' }}>
-          <div className={styles.listTitle}>111 Items</div>
+          <div className={styles.listTitle}>{NFTTotal} Items</div>
           <Box className={styles.sortList}>
             <Box
               ref={chainTypeRef}

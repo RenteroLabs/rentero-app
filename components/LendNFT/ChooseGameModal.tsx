@@ -1,7 +1,7 @@
 import { Box, Dialog, DialogTitle, Grid, IconButton } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
-import { Ropsten_ERC721Demo_Contract } from '../../constants/contractABI'
+import { Ropsten_721_AXE_NFT } from '../../constants/contractABI'
 import { GameItem } from '../../types'
 import IntegrationCard from '../IntegrationCard'
 import styles from './style.module.scss'
@@ -12,12 +12,12 @@ interface LendNFTModalProps {
 
 const GameList: GameItem[] = [
   {
-    gameName: 'Someland',
+    gameName: 'Axe Game',
     gameDesc: 'A true play to earn game, get money and fun in bear market',
     gameCover: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3eptqhmuaj212w0b4abp.jpg',
     gameLogo: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3epv6i99xj203c03cjr5.jpg',
     gameStatus: 0,
-    gameNFTCollection: Ropsten_ERC721Demo_Contract,
+    gameNFTCollection: Ropsten_721_AXE_NFT,
     chainId: 3,
   }, {
     gameName: '',
@@ -37,7 +37,7 @@ const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
   const closeModal = () => {
     setVisibile(false)
   }
-  
+
   return <React.Fragment>
     <div onClick={() => { setVisibile(true) }} style={{ display: 'inline-block', marginTop: '4.67rem', width: 'auto' }}>
       {trigger}

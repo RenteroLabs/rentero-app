@@ -171,9 +171,21 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   }
 
   const createOrder = async () => {
-    const result = await contractMarket.createOrder(10000)
+    const result = await contractMarket.createOrder(104)
     console.log(result)
   }
+  const setAccountAddress = async () => {
+    await contractMarket.setAccountAddress("0x0ceEb819d1CBc5af87C65BFbE7b1eED01172A3EA")
+  }
+
+  const setProtocolAddress = async () => {
+    await contractMarket.setProtocolAddress("0xAA15EBe40Caf6E59B81CcD28ADB0b985576A78ec")
+  }
+
+  const createSkunInfo = async () => {
+    await contractMarket.createSkunInfo(104, Ropsten_WrapNFT)
+  }
+
 
   const handleStepClick = (index: number) => {
     if (stepComplete[index] || stepComplete[index - 1]) {
@@ -208,7 +220,11 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       </DialogTitle>
       <div className={styles.dialogContent}>
         {isChooseNFT && <Box maxWidth="95rem" minWidth="65rem" minHeight="36rem">
-          <Button onClick={createOrder}>createOrder</Button>
+          {/* <Button onClick={createOrder}>createOrder</Button>
+          <Button onClick={setAccountAddress}>setAccountAddress</Button>
+          <Button onClick={setProtocolAddress}>setProtocolAddress</Button>
+          <Button onClick={createSkunInfo}>createSkunInfo</Button> */}
+
           {/*  TODO: 判断当前链环节，申请切换至正确链 */}
           <Grid
             container

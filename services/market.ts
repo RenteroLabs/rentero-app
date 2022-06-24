@@ -7,3 +7,7 @@ export const getGameInfos = async () => {
   return data.json()
 }
 
+export const getMarketNFTList = async ({ pageIndex, pageSize }: any) => {
+  const data = await fetch(`${BaseURL}/market/list?pageIndex=${pageIndex}&pageSize=${pageSize}`)
+  return data.json()
+}

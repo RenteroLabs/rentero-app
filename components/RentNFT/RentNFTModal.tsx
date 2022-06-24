@@ -5,7 +5,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AppDialog from '../Dialog'
 import styles from './rentModal.module.scss'
 import { erc20ABI, useAccount, useContract, useSigner } from 'wagmi';
-import { Ropsten_ERC721Demo_Contract } from '../../constants/contractABI';
+import { Ropsten_721_AXE_NFT } from '../../constants/contractABI';
 
 interface RentNFTModalProps {
   trigger: React.ReactElement
@@ -26,7 +26,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   // 用户授权转账保证金以租赁NFT
   const handleApproveToStake = async () => {
     try {
-      await contract.transferFrom(account?.address, Ropsten_ERC721Demo_Contract, 0)
+      await contract.transferFrom(account?.address, Ropsten_721_AXE_NFT, 0)
     } catch (err) {
       console.log(err)
     }

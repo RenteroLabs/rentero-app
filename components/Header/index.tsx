@@ -10,13 +10,13 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
-import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList, Slide, Snackbar, Typography, Box } from '@mui/material'
+import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList, Slide, Snackbar, Typography, Box, Button } from '@mui/material'
 import { useMemo, useRef, useState } from 'react'
 import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
 import { utils } from 'ethers'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
-import { ERC721DemoABI, Ropsten_ERC721Demo_Contract, AXE_ABI } from '../../constants/contractABI'
+import { ERC721DemoABI, Ropsten_ERC721Demo_Contract, AXE_ABI, Ropsten_721_AXE_NFT } from '../../constants/contractABI'
 
 export default function Header() {
   const router = useRouter()
@@ -51,7 +51,7 @@ export default function Header() {
   const { data: signer } = useSigner()
 
   const contract = useContract({
-    addressOrName: '0x6AaDFE9441c35645D452bc7050cd53E43d104C18',
+    addressOrName: Ropsten_721_AXE_NFT,
     contractInterface: AXE_ABI,
     signerOrProvider: signer
   })
@@ -59,8 +59,16 @@ export default function Header() {
   const mint721 = async () => {
     try {
       await contract.mint(account?.address, 105)
-    } catch (err) {
+    } catch (err: any) {
       console.log(err.message)
+    }
+  }
+  const transfer721 = async () => {
+    try {
+      await contract.transferFrom(account?.address, '0x66567071D55A9FBE6B3944172592961c1C414075', 3)
+    } catch (err: any) {
+      console.log(err.message)
+
     }
   }
 
@@ -113,6 +121,7 @@ export default function Header() {
       />
     </nav>
     {/* <button onClick={mint721}>Click</button> */}
+    {/* <button onClick={transfer721}>Transfer</button> */}
     {(isMounted && account) &&
       <Chip
         avatar={<Avatar alt={activeChain?.name} className={styles.networkIcon} src={CHAIN_ICON[activeChain?.id || chain.mainnet.id]} />}
