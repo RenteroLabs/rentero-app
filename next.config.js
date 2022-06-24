@@ -7,6 +7,11 @@ const nextConfig = {
     loader: 'akamai',
     path: '',
   },
+  plugins: [
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^electron$/,
+    }),
+  ],
 }
 
 module.exports = nextConfig
