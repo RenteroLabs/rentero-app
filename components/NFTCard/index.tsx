@@ -4,11 +4,11 @@ import React from 'react'
 import styles from './index.module.css'
 
 interface NFTCardProps {
-
+  nftInfo: Record<string, any>
 }
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
-  const { } = props
+  const { nftInfo } = props
 
   return <Link href={"/detail/100"}>
     <div className={styles.card}>
@@ -16,11 +16,11 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
       <div className={styles.nftImage}></div>
       <div className={styles.cardTitle}>
         <span className={styles.nftCollectionImage}></span>
-        <span className={styles.nftName}>Rebel Bots</span>
+        <span className={styles.nftName}>{nftInfo.nftName}</span>
       </div>
       <p className={styles.nftDesc}>short introduce about this NFT </p>
       <div>
-        <span className={styles.nftNumber}>#9527</span>
+        <span className={styles.nftNumber}>#{nftInfo.nftUid}</span>
         <span className={styles.nftChain}></span>
       </div>
     </div>

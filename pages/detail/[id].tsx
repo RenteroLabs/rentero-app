@@ -87,10 +87,10 @@ const Detail: NextPage = () => {
         <Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography>
       </Box>
       <Stack direction="row" spacing="2rem">
-        <NFTCard />
-        <NFTCard />
-        <NFTCard />
-        <NFTCard />
+        <NFTCard nftInfo={{}} />
+        <NFTCard nftInfo={{}} />
+        <NFTCard nftInfo={{}} />
+        <NFTCard nftInfo={{}} />
       </Stack>
     </Box>
   </div>

@@ -189,14 +189,11 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </Box>
         <div className={styles.nftCardList}>
-          <NFTCard />
-          <NFTCard />
-          <NFTCard />
-          <NFTCard />
-          <NFTCard />
-          <NFTCard />
-          <NFTCard />
-          <NFTCard />
+          {
+            NFTList.map((item, index) => {
+              return <NFTCard nftInfo={item} key={index} />
+            })
+          }
         </div>
         <div className={styles.showMore}><span>Show more</span></div>
       </div>
