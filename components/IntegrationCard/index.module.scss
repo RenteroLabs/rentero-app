@@ -13,9 +13,12 @@
     border-top-right-radius: 2.67rem;
     overflow: hidden;
     position: relative;
-    background-image: url(../../public/game-upcoming.svg);
+    // background-image: url(../../public/game-upcoming.svg);
     background-repeat: no-repeat;
     background-position: 50% 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .game_logo {

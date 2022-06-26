@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { GameItem } from '../../types'
 import ChooseNFTModal from '../LendNFT/ChooseNFTModal'
 import styles from './index.module.scss'
+import Upcoming from '../../public/game-upcoming.svg'
 
 interface IntegrationCardProps {
   gameItem: GameItem
@@ -14,7 +15,8 @@ const IntegrationCard: React.FC<IntegrationCardProps> = (props) => {
 
   return <div className={styles.card}>
     <div className={styles.cover_image}>
-      {gameItem.gameStatus === 0 && <Image src={gameItem.gameCover} alt="game_cover" layout="fill" />
+      {
+        gameItem.gameCover ? <Image src={gameItem.gameCover} alt="game_cover" layout="fill" /> : <Image src={Upcoming} width="90" height="90" />
       }
     </div>
     {gameItem.gameStatus === 0 && <div className={styles.game_logo}>

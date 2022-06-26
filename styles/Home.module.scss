@@ -267,6 +267,14 @@
   font-weight: 900;
   color: #ffffff;
   line-height: 3.33rem;
+  display: flex;
+  align-items: center;
+
+  span {
+    display: inline-block;
+    margin-top: 4px;
+    cursor: pointer;
+  }
 }
 .nftCardList {
   display: flex;

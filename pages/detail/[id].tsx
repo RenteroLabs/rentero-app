@@ -14,7 +14,7 @@ import RentNFTModal from "../../components/RentNFT/RentNFTModal";
 import { useEffect, useState } from "react";
 import { Ropsten_721_AXE_NFT } from "../../constants/contractABI";
 import { useRequest } from "ahooks";
-import { getNFTDetail } from "../../services/market";
+import { getMarketNFTList, getNFTDetail } from "../../services/market";
 import { formatAddress } from "../../utils/format";
 import { web3GetNFTMetadata } from "../../services/web3NFT";
 
@@ -27,10 +27,14 @@ const Detail: NextPage = () => {
   const [nftInfo, setNFTInfo] = useState<Record<string, any>>({})
   const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
 
+  const [nftList, setNFTList] = useState<Record<string, any>[]>([])
+  const [NFTMetadataList, setNFTMetadataList] = useState<Record<string, any>[]>([])
+
   const { id } = router.query
 
   useEffect(() => {
-    fetchNFTList({ skuId: router.query['skuId'] });
+    fetchNFTDetail({ skuId: router.query['skuId'] });
+    fetchNFTList({ pageIndex: 1, pageSize: 5 });
 
     (async () => {
       // 获取 NFT metadata 数据
@@ -50,12 +54,35 @@ const Detail: NextPage = () => {
     })()
 
   }, [id])
-  console.log(nftInfo)
-  const { run: fetchNFTList } = useRequest(getNFTDetail, {
+
+  const { run: fetchNFTDetail } = useRequest(getNFTDetail, {
     manual: true,
     onSuccess: ({ data }) => {
-      console.log(data)
       setBaseInfo(data)
+    }
+  })
+
+  const { run: fetchNFTList, loading } = useRequest(getMarketNFTList, {
+    manual: true,
+    onSuccess: async ({ data }) => {
+      const { pageContent } = data
+      const moreNFTs = pageContent.filter((item: any) => item.nftUid != id).splice(0, 4)
+      setNFTList(moreNFTs)
+
+      const metarequests = moreNFTs.map((item: any) => {
+        return web3GetNFTMetadata({
+          contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
+          tokenId: item.nftUid,
+          tokenType: 'erc721'
+        })
+      })
+      const result = await Promise.all(metarequests)
+      let newMetaList: Record<number, any> = {}
+      result.forEach((item: any, index: number) => {
+        newMetaList[parseInt(pageContent[index].skuId)] = item
+      })
+
+      setNFTMetadataList({ ...NFTMetadataList, ...newMetaList })
     }
   })
 
@@ -112,16 +139,34 @@ const Detail: NextPage = () => {
             </Stack>
           </Paper>
           <Paper className={styles.rentNFTabout}>
-            <Typography variant="h4">About</Typography>
+            <Typography variant="h4">Detail</Typography>
+            <Stack className={styles.detailList}>
+              <Box>
+                <Box>Contract Address</Box>
+                <Box className={styles.linkAddress}>{formatAddress(baseInfo.nftAddress, 6)}</Box>
+              </Box>
+              <Box>
+                <Box>Token ID</Box>
+                <Box className={styles.linkAddress}>8888</Box>
+              </Box>
+              <Box>
+                <Box>Token Standard</Box>
+                <Box>ERC-721</Box>
+              </Box>
+              <Box>
+                <Box>Blockchain</Box>
+                <Box>Ethereum</Box>
+              </Box>
+            </Stack>
           </Paper>
           <Paper className={styles.rentNFTproperties}>
             <Typography variant="h4">Properties</Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: "space-around", mt: '1rem' }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: "flex-start", mt: '1rem' }}>
               {
                 nftInfo?.metadata?.attributes.map(({ value, trait_type }: any, index: number) => {
                   return <Stack className={styles.nftAttrCard} key={index}>
                     <Box>{trait_type}</Box>
-                    <Box>{value}</Box>
+                    <Box className={styles.attrValue}>{value}</Box>
                   </Stack>
                 })
               }
@@ -135,13 +180,12 @@ const Detail: NextPage = () => {
     <Box maxWidth="94.66rem" margin="auto" marginTop="8.33rem">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.67rem' }} className={styles.moreNFTtitle}>
         <Typography variant="h3">More NFTs</Typography>
-        <Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography>
+        <Link href="/"><Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography></Link>
       </Box>
       <Stack direction="row" spacing="2rem">
-        <NFTCard nftInfo={{}} metadata={{}} />
-        <NFTCard nftInfo={{}} metadata={{}} />
-        <NFTCard nftInfo={{}} metadata={{}} />
-        <NFTCard nftInfo={{}} metadata={{}} />
+        {
+          nftList.map((item: any, index: number) => <NFTCard nftInfo={item} metadata={NFTMetadataList[parseInt(item.skuId)]} key={index} />)
+        }
       </Stack>
     </Box>
   </div>

@@ -18,6 +18,7 @@ import { useAlchemyService, useIsMounted } from '../hooks'
 import { Ropsten_721_AXE_NFT } from '../constants/contractABI'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
 import { web3GetNFTMetadata } from '../services/web3NFT'
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
   const isMounted = useIsMounted()
@@ -179,7 +180,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </section>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.67rem' }}>
-          <div className={styles.listTitle}>{NFTTotal} Items</div>
+          <div className={styles.listTitle}>{NFTTotal} Items &nbsp;<span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 10 })}><AutorenewIcon /></span></div>
           <Box className={styles.sortList}>
             <Box
               ref={chainTypeRef}
@@ -247,7 +248,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
         </Box>}
         <div className={styles.nftCardList}>
           {
-            NFTList.map((item, index) => {
+            !loading && NFTList.map((item, index) => {
               return <NFTCard nftInfo={item} metadata={NFTMetadataList[parseInt(item.skuId)]} key={index} />
             })
           }

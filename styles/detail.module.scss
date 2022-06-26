@@ -166,12 +166,42 @@
   padding: 2rem;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 1.67rem;
+
+  h4 {
+    font-size: 2rem;
+    font-family: Poppins-SemiBold, Poppins;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 2.67rem;
+  }
+
+  .detailList {
+    margin-top: 1rem;
+    & > div {
+      display: flex;
+      justify-content: space-between;
+      color: rgba($color: #fff, $alpha: 0.6);
+      font-size: 1.17rem;
+      font-family: Poppins-Medium, Poppins;
+      font-weight: 500;
+      color: #777e90;
+      line-height: 2.4rem;
+    }
+  }
 }
 
 .rentNFTproperties {
   padding: 2rem;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 1.67rem;
+
+  h4 {
+    font-size: 2rem;
+    font-family: Poppins-SemiBold, Poppins;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 2.67rem;
+  }
 }
 
 .moreNFTtitle {
@@ -200,14 +230,18 @@
   padding: 1rem;
   border: 1px solid rgba(21, 178, 229, 0.5);
   text-align: center;
-  margin: 1rem auto;
+  margin: 1rem 1rem;
   background: #aad1df2d;
   border-radius: 1rem;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
 
   &:hover {
     cursor: pointer;
+    box-shadow: rgba(123, 171, 217, 0.7) 0px 0px 8px 0px;
+    transition: all 0.1s ease 0s;
   }
-  
+
   div {
     color: white;
     opacity: 0.7;
@@ -218,4 +252,13 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .attrValue {
+    opacity: 0.5;
+  }
+}
+
+.linkAddress {
+  color: #5bd9fe;
+  text-decoration: underline;
+  cursor: pointer;
 }
