@@ -8,9 +8,14 @@ import styles from '../../styles/detail.module.scss'
 import NFTCard from "../../components/NFTCard";
 import ConnectWallet from "../../components/ConnectWallet";
 import { useAccount } from "wagmi";
-import { useIsMounted } from "../../hooks";
+import { useAlchemyService, useIsMounted } from "../../hooks";
 import classNames from "classnames/bind";
 import RentNFTModal from "../../components/RentNFT/RentNFTModal";
+import { useEffect, useState } from "react";
+import { Ropsten_721_AXE_NFT } from "../../constants/contractABI";
+import { useRequest } from "ahooks";
+import { getNFTDetail } from "../../services/market";
+import { formatAddress } from "../../utils/format";
 
 const cx = classNames.bind(styles)
 
@@ -18,8 +23,36 @@ const Detail: NextPage = () => {
   const router = useRouter()
   const { data: account } = useAccount()
   const isMounted = useIsMounted()
+  const [nftInfo, setNFTInfo] = useState<Record<string, any>>({})
+  const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
+  const Web3 = useAlchemyService()
 
   const { id } = router.query
+
+  useEffect(() => {
+    fetchNFTList({ skuId: router.query['skuId'] });
+
+    (async () => {
+      // 获取 NFT metadata 数据
+      const result = await Web3?.alchemy.getNftMetadata({
+        // 此处在此直接请求 ERC721 合约地址
+        contractAddress: Ropsten_721_AXE_NFT,
+        tokenId: id || 1,
+        tokenType: 'erc721'
+      })
+      console.log(result)
+      setNFTInfo(result)
+    })()
+
+  }, [id])
+  console.log(nftInfo)
+  const { run: fetchNFTList } = useRequest(getNFTDetail, {
+    manual: true,
+    onSuccess: ({ data }) => {
+      console.log(data)
+      setBaseInfo(data)
+    }
+  })
 
   return <div>
     <Box className={styles.navBox}>
@@ -33,8 +66,8 @@ const Detail: NextPage = () => {
       <Box className={styles.leftBox}>
         <Stack spacing="2rem">
           <Paper className={styles.itemCover} >
-            <img src="/rebelbot_08949.png" />
-            <Box component="span" >Rented</Box>
+            <img src={nftInfo?.media && nftInfo?.media[0]?.gateway} />
+            {/* <Box component="span" >Rented</Box> */}
           </Paper>
           <Paper className={styles.rentDetail}>
             <Typography>DAILY EARNING:</Typography>
@@ -45,29 +78,31 @@ const Detail: NextPage = () => {
           </Paper>
 
           {isMounted && account ?
-            <RentNFTModal trigger={<Box
-              className={cx({
-                'rentButton': true,
-                // TODO: checkout current NFT if rented
-                'rentedButton': false,
-              })}
-            >Rent</Box>} /> :
+            <RentNFTModal
+              skuId={router.query['skuId']}
+              trigger={<Box
+                className={cx({
+                  'rentButton': true,
+                  // TODO: checkout current NFT if rented
+                  'rentedButton': false,
+                })}
+              >Rent</Box>} /> :
             <ConnectWallet trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />}
         </Stack>
       </Box>
-      <Box className={styles.rightBox} sx={{ marginLeft: '5.33rem' }}>
+      <Box className={styles.rightBox} sx={{ marginLeft: '5.33rem', width: '60.83rem' }}>
         <Stack spacing="2rem">
           <Paper className={styles.rentNFTinfo}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Avatar src="/rebel_logo.gif" variant="rounded" sx={{ width: '2.67rem', height: '2.67rem' }} />
-                <span className={styles.nftCollectionName}>Rebel Bots</span>
+                <span className={styles.nftCollectionName}>{baseInfo.nftName}</span>
               </Box>
-              <span>#228933</span>
+              <span>#{baseInfo.nftUid}</span>
             </Box>
-            <Typography variant="h2">RebelBot #02341</Typography>
+            <Typography variant="h2">{baseInfo.nftName} #{baseInfo.nftUid}</Typography>
             <Stack direction="row" spacing="4.83rem">
-              <span>Owned by <span className={styles.ownerAddress}>Ox8s2e...ds23</span></span>
+              <span>Owned by <span className={styles.ownerAddress}>{formatAddress(baseInfo.lenderAddress, 6)}</span></span>
               <span>Blockchain <span className={styles.deployedChainType}>ETH</span></span>
             </Stack>
           </Paper>
@@ -76,6 +111,17 @@ const Detail: NextPage = () => {
           </Paper>
           <Paper className={styles.rentNFTproperties}>
             <Typography variant="h4">Properties</Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: "space-around", mt: '1rem' }}>
+              {
+                nftInfo?.metadata?.attributes.map(({ value, trait_type }: any) => {
+                  return <Stack className={styles.nftAttrCard}>
+                    <Box>{trait_type}</Box>
+                    <Box>{value}</Box>
+                  </Stack>
+                })
+              }
+            </Box>
+
           </Paper>
         </Stack>
       </Box>

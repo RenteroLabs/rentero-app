@@ -106,12 +106,12 @@
   text-align: center;
   border-radius: 0.5rem;
   cursor: pointer;
-  user-select: none
+  user-select: none;
 }
 
 .rentedButton {
   @extend .rentButton;
-  background: #777E90;
+  background: #777e90;
   color: rgba($color: #fff, $alpha: 0.7);
   cursor: default;
 }
@@ -191,5 +191,31 @@
     color: #5cd7fe;
     line-height: 2rem;
     cursor: pointer;
+  }
+}
+
+.nftAttrCard {
+  width: 12rem;
+  color: white;
+  padding: 1rem;
+  border: 1px solid rgba(21, 178, 229, 0.5);
+  text-align: center;
+  margin: 1rem auto;
+  background: #aad1df2d;
+  border-radius: 1rem;
+
+  &:hover {
+    cursor: pointer;
+  }
+  
+  div {
+    color: white;
+    opacity: 0.7;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

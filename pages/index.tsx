@@ -7,15 +7,19 @@ import ScheduleIcon from '@material-ui/icons/Schedule';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Menu, MenuItem, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Menu, MenuItem, MenuList, Skeleton, ToggleButton, ToggleButtonGroup, Typography, useStepperContext } from '@mui/material'
 import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
 import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
 import { useRequest } from 'ahooks'
 import { getGameInfos, getMarketNFTList } from '../services/market'
 import { dateFormat } from '../utils/format'
+import { useAlchemyService, useIsMounted } from '../hooks'
+import { Ropsten_721_AXE_NFT } from '../constants/contractABI'
+import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
+  const isMounted = useIsMounted()
   const [currentGame, setCurrentGame] = useState<string>("0")
 
   const chainTypeRef = useRef<HTMLElement>()
@@ -25,9 +29,12 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [selectedChain, setSelectedChain] = useState<number>(0)
   const [selectedSortBy, setSelectedSortBy] = useState<number>(0)
 
+  const [currentPage, setCurrentPage] = useState<number>(1)
   const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
-  const [NFTTotal, setNFTTotal] = useState<number>()
+  const [NFTTotal, setNFTTotal] = useState<number>(0)
+  const [NFTMetadataList, setNFTMetadataList] = useState<Record<number, any>>({})
 
+  const Web3 = useAlchemyService()
 
   const currentGameInfo = useMemo(() => {
     return gamesInfo[parseInt(currentGame)] || {}
@@ -35,10 +42,38 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
 
   const { run: fetchNFTList, loading } = useRequest(getMarketNFTList, {
     manual: true,
-    onSuccess: ({ data }) => {
+    onSuccess: async ({ data }) => {
       const { totalRemain, pageContent } = data
       setNFTList(pageContent)
       setNFTTotal(totalRemain)
+
+      // let metalist: Record<number, any> = {}
+      // // 获取 MarketList 中每个 NFT 的 metadata 数据
+      // pageContent.forEach(async (item: any) => {
+      //   const result = await Web3?.alchemy.getNftMetadata({
+      //     // 此处在此直接请求 ERC721 合约地址
+      //     contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
+      //     tokenId: item.nftUid,
+      //     tokenType: 'erc721'
+      //   })
+      //   metalist[parseInt(item.skuId)] = result
+      // });
+
+      const metarequests = pageContent.map((item: any) => {
+        return Web3?.alchemy.getNftMetadata({
+          // 此处在此直接请求 ERC721 合约地址
+          contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
+          tokenId: item.nftUid,
+          tokenType: 'erc721'
+        })
+      })
+      const result = await Promise.all(metarequests)
+      let newMetaList: Record<number, any> = {}
+      result.forEach((item: any, index: number) => {
+        newMetaList[parseInt(pageContent[index].skuId)] = item
+      })
+
+      setNFTMetadataList({ ...NFTMetadataList, ...newMetaList })
     }
   })
 
@@ -188,14 +223,30 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             </Menu>
           </Box>
         </Box>
+
+        {/* 骨架图 */}
+        {loading && <Box>
+          <Box className={styles.nftCardList}>
+            <SkeletonNFTCard />
+            <SkeletonNFTCard />
+            <SkeletonNFTCard />
+            <SkeletonNFTCard />
+          </Box>
+          <Box className={styles.nftCardList}>
+            <SkeletonNFTCard />
+            <SkeletonNFTCard />
+            <SkeletonNFTCard />
+            <SkeletonNFTCard />
+          </Box>
+        </Box>}
         <div className={styles.nftCardList}>
           {
             NFTList.map((item, index) => {
-              return <NFTCard nftInfo={item} key={index} />
+              return <NFTCard nftInfo={item} metadata={NFTMetadataList[parseInt(item.skuId)]} key={index} />
             })
           }
         </div>
-        <div className={styles.showMore}><span>Show more</span></div>
+        {((10 * currentPage) < NFTTotal) && isMounted && <div className={styles.showMore}><span>Show more</span></div>}
       </div>
     </div >
   )

@@ -1,17 +1,16 @@
 import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Grid, IconButton, Stack, Step, StepButton, StepContent, StepLabel, Stepper, Typography } from '@mui/material'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { erc721ABI, useAccount, useContract, useNetwork, useSigner } from 'wagmi'
-import { createAlchemyWeb3 } from "@alch/alchemy-web3";
 import { ROPSTEN_MARKET, ROPSTEN_MARKET_ABI, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../constants/contractABI'
 import NFTCard from '../IntegrationCard/NFTCard'
 import styles from './style.module.scss'
-import { ALCHEMY_ETHEREUM_URL, ALCHEMY_POLYGON_URL, ALCHEMY_ROPSTEN_URL } from '../../constants';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SendIcon from '@mui/icons-material/Send';
 import PageviewIcon from '@mui/icons-material/Pageview';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { useAlchemyService } from '../../hooks';
 
 interface ChooseNFTModalProps {
   trigger: React.ReactElement
@@ -44,6 +43,8 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const [activeStep, setActiveStep] = useState<number>(0)
   const [stepComplete, setStepComplete] = useState<{ [k: number]: boolean }>({})
 
+  const Web3 = useAlchemyService()
+
   const contract721 = useContract({
     addressOrName: gameNFTCollection,
     contractInterface: erc721ABI,
@@ -62,16 +63,6 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
-  const Web3 = useMemo(() => {
-    let archemyUrl
-    switch (activeChain?.id) {
-      case 1: archemyUrl = ALCHEMY_ETHEREUM_URL; break;
-      case 3: archemyUrl = ALCHEMY_ROPSTEN_URL; break;
-      case 137: archemyUrl = ALCHEMY_POLYGON_URL; break;
-      default: return;
-    }
-    return createAlchemyWeb3(archemyUrl)
-  }, [activeChain])
 
   useEffect(() => {
     (async () => {
@@ -179,7 +170,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   }
 
   const setProtocolAddress = async () => {
-    await contractMarket.setProtocolAddress("0xAA15EBe40Caf6E59B81CcD28ADB0b985576A78ec")
+    await contractMarket.setProtocolAddress("0xE5725031D088f4Dd13056FDbd5A823FD4EDfEFcD")
   }
 
   const createSkunInfo = async () => {
@@ -220,10 +211,10 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       </DialogTitle>
       <div className={styles.dialogContent}>
         {isChooseNFT && <Box maxWidth="95rem" minWidth="65rem" minHeight="36rem">
-          {/* <Button onClick={createOrder}>createOrder</Button>
-          <Button onClick={setAccountAddress}>setAccountAddress</Button>
-          <Button onClick={setProtocolAddress}>setProtocolAddress</Button>
-          <Button onClick={createSkunInfo}>createSkunInfo</Button> */}
+          {/* <Button onClick={createOrder}>createOrder</Button> */}
+          {/* <Button onClick={setAccountAddress}>setAccountAddress</Button> */}
+          {/* <Button onClick={setProtocolAddress}>setProtocolAddress</Button> */}
+          {/* <Button onClick={createSkunInfo}>createSkunInfo</Button>  */}
 
           {/*  TODO: 判断当前链环节，申请切换至正确链 */}
           <Grid
