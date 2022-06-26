@@ -17,6 +17,7 @@ import { dateFormat } from '../utils/format'
 import { useAlchemyService, useIsMounted } from '../hooks'
 import { Ropsten_721_AXE_NFT } from '../constants/contractABI'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
+import { web3GetNFTMetadata } from '../services/web3NFT'
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
   const isMounted = useIsMounted()
@@ -34,7 +35,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [NFTTotal, setNFTTotal] = useState<number>(0)
   const [NFTMetadataList, setNFTMetadataList] = useState<Record<number, any>>({})
 
-  const Web3 = useAlchemyService()
+  // const Web3 = useAlchemyService()
 
   const currentGameInfo = useMemo(() => {
     return gamesInfo[parseInt(currentGame)] || {}
@@ -60,8 +61,13 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
       // });
 
       const metarequests = pageContent.map((item: any) => {
-        return Web3?.alchemy.getNftMetadata({
-          // 此处在此直接请求 ERC721 合约地址
+        // return Web3?.alchemy.getNftMetadata({
+        //   // 此处在此直接请求 ERC721 合约地址
+        //   contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
+        //   tokenId: item.nftUid,
+        //   tokenType: 'erc721'
+        // })
+        return web3GetNFTMetadata({
           contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
           tokenId: item.nftUid,
           tokenType: 'erc721'

@@ -16,6 +16,7 @@ import { Ropsten_721_AXE_NFT } from "../../constants/contractABI";
 import { useRequest } from "ahooks";
 import { getNFTDetail } from "../../services/market";
 import { formatAddress } from "../../utils/format";
+import { web3GetNFTMetadata } from "../../services/web3NFT";
 
 const cx = classNames.bind(styles)
 
@@ -25,7 +26,6 @@ const Detail: NextPage = () => {
   const isMounted = useIsMounted()
   const [nftInfo, setNFTInfo] = useState<Record<string, any>>({})
   const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
-  const Web3 = useAlchemyService()
 
   const { id } = router.query
 
@@ -34,13 +34,18 @@ const Detail: NextPage = () => {
 
     (async () => {
       // 获取 NFT metadata 数据
-      const result = await Web3?.alchemy.getNftMetadata({
-        // 此处在此直接请求 ERC721 合约地址
+      // const result = await Web3?.alchemy.getNftMetadata({
+      //   // 此处在此直接请求 ERC721 合约地址
+      //   contractAddress: Ropsten_721_AXE_NFT,
+      //   tokenId: id as string || '1',
+      //   tokenType: 'erc721'
+      // })
+
+      const result = await web3GetNFTMetadata({
         contractAddress: Ropsten_721_AXE_NFT,
         tokenId: id as string || '1',
         tokenType: 'erc721'
       })
-      console.log(result)
       setNFTInfo(result as Record<string, any>)
     })()
 

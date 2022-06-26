@@ -11,6 +11,7 @@ import PageviewIcon from '@mui/icons-material/Pageview';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useAlchemyService } from '../../hooks';
+import { web3GetNFTS } from '../../services/web3NFT';
 
 interface ChooseNFTModalProps {
   trigger: React.ReactElement
@@ -43,7 +44,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const [activeStep, setActiveStep] = useState<number>(0)
   const [stepComplete, setStepComplete] = useState<{ [k: number]: boolean }>({})
 
-  const Web3 = useAlchemyService()
+  // const Web3 = useAlchemyService()
 
   const contract721 = useContract({
     addressOrName: gameNFTCollection,
@@ -66,12 +67,16 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
   useEffect(() => {
     (async () => {
-      if (!Web3 || !account) {
+      if (!account) {
         setNFTList([])
       } else {
         setIsRequestingNFT(true)
         // https://docs.alchemy.com/alchemy/enhanced-apis/nft-api/getnfts
-        const nft = await Web3.alchemy.getNfts({
+        // const nft = await Web3.alchemy.getNfts({
+        //   owner: account?.address || '',
+        //   contractAddresses: [gameNFTCollection]
+        // })
+        const nft = await web3GetNFTS({
           owner: account?.address || '',
           contractAddresses: [gameNFTCollection]
         })
@@ -79,7 +84,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
         setIsRequestingNFT(false)
       }
     })();
-  }, [Web3, account])
+  }, [account])
 
   useEffect(() => {
     // 判断当前选中 NFT 之前是否已经被授权
