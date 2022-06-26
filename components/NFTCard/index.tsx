@@ -10,13 +10,13 @@ interface NFTCardProps {
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
   const { nftInfo, metadata } = props
-  console.log(metadata, nftInfo)
+  // console.log(metadata, nftInfo)
 
   return <Link href={`/detail/${nftInfo.nftUid}?skuId=${nftInfo.skuId}`}  >
     <div className={styles.card}>
       {/* 先用背景图片替换 */}
       <div className={styles.nftImage}>
-        {metadata && <Image src={metadata?.media[0]?.gateway} layout="fill" />}
+        {metadata && metadata?.media && <Image src={metadata?.media[0]?.gateway} layout="fill" />}
       </div>
       <div className={styles.cardTitle}>
         <span className={styles.nftCollectionImage}>

@@ -37,11 +37,11 @@ const Detail: NextPage = () => {
       const result = await Web3?.alchemy.getNftMetadata({
         // 此处在此直接请求 ERC721 合约地址
         contractAddress: Ropsten_721_AXE_NFT,
-        tokenId: id || 1,
+        tokenId: id as string || '1',
         tokenType: 'erc721'
       })
       console.log(result)
-      setNFTInfo(result)
+      setNFTInfo(result as Record<string, any>)
     })()
 
   }, [id])
@@ -79,7 +79,7 @@ const Detail: NextPage = () => {
 
           {isMounted && account ?
             <RentNFTModal
-              skuId={router.query['skuId']}
+              skuId={router.query['skuId'] as string}
               trigger={<Box
                 className={cx({
                   'rentButton': true,
@@ -113,8 +113,8 @@ const Detail: NextPage = () => {
             <Typography variant="h4">Properties</Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: "space-around", mt: '1rem' }}>
               {
-                nftInfo?.metadata?.attributes.map(({ value, trait_type }: any) => {
-                  return <Stack className={styles.nftAttrCard}>
+                nftInfo?.metadata?.attributes.map(({ value, trait_type }: any, index: number) => {
+                  return <Stack className={styles.nftAttrCard} key={index}>
                     <Box>{trait_type}</Box>
                     <Box>{value}</Box>
                   </Stack>
@@ -133,10 +133,10 @@ const Detail: NextPage = () => {
         <Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography>
       </Box>
       <Stack direction="row" spacing="2rem">
-        <NFTCard nftInfo={{}} />
-        <NFTCard nftInfo={{}} />
-        <NFTCard nftInfo={{}} />
-        <NFTCard nftInfo={{}} />
+        <NFTCard nftInfo={{}} metadata={{}} />
+        <NFTCard nftInfo={{}} metadata={{}} />
+        <NFTCard nftInfo={{}} metadata={{}} />
+        <NFTCard nftInfo={{}} metadata={{}} />
       </Stack>
     </Box>
   </div>
