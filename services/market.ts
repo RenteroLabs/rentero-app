@@ -1,5 +1,5 @@
 
-const BaseURL = 'http://ec2-16-163-144-54.ap-east-1.compute.amazonaws.com:8080'
+const BaseURL = 'https://devapi.rentero.io'
 
 
 export const getGameInfos = async () => {
