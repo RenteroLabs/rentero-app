@@ -1,6 +1,8 @@
+import { Avatar } from '@mui/material'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import { CHAIN_ICON } from '../../constants'
 import styles from './index.module.scss'
 
 interface NFTCardProps {
@@ -25,9 +27,9 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
         <span className={styles.nftName}>{nftInfo.nftName}</span>
       </div>
       <p className={styles.nftDesc}>short introduce about this NFT </p>
-      <div>
+      <div className={styles.nftChainInfo}>
         <span className={styles.nftNumber}>#{nftInfo.nftUid}</span>
-        <span className={styles.nftChain}></span>
+        <span className={styles.nftChain}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem' }} /></span>
       </div>
     </div>
   </Link>

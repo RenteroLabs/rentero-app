@@ -17,6 +17,7 @@ import { useRequest } from "ahooks";
 import { getMarketNFTList, getNFTDetail } from "../../services/market";
 import { formatAddress } from "../../utils/format";
 import { web3GetNFTMetadata } from "../../services/web3NFT";
+import { CHAIN_ICON } from "../../constants";
 
 const cx = classNames.bind(styles)
 
@@ -134,8 +135,8 @@ const Detail: NextPage = () => {
             </Box>
             <Typography variant="h2">{baseInfo.nftName} #{baseInfo.nftUid}</Typography>
             <Stack direction="row" spacing="4.83rem">
-              <span>Owned by <span className={styles.ownerAddress}>{formatAddress(baseInfo.lenderAddress, 6)}</span></span>
-              <span>Blockchain <span className={styles.deployedChainType}>ETH</span></span>
+              <Box>Owned by <span className={styles.ownerAddress}>{formatAddress(baseInfo.lenderAddress, 6)}</span></Box>
+              <Box sx={{ display: 'flex', alignItems: 'center'}}>Blockchain <span className={styles.deployedChainType}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem', mr: '0.67rem' }} /> ETH</span></Box>
             </Stack>
           </Paper>
           <Paper className={styles.rentNFTabout}>
