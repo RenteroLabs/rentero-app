@@ -61,12 +61,14 @@
   line-height: 1.67rem;
   margin: 1.33rem auto 1rem;
 }
+
 .nftNumber {
   font-size: 1.17rem;
   font-family: Poppins-Medium, Poppins;
   font-weight: 500;
   color: #777e90;
   line-height: 1.67rem;
+  margin-right: 1rem;
 }
 
 .skeletonCard {
@@ -86,4 +88,10 @@
     height: 2.67rem;
     border-radius: 0.59rem;
   }
+}
+
+.nftChainInfo {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }

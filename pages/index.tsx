@@ -110,17 +110,17 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
               orientation="vertical"
               value={currentGame}
               onChange={(_, val) => {
-                if (val) { setCurrentGame(val) }
+                if (val == 0) { setCurrentGame(val) }
               }}
               sx={{ textAlign: 'left' }}
             >
               <ToggleButton value="0" >
                 <Box>All games</Box>
               </ToggleButton>
-              <ToggleButton value="1">
+              <ToggleButton value="1" sx={{ cursor: 'not-allowed' }}>
                 <Box><img src='/axie-logo.png' alt='game_logo' />Axie</Box>
               </ToggleButton>
-              <ToggleButton value="2">
+              <ToggleButton value="2" sx={{ cursor: 'not-allowed' }}>
                 <Box><img src='/stepn-logo.jpeg' alt='game_logo_stepn' />Stepn</Box>
               </ToggleButton>
             </ToggleButtonGroup>
@@ -134,7 +134,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
               {currentGameInfo.gameName}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ScheduleIcon style={{ color: '#48475b', fontSize: "1.8rem" }} />
+              <ScheduleIcon style={{ color: '#48475b', width: '22px', height: '22px' }} />
               <Typography variant="body2" display="block" className={styles.releaseTime}>
                 Released at {dateFormat("YYYY-mm-dd", new Date(currentGameInfo.releaseTime))}
               </Typography>
@@ -149,7 +149,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             <Box justifyContent="left" sx={{ display: 'flex', alignItems: 'center', mt: '1rem' }} >
               <a href={currentGameInfo.gameHomeUrl} target="_blank" rel="noreferrer">
                 <span className={styles.websiteBtn}>
-                  Website &nbsp;&nbsp;&nbsp; <ArrowRightAltRoundedIcon />
+                  Website &nbsp;&nbsp;&nbsp; <ArrowRightAltRoundedIcon style={{ width: '18px', height: '18px', color: 'white' }} />
                 </span>
               </a>
               {
