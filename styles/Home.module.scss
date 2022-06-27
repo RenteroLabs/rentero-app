@@ -125,7 +125,9 @@
     left: 2rem;
 
     .websiteBtn {
-      padding: 0.67rem 1.67rem;
+      width: 10.67rem;
+      height: 3.33rem;
+      // padding: 0.67rem 1.67rem;
       margin-right: 0.33rem;
       background: linear-gradient(
         270deg,
@@ -138,9 +140,10 @@
       font-family: Poppins-SemiBold, Poppins;
       font-weight: 600;
       color: #ffffff;
-      line-height: 2rem;
+      // line-height: 2rem;
       display: flex;
       align-items: center;
+      justify-content: center;
       cursor: pointer;
 
       clip-path: polygon(
@@ -208,6 +211,9 @@
       margin-bottom: 1rem;
     }
     .gameStatus {
+      display: block;
+      width: 44px;
+      height: 20px;
       background: linear-gradient(
         162deg,
         #08a4e6 0%,
