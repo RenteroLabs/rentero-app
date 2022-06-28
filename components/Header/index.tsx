@@ -2,6 +2,7 @@
 import styles from './index.module.scss'
 import Image from 'next/image'
 import Link from 'next/link'
+import Logo from '../../public/header_logo.svg'
 import ConnectWallet from '../ConnectWallet'
 import { useIsMounted } from '../../hooks'
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner, erc721ABI, useSignMessage } from 'wagmi'
@@ -131,7 +132,7 @@ export default function Header() {
 
   return <header className={styles.header}>
     <div className={styles.logo}>
-      <Image src="/header_logo.svg" alt="Rentero Logo" width="126" height="36" />
+      <Image src={Logo} alt="Rentero Logo" width="126" height="36" />
     </div>
     <nav className={styles.navList}>
       <Link href="/"  >

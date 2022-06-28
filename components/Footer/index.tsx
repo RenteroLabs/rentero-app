@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import FooterLogo from '../../public/header_logo.svg'
+// import FooterLogo from '../../public/header_logo.svg'
 import DiscordLogo from '../../public/discord_logo.svg'
 import TwitterLogo from '../../public/twitter.svg'
 import MediumLogo from '../../public/medium_logo.png'
@@ -11,7 +11,7 @@ export default function Footer() {
   return <div className={styles.footer} >
     <div className={styles.context}>
       <div className={styles.iconList}>
-        <Image src={FooterLogo} />
+        {/* <Image src={FooterLogo} /> */}
         <div className={styles.communityList}>
           <a href='https://discord.io/rentero' target="_blank" rel="noreferrer" ><Image src={DiscordLogo} /></a>
           <a href='https://twitter.com/RenteroProtocol' target="_blank" rel="noreferrer"><Image src={TwitterLogo} /></a>

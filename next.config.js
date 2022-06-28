@@ -6,8 +6,8 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: ['tva1.sinaimg.cn', 'ipfs.io'],
-    // loader: 'akamai',
-    // path: '/',
+    loader: 'akamai',
+    path: '/',
   },
   plugins: [
     new webpack.IgnorePlugin({
