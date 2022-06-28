@@ -98,7 +98,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
 
       <div className={styles.leftNav}>
         <Accordion sx={{ borderRadius: '1rem 1rem 0rem 0rem', backgroundColor: 'transparent' }} defaultExpanded disableGutters={true}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} className={styles.accordionHeader}
+          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ width: '18px', height: '18px' }} />} className={styles.accordionHeader}
           >
             <span className={styles.navHeaderIcon}></span>
             Game
