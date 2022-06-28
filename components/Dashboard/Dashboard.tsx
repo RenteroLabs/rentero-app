@@ -1,4 +1,4 @@
-import { Box, Chip, IconButton, InputBase, Pagination, Paper, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
+import { Box, Card, Chip, IconButton, InputBase, Pagination, Paper, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography, useStepperContext } from "@mui/material"
 import styles from './index.module.scss'
 import classNames from "classnames/bind"
 import NotFound from '../../public/table_not_found.svg'
@@ -9,7 +9,7 @@ import { useEffect, useState } from "react"
 import ReturnNFTModal from "./Modals/ReturnNFT"
 import WithdrawNFTModal from "./Modals/WithdrawNFT"
 import { useLocalStorageState, useRequest } from "ahooks"
-import { lenderList } from "../../services/dashboard"
+import { borrowerList, lenderList, overviewData } from "../../services/dashboard"
 
 const cx = classNames.bind(styles)
 
@@ -23,15 +23,42 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const [jwtToken] = useLocalStorageState<string>('token')
   const [tableType, setTableType] = useState<"RENT" | "LEND">('RENT')
 
+  const [lendDataSource, setLendDataSource] = useState<Record<string, any>[]>([])
+  const [lendTotal, setLendTotal] = useState<number>(0)
+  const [borrowerDataSource, setBorrowerDataSource] = useState<Record<string, any>>([])
+  const [borrowerTotal, setBorrowerTotal] = useState<number>(0)
+  const [overview, setOverview] = useState<Record<string, any>>({})
+
   const { run: getLenderList } = useRequest(lenderList, {
     manual: true,
-    onSuccess: (data) => {
+    onSuccess: ({ data }) => {
       console.log(data)
+      setLendDataSource(data.pageContent)
+      setLendTotal(Math.round((data.totalRemain || 0) / 10))
+    }
+  })
+
+  const { run: getBorrowerList } = useRequest(borrowerList, {
+    manual: true,
+    onSuccess: ({ data }) => {
+      console.log(data)
+      setBorrowerDataSource(data.pageContent)
+      setBorrowerTotal(Math.round((data.totalRemain || 0) / 10))
+    }
+  })
+
+  const { run: getOverview } = useRequest(overviewData, {
+    manual: true,
+    onSuccess: ({ data }) => {
+      console.log(data)
+      setOverview(data)
     }
   })
 
   useEffect(() => {
     getLenderList(jwtToken)
+    getBorrowerList(jwtToken)
+    getOverview(jwtToken)
   }, [])
 
 
@@ -108,6 +135,13 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
 
 
   return <div>
+    <Stack direction="row" className={styles.overviewBox}>
+      <Card variant="outlined">Rent Count {overview?.borrowCount}</Card>
+      <Card variant="outlined">Lend Count</Card>
+      <Card variant="outlined">Total Deposit</Card>
+      <Card variant="outlined">Total Income</Card>
+    </Stack>
+
     <Box className={styles.tableSearch}>
       <Box className={styles.toggleBtnGroup}>
         <div onClick={() => setTableType('RENT')}>
@@ -175,9 +209,12 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         </TableFooter>
       }
     </Table>
-    <Pagination count={5} className={styles.pagination} onChange={(_, currentPage: number) => {
-      console.log(currentPage)
-    }} />
+    <Pagination
+      className={styles.pagination}
+      count={lendTotal}
+      onChange={(_, currentPage: number) => {
+        console.log(currentPage)
+      }} />
   </div>
 }
 

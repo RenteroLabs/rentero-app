@@ -156,3 +156,25 @@
   color: #ffffff;
   line-height: 2.67rem;
 }
+
+.overviewBox {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  & > div {
+    padding: 2rem;
+    flex-grow: 1;
+    font-size: 1.33rem;
+    font-family: Poppins-Bold, Poppins;
+    font-weight: bold;
+    opacity: 0.8;
+    line-height: 2rem;
+    user-select: none;
+    // background-color: transparent;
+  }
+  & > div + div {
+    margin-left: 1rem;
+  }
+}
