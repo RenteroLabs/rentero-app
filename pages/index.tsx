@@ -264,7 +264,7 @@ export async function getStaticProps() {
   const data = await getGameInfos()
   return {
     props: {
-      gamesInfo: data.data
+      gamesInfo: data.data || {}
     }
   }
 }

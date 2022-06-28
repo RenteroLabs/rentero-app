@@ -106,7 +106,10 @@ export default function Header() {
 
   const handleEnterDashboard = (event: Event | React.SyntheticEvent) => {
     handleClose(event)
-    signMessage()
+    if (!jwtToken) {
+      signMessage()
+    }
+    router.push('/dashboard')
   }
 
   const handleLogout = (event: Event | React.SyntheticEvent) => {
