@@ -5,9 +5,11 @@ import NotFound from '../../public/table_not_found.svg'
 import Image from "next/image"
 import { useIsMounted } from "../../hooks"
 import SearchIcon from '@mui/icons-material/Search';
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ReturnNFTModal from "./Modals/ReturnNFT"
 import WithdrawNFTModal from "./Modals/WithdrawNFT"
+import { useLocalStorageState, useRequest } from "ahooks"
+import { lenderList } from "../../services/dashboard"
 
 const cx = classNames.bind(styles)
 
@@ -18,7 +20,20 @@ export interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = (props) => {
   const { } = props
   const isMounted = useIsMounted()
+  const [jwtToken] = useLocalStorageState<string>('token')
   const [tableType, setTableType] = useState<"RENT" | "LEND">('RENT')
+
+  const { run: getLenderList } = useRequest(lenderList, {
+    manual: true,
+    onSuccess: (data) => {
+      console.log(data)
+    }
+  })
+
+  useEffect(() => {
+    getLenderList(jwtToken)
+  }, [])
+
 
   const columns = [
     {
@@ -90,6 +105,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       status: '',
     },
   ]
+
 
   return <div>
     <Box className={styles.tableSearch}>

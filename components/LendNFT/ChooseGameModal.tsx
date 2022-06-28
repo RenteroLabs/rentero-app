@@ -14,8 +14,8 @@ const GameList: GameItem[] = [
   {
     gameName: 'Axe Game',
     gameDesc: 'A true play to earn game, get money and fun in bear market',
-    gameCover: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3lkh7hvtdj21dk0u0n7t.jpg',
-    gameLogo: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3lgqmbf5cj20u00u0q8u.jpg',
+    gameCover: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3nrmn495jj209804mt8t.jpg',
+    gameLogo: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3nrlzaxskj2020020t8h.jpg',
     gameStatus: 0,
     gameNFTCollection: Ropsten_721_AXE_NFT,
     chainId: 3,
