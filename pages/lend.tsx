@@ -13,9 +13,14 @@ import StepOne from '../public/one_create_account.png'
 import StepTwo from '../public/two_choose.png'
 import StepThree from '../public/three_pay.png'
 import LendNFTModal from "../components/LendNFT/ChooseGameModal";
+import Head from "next/head";
 
 const Lend: NextPage = () => {
   return <Container maxWidth={false} >
+    <Head>
+      <title>Lend Your NFT | Rentero</title>
+      <meta name="description" content="Lend and rent your NFTs | Rentero Protocol" />
+    </Head>
     <Box textAlign="center" sx={{ minHeight: "41.33rem", overflow: 'hidden' }}>
       <Typography variant="h2" className={styles.title}>
         Both reliable and profitable<br />
