@@ -12,6 +12,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useAlchemyService } from '../../hooks';
 import { web3GetNFTS } from '../../services/web3NFT';
+import Link from 'next/link';
 
 interface ChooseNFTModalProps {
   trigger: React.ReactElement
@@ -352,20 +353,27 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                   </StepLabel>
                 </StepButton>
                 <StepContent >
-                  <LoadingButton
-                    loading={isLoading}
-                    variant="contained"
-                    onClick={handleListToMarket}
-                  >
-                    List
-                  </LoadingButton>
+                  {
+                    !stepComplete[3] ? <LoadingButton
+                      loading={isLoading}
+                      variant="contained"
+                      onClick={handleListToMarket}
+                    >
+                      List
+                    </LoadingButton> : <Button color='success'>🎉 &nbsp;Listed</Button>
+                  }
                 </StepContent>
               </Step>
             </Stepper>
 
             {stepComplete[3] && <Box sx={{ mt: '3rem' }}>
               <Typography variant='h3' sx={{ fontSize: '2.5rem', textAlign: 'center' }}>🎉 Successful Lend Your NFT 🎉</Typography>
-              <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: '1rem', fontSize: '1.5rem' }}>Your Lend NFT Will List In Market In Minutes</Typography>
+              <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: '1rem', fontSize: '1.5rem' }}>
+                Your Lend NFT Will List In Market In Minutes!
+                <Link href="/">
+                  <Typography variant='overline' className={styles.linkStyle}>Go To Market</Typography>
+                </Link>
+              </Typography>
             </Box>}
 
           </Box>

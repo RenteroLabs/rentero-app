@@ -18,8 +18,8 @@ export default class AppDocument extends Document {
             rel="stylesheet"
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
           />
-          <link rel="preload" href="../public/font/Agrandir-GrandHeavy.otf" type="font/otf" />
-          <link rel="preload" href="../public/font/MonumentExtended.otf" type="font/otf" />
+          <link rel="preload" href="/font/Agrandir-GrandHeavy.otf" type="font/otf" as="font" crossOrigin="anonymous" />
+          <link rel="preload" href="/font/MonumentExtended.otf" type="font/otf" as="font" crossOrigin="anonymous" />
         </Head>
         <body>
           <Main />

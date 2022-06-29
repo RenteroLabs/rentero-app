@@ -104,7 +104,7 @@ const Detail: NextPage = () => {
       <Box className={styles.leftBox}>
         <Stack spacing="2rem">
           <Paper className={styles.itemCover} >
-            <img src={nftInfo?.media && nftInfo?.media[0]?.gateway} />
+            {nftInfo?.media && <img src={nftInfo?.media[0]?.gateway} />}
             {/* <Box component="span" >Rented</Box> */}
           </Paper>
           <Paper className={styles.rentDetail}>
@@ -153,7 +153,7 @@ const Detail: NextPage = () => {
               </Box>
               <Box>
                 <Box>Token ID</Box>
-                <Box className={styles.linkAddress}>8888</Box>
+                <Box className={styles.linkAddress}>{baseInfo.nftUid}</Box>
               </Box>
               <Box>
                 <Box>Token Standard</Box>

@@ -116,3 +116,11 @@
     overflow: hidden;
   }
 }
+
+.linkStyle {
+  display: inline-block;
+  margin-left: 1rem;
+  text-decoration: underline;
+  color: rgb(0, 112, 243);
+  cursor: pointer;
+}
