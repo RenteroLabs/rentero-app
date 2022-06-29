@@ -7,7 +7,7 @@ const nextConfig = {
   images: {
     domains: ['tva1.sinaimg.cn', 'ipfs.io'],
     loader: 'akamai',
-    path: '/',
+    path: '',
   },
   plugins: [
     new webpack.IgnorePlugin({
