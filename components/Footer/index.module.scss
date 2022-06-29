@@ -17,6 +17,10 @@
   border-bottom: 0.08rem solid rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-between;
+  img {
+    width: 126px;
+    height: 36px;
+  }
 }
 .communityList a {
   opacity: 0.8;

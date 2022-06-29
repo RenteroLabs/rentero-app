@@ -1,11 +1,11 @@
 // @ts-nocheck
 import styles from './index.module.scss'
-import Logo from '../../public/header_logo.svg'
 import Image from 'next/image'
 import Link from 'next/link'
+import Logo from '../../public/header_logo.svg'
 import ConnectWallet from '../ConnectWallet'
 import { useIsMounted } from '../../hooks'
-import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner, erc721ABI } from 'wagmi'
+import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner, erc721ABI, useSignMessage } from 'wagmi'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -17,10 +17,16 @@ import { useRouter } from 'next/router'
 import { utils } from 'ethers'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
 import { ERC721DemoABI, Ropsten_ERC721Demo_Contract, AXE_ABI, Ropsten_721_AXE_NFT } from '../../constants/contractABI'
+import { UserLoginParams } from '../../types/service'
+import { userLogin } from '../../services/dashboard'
+import { useLocalStorageState } from 'ahooks'
 
 export default function Header() {
   const router = useRouter()
   const isMounted = useIsMounted()
+  const [jwtToken, setJwtToken] = useLocalStorageState<string>('token', {
+    defaultValue: ''
+  })
   const { data: account } = useAccount()
   const {
     activeChain,
@@ -28,6 +34,21 @@ export default function Header() {
     isLoading,
     pendingChainId,
     switchNetwork, } = useNetwork()
+
+  const { isSuccess, signMessage, data } = useSignMessage({
+    message: 'Login Rentero',
+    onSuccess: async (data) => {
+      const params: UserLoginParams = {
+        signature: data,
+        timestamp: new Date().getTime(),
+        userAddress: account.address
+      }
+      const result = await userLogin(params)
+      // 存储 jwt token
+      setJwtToken(result.data.authToken)
+      router.push('/dashboard')
+    }
+  })
 
   const isEth = useMemo(() => {
     if (activeChain && activeChain.id === 1) {
@@ -63,9 +84,10 @@ export default function Header() {
       console.log(err.message)
     }
   }
+
   const transfer721 = async () => {
     try {
-      await contract.transferFrom(account?.address, '0x66567071D55A9FBE6B3944172592961c1C414075', 3)
+      await contract.transferFrom(account?.address, '0xBEaa278dB721b34e61721C1F8edaB25c069bae8D', 16)
     } catch (err: any) {
       console.log(err.message)
 
@@ -81,6 +103,14 @@ export default function Header() {
     }
 
     setOpenSetting(false);
+  }
+
+  const handleEnterDashboard = (event: Event | React.SyntheticEvent) => {
+    handleClose(event)
+    if (!jwtToken) {
+      signMessage()
+    }
+    router.push('/dashboard')
   }
 
   const handleLogout = (event: Event | React.SyntheticEvent) => {
@@ -102,7 +132,8 @@ export default function Header() {
 
   return <header className={styles.header}>
     <div className={styles.logo}>
-      <Image src={Logo} alt="Rentero Logo" />
+      {/* <Image src={Logo} alt="Rentero Logo" width="126" height="36" /> */}
+      <img src='/header_logo.svg' alt='Rentero Logo' />
     </div>
     <nav className={styles.navList}>
       <Link href="/"  >
@@ -188,12 +219,12 @@ export default function Header() {
           horizontal: 'center',
         }}
       >
-        <Link href="/dashboard">
-          <MenuItem onClick={handleClose}>
-            <DashboardIcon />
-            <span className={styles.menuText}>Dashboard</span>
-          </MenuItem>
-        </Link>
+        {/* <Link href="/dashboard"> */}
+        <MenuItem onClick={handleEnterDashboard}>
+          <DashboardIcon />
+          <span className={styles.menuText}>Dashboard</span>
+        </MenuItem>
+        {/* </Link> */}
         <MenuItem onClick={handleLogout}>
           <LogoutIcon />
           <span className={styles.menuText}>Disconnect</span>

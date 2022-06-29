@@ -1,6 +1,5 @@
 
-const BaseURL = 'https://devapi.rentero.io'
-
+import { BaseURL } from '../constants'
 
 export const getGameInfos = async () => {
   const data = await fetch(`${BaseURL}/home/game/list`, { mode: 'cors' })

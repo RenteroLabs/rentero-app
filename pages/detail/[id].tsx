@@ -18,6 +18,7 @@ import { getMarketNFTList, getNFTDetail } from "../../services/market";
 import { formatAddress } from "../../utils/format";
 import { web3GetNFTMetadata } from "../../services/web3NFT";
 import { CHAIN_ICON } from "../../constants";
+import Head from "next/head";
 
 const cx = classNames.bind(styles)
 
@@ -88,6 +89,10 @@ const Detail: NextPage = () => {
   })
 
   return <div>
+    <Head>
+      <title>NFT Detail | Rentero</title>
+      <meta name="description" content="Lend and rent your NFTs | Rentero Protocol" />
+    </Head>
     <Box className={styles.navBox}>
       <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
         <Link href={"/"}>Home</Link>
@@ -99,7 +104,7 @@ const Detail: NextPage = () => {
       <Box className={styles.leftBox}>
         <Stack spacing="2rem">
           <Paper className={styles.itemCover} >
-            <img src={nftInfo?.media && nftInfo?.media[0]?.gateway} />
+            {nftInfo?.media && <img src={nftInfo?.media[0]?.gateway} />}
             {/* <Box component="span" >Rented</Box> */}
           </Paper>
           <Paper className={styles.rentDetail}>
@@ -136,7 +141,7 @@ const Detail: NextPage = () => {
             <Typography variant="h2">{baseInfo.nftName} #{baseInfo.nftUid}</Typography>
             <Stack direction="row" spacing="4.83rem">
               <Box>Owned by <span className={styles.ownerAddress}>{formatAddress(baseInfo.lenderAddress, 6)}</span></Box>
-              <Box sx={{ display: 'flex', alignItems: 'center'}}>Blockchain <span className={styles.deployedChainType}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem', mr: '0.67rem' }} /> ETH</span></Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>Blockchain <span className={styles.deployedChainType}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem', mr: '0.67rem' }} /> ETH</span></Box>
             </Stack>
           </Paper>
           <Paper className={styles.rentNFTabout}>
@@ -148,7 +153,7 @@ const Detail: NextPage = () => {
               </Box>
               <Box>
                 <Box>Token ID</Box>
-                <Box className={styles.linkAddress}>8888</Box>
+                <Box className={styles.linkAddress}>{baseInfo.nftUid}</Box>
               </Box>
               <Box>
                 <Box>Token Standard</Box>

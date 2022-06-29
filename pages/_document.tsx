@@ -6,6 +6,7 @@ export default class AppDocument extends Document {
     return (
       <Html lang='en'>
         <Head>
+          <link rel="icon" href='/favicon.ico' />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -17,8 +18,8 @@ export default class AppDocument extends Document {
             rel="stylesheet"
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
           />
-          <link rel="preload" href="../public/font/Agrandir-GrandHeavy.otf" type="font/otf" />
-          <link rel="preload" href="../public/font/MonumentExtended.otf" type="font/otf" />
+          <link rel="preload" href="/font/Agrandir-GrandHeavy.otf" type="font/otf" as="font" crossOrigin="anonymous" />
+          <link rel="preload" href="/font/MonumentExtended.otf" type="font/otf" as="font" crossOrigin="anonymous" />
         </Head>
         <body>
           <Main />
