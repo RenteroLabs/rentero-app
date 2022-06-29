@@ -23,8 +23,8 @@ export const userLogin = async (params: UserLoginParams) => {
  * 出借者列表
  * @returns 
  */
-export const lenderList = async (token: string) => {
-  const data = await fetch(`${BaseURL}/order/lending/list`, {
+export const lenderList = async ({ token, pageIndex }: { token: string, pageIndex: number }) => {
+  const data = await fetch(`${BaseURL}/order/lending/list?pageIndex=${pageIndex}`, {
     headers: {
       sessionToken: token
     }
@@ -36,8 +36,8 @@ export const lenderList = async (token: string) => {
  * 借用者列表
  * @returns 
  */
-export const borrowerList = async (token: string) => {
-  const data = await fetch(`${BaseURL}/order/borrow/list`, {
+export const borrowerList = async ({ token, pageIndex }: { token: string, pageIndex: number }) => {
+  const data = await fetch(`${BaseURL}/order/borrow/list?pageIndex=${pageIndex}`, {
     headers: {
       sessionToken: token
     }

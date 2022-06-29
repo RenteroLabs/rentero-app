@@ -15,3 +15,24 @@ skuId: 10000
 status: "Cancel"
 totalInComeValue: 0
 wrapNftAddress: "0x9b01041815b301b728ed2b10a39ccb19f14cd4b2"
+
+
+export interface OrderInfo {
+  borrowAddress: string,
+  borrowerEarnRatio: number,
+  currencyKind: string,
+  expectedInCome: number,
+  lenderAddress: string,
+  lenderEarnRatio: number,
+  minGain: number,
+  newIncomeTime: string | number,
+  newIncomeValue: number,
+  nftUid: number,
+  orderId: number,
+  orderTime: number,
+  propertyUrl: string,
+  skuId: number,
+  status: 'Cancel' | 'Doing' | 'BCancel' | 'LCancel',
+  totalInComeValue: number,
+  wrapNftAddress: string
+}
