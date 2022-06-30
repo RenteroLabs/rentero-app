@@ -173,8 +173,37 @@
     line-height: 2rem;
     user-select: none;
     // background-color: transparent;
+    display: flex;
+    text-align: center;
+    justify-content: space-around;
+
   }
   & > div + div {
     margin-left: 1rem;
+  }
+}
+
+.nftBoxCell {
+  display: flex;
+
+  img {
+    width: 3.33rem;
+    height: 3.33rem;
+    border-radius: 0.5rem;
+  }
+
+  .nftCollectionName {
+    font-size: 1.17rem;
+    font-family: Poppins-Medium, Poppins;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 1.67rem;
+  }
+  .nftAddress {
+    font-size: 1rem;
+    font-family: Poppins-Regular, Poppins;
+    font-weight: 400;
+    color: #777e90;
+    line-height: 1.33rem;
   }
 }

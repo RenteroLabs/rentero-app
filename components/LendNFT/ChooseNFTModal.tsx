@@ -1,8 +1,8 @@
 import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Grid, IconButton, Stack, Step, StepButton, StepContent, StepLabel, Stepper, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
-import { erc721ABI, useAccount, useContract, useNetwork, useSigner } from 'wagmi'
-import { ROPSTEN_MARKET, ROPSTEN_MARKET_ABI, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../constants/contractABI'
+import { chain, erc721ABI, useAccount, useContract, useNetwork, useSigner, useWaitForTransaction } from 'wagmi'
+import { Ropsten_721_AXE_NFT, Ropsten_721_AXE_NFT_ABI, ROPSTEN_MARKET, ROPSTEN_MARKET_ABI, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../constants/contractABI'
 import NFTCard from '../IntegrationCard/NFTCard'
 import styles from './style.module.scss'
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -34,7 +34,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
   const [selectedNFT, setSelectedNFT] = useState<string>('')
   const [isRequestingNFT, setIsRequestingNFT] = useState<boolean>(false)
-  const { activeChain } = useNetwork()
+  const { activeChain, switchNetwork, chains } = useNetwork()
   const { data: account } = useAccount()
   const { data: signer } = useSigner()
   const [NFTList, setNFTList] = useState<any[]>([])
@@ -45,11 +45,20 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const [activeStep, setActiveStep] = useState<number>(0)
   const [stepComplete, setStepComplete] = useState<{ [k: number]: boolean }>({})
 
-  // const Web3 = useAlchemyService()
+
+  // const [approveTxHash, setApproveTxHash] = useState<string | undefined>()
+  // const { isLoading: approveLoading, isSuccess: approveSuccess } = useWaitForTransaction({
+  //   hash: approveTxHash,
+  //   onSuccess: (data) => {
+  //     console.log(data)
+  //     setStepComplete({ ...stepComplete, [activeStep]: true })
+  //     setActiveStep(activeStep + 1)
+  //   }
+  // })
 
   const contract721 = useContract({
     addressOrName: gameNFTCollection,
-    contractInterface: erc721ABI,
+    contractInterface: Ropsten_721_AXE_NFT_ABI,
     signerOrProvider: signer
   })
 
@@ -112,7 +121,10 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     setIsLoading(true)
 
     try {
-      await contract721.approve(Ropsten_WrapNFT, parseInt(selectedNFT))
+      const { hash } = await contract721.approve(Ropsten_WrapNFT, parseInt(selectedNFT))
+      console.log(hash)
+      // 等待交易被打包上链
+      // setApproveTxHash(hash)
       setStepComplete({ ...stepComplete, [activeStep]: true })
       setActiveStep(activeStep + 1)
     } catch (err: any) {
@@ -167,22 +179,34 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     setIsLoading(false)
   }
 
-  const createOrder = async () => {
-    const result = await contractMarket.createOrder(104)
-    console.log(result)
-  }
-  const setAccountAddress = async () => {
-    await contractMarket.setAccountAddress("0x0ceEb819d1CBc5af87C65BFbE7b1eED01172A3EA")
-  }
+  // const createOrder = async () => {
+  //   const result = await contractMarket.createOrder(104)
+  //   console.log(result)
+  // }
+  // const setAccountAddress = async () => {
+  //   await contractMarket.setAccountAddress("0x0ceEb819d1CBc5af87C65BFbE7b1eED01172A3EA")
+  // }
 
-  const setProtocolAddress = async () => {
-    await contractMarket.setProtocolAddress("0xE5725031D088f4Dd13056FDbd5A823FD4EDfEFcD")
-  }
+  // const setProtocolAddress = async () => {
+  //   await contractMarket.setProtocolAddress("0xE5725031D088f4Dd13056FDbd5A823FD4EDfEFcD")
+  // }
 
-  const createSkunInfo = async () => {
-    await contractMarket.createSkunInfo(104, Ropsten_WrapNFT)
-  }
+  // const createSkunInfo = async () => {
+  //   await contractMarket.createSkunInfo(104, Ropsten_WrapNFT)
+  // }
 
+  // 当前用户没有 Axe NFT 时，可以 mint NFT 进行体验
+  const mint721WhenEmpty = async () => {
+    // 判断当前所在区块链网络
+    if (activeChain?.id !== 137 && switchNetwork) {
+      await switchNetwork(chain.ropsten.id)
+    }
+    try {
+      await contract721.mint(account?.address, 105)
+    } catch (err: any) {
+      console.log(err.message)
+    }
+  }
 
   const handleStepClick = (index: number) => {
     if (stepComplete[index] || stepComplete[index - 1]) {
@@ -244,8 +268,15 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
             {
               !isRequestingNFT && NFTList.length === 0 && <Stack sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: 'auto' }}>
                 <PageviewIcon sx={{ fontSize: '8rem', mt: "6rem" }} />
-                <Typography sx={{ opacity: 0.8, textAlign: 'center', margin: '1rem auto' }}>
+                <Typography sx={{ opacity: 0.8, textAlign: 'center', margin: '1rem auto', fontSize: '1.2rem' }}>
                   No {gameName} NFT found in current wallet address
+                  <br />
+                  <Button
+                    sx={{ marginTop: '1rem' }}
+                    variant="contained"
+                    onClick={mint721WhenEmpty}>
+                    Mint a Axe NFT to have a try !
+                  </Button>
                 </Typography>
               </Stack>
             }

@@ -39,14 +39,6 @@ const Detail: NextPage = () => {
     fetchNFTList({ pageIndex: 1, pageSize: 5 });
 
     (async () => {
-      // 获取 NFT metadata 数据
-      // const result = await Web3?.alchemy.getNftMetadata({
-      //   // 此处在此直接请求 ERC721 合约地址
-      //   contractAddress: Ropsten_721_AXE_NFT,
-      //   tokenId: id as string || '1',
-      //   tokenType: 'erc721'
-      // })
-
       const result = await web3GetNFTMetadata({
         contractAddress: Ropsten_721_AXE_NFT,
         tokenId: id as string || '1',
@@ -105,7 +97,7 @@ const Detail: NextPage = () => {
         <Stack spacing="2rem">
           <Paper className={styles.itemCover} >
             {nftInfo?.media && <img src={nftInfo?.media[0]?.gateway} />}
-            {/* <Box component="span" >Rented</Box> */}
+            {baseInfo.status === 'Renting' && <Box component="span" >Rented</Box>}
           </Paper>
           <Paper className={styles.rentDetail}>
             <Typography>DAILY EARNING:</Typography>
@@ -115,19 +107,28 @@ const Detail: NextPage = () => {
             <Typography variant="h4" className={styles.earnRatioValue}>25%</Typography>
           </Paper>
 
-          {isMounted && account ?
+          {/* 已出租 */}
+          {baseInfo.status === 'Renting' && <Box
+            className={cx({
+              'rentButton': true,
+              'rentedButton': true,
+            })}
+          >Rented</Box>}
+
+          {baseInfo.status !== 'Renting' && (isMounted && account ?
             <RentNFTModal
               skuId={router.query['skuId'] as string}
               trigger={<Box
                 className={cx({
                   'rentButton': true,
-                  // TODO: checkout current NFT if rented
                   'rentedButton': false,
                 })}
               >Rent</Box>} /> :
-            <ConnectWallet trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />}
+            <ConnectWallet trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />)}
+
         </Stack>
       </Box>
+
       <Box className={styles.rightBox} sx={{ marginLeft: '5.33rem', width: '60.83rem' }}>
         <Stack spacing="2rem">
           <Paper className={styles.rentNFTinfo}>
@@ -177,7 +178,6 @@ const Detail: NextPage = () => {
                 })
               }
             </Box>
-
           </Paper>
         </Stack>
       </Box>

@@ -26,9 +26,9 @@ const Dashboard: NextPage = () => {
         <Box className={classNames({ activeNavItem: currentNav === NAV_ITEM_LIST[0] })} onClick={() => setCurrentNav(NAV_ITEM_LIST[0])}>
           <DashboardIcon />{NAV_ITEM_LIST[0]}
         </Box>
-        <Box className={classNames({ activeNavItem: currentNav === NAV_ITEM_LIST[1] })} onClick={() => setCurrentNav(NAV_ITEM_LIST[1])}>
+        {/* <Box className={classNames({ activeNavItem: currentNav === NAV_ITEM_LIST[1] })} onClick={() => setCurrentNav(NAV_ITEM_LIST[1])}>
           <BallotIcon />{NAV_ITEM_LIST[1]}
-        </Box>
+        </Box> */}
         {/* <Box className={classNames({ activeNavItem: currentNav === NAV_ITEM_LIST[2] })} onClick={() => setCurrentNav(NAV_ITEM_LIST[2])}>
           <PaidIcon />{NAV_ITEM_LIST[2]}
         </Box> */}
@@ -36,7 +36,7 @@ const Dashboard: NextPage = () => {
     </div>
     <div className={styles.contentBox}>
       {currentNav === NAV_ITEM_LIST[0] && <DashboardBox />}
-      {currentNav === NAV_ITEM_LIST[1] && <Withdraw />}
+      {/* {currentNav === NAV_ITEM_LIST[1] && <Withdraw />} */}
       {/* {currentNav === NAV_ITEM_LIST[2] && <Payout />} */}
     </div>
   </Container>
