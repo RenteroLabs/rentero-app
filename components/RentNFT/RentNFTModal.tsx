@@ -1,11 +1,12 @@
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Stack, Typography } from '@mui/material'
-import React, { useState } from 'react'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Stack, Typography, Alert } from '@mui/material'
+import React, { useMemo, useState } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import DoneIcon from '@mui/icons-material/Done';
 import AppDialog from '../Dialog'
 import styles from './rentModal.module.scss'
-import { erc20ABI, useAccount, useContract, useSigner } from 'wagmi';
+import { erc20ABI, etherscanBlockExplorers, useAccount, useContract, useNetwork, useSigner, useWaitForTransaction } from 'wagmi';
 import { Ropsten_721_AXE_NFT, ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../constants/contractABI';
+import { LoadingButton } from '@mui/lab';
 
 interface RentNFTModalProps {
   trigger: React.ReactElement,
@@ -15,19 +16,29 @@ interface RentNFTModalProps {
 const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   const { trigger, skuId } = props
   const [closeModal, setCloseModal] = useState<boolean>(false)
+  const [txHash, setTxHash] = useState<string | undefined>()
+  const [txError, setTxError] = useState<string>('')
+  const { activeChain } = useNetwork()
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false)
+  const [isRented, setIsRented] = useState<boolean>(false)
   const { data: account } = useAccount()
   const { data: signer } = useSigner()
 
-  // const contract = useContract({
-  //   addressOrName: '0x512A34a032116eCdE07bfe47e731B2d16b77A5fB',
-  //   contractInterface: erc20ABI,
-  //   signerOrProvider: signer
-  // })
+  const blockscanUrl = useMemo(() => {
+    return `${activeChain?.blockExplorers?.default.url}/tx/${txHash}`
+  }, [txHash, activeChain])
 
   const contractMarket = useContract({
     addressOrName: ROPSTEN_MARKET,
     contractInterface: ROPSTEN_MARKET_ABI,
     signerOrProvider: signer
+  })
+
+  const { isLoading } = useWaitForTransaction({
+    hash: txHash,
+    onSuccess: () => {
+      setIsRented(true)
+    }
   })
 
   // 用户授权转账保证金以租赁NFT
@@ -40,11 +51,16 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   // }
 
   const handleCreateOrder = async () => {
+    setButtonLoading(true)
+    setTxError('')
     try {
-      await contractMarket.createOrder(skuId)
-    } catch (err) {
-      console.log(err)
+      const { hash } = await contractMarket.createOrder(skuId)
+      setTxHash(hash)
+    } catch (err: any) {
+      console.error(err.message)
+      setTxError(err.message)
     }
+    setButtonLoading(false)
   }
 
   return <AppDialog
@@ -63,11 +79,31 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
           <Box>2. If the borrower&#39;s average return per cycle is less than the deposit amount, it will be paid to the lessor</Box>
         </Stack>
       </Box>
+      {txError && <Alert variant="outlined" severity="error" sx={{ mt: '2rem' }}>
+        {txError}
+      </Alert>}
       <Box sx={{ mt: '2rem', textAlign: 'center', color: 'white' }}  >
-        <Button variant="contained" onClick={handleCreateOrder}>Approve To Rent</Button>
+        {!isLoading && !isRented && <LoadingButton
+          loading={buttonLoading}
+          variant="contained"
+          onClick={handleCreateOrder}
+        >
+          Approve To Rent
+        </LoadingButton>}
+        {isLoading &&
+          < Box className={styles.txProcessing}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src='/block-loading.svg' />
+              The transaction is waiting for being packaged...
+            </Box>
+            <Typography>
+              <a href={blockscanUrl} target="_blank" rel="noreferrer">See detail in blockscan</a>
+            </Typography>
+          </Box>}
+        {isRented && <Button variant="text" color="success" sx={{ fontWeight: 'bolder' }}><DoneIcon />&nbsp; Rented</Button>}
       </Box>
     </Box>
-  </AppDialog>
+  </AppDialog >
 }
 
 export default RentNFTModal

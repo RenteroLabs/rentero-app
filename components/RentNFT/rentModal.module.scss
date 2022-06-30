@@ -1,5 +1,21 @@
 .rentModal {
   padding: 2rem;
   min-height: 20rem;
+  max-width: 70rem;
 }
 
+.txProcessing {
+  font-size: 1.2rem;
+  color: rgba($color: white, $alpha: 0.9);
+  img {
+    width: 1.8rem;
+    height: 1.8rem;
+    // background-color: transparent;
+  }
+
+  a {
+    color: #5bd9fe;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
