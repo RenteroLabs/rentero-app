@@ -10,11 +10,12 @@ import { LoadingButton } from '@mui/lab';
 
 interface RentNFTModalProps {
   trigger: React.ReactElement,
-  skuId: number | string
+  skuId: number | string,
+  baseInfo: Record<string, any>
 }
 
 const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
-  const { trigger, skuId } = props
+  const { trigger, skuId, baseInfo } = props
   const [closeModal, setCloseModal] = useState<boolean>(false)
   const [txHash, setTxHash] = useState<string | undefined>()
   const [txError, setTxError] = useState<string>('')
@@ -51,8 +52,14 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   // }
 
   const handleCreateOrder = async () => {
-    setButtonLoading(true)
     setTxError('')
+    // 用户不能租借自己出租的 NFT
+    if (baseInfo.lenderAddress === account?.address?.toLowerCase()) {
+      setTxError('Users cannot rent NFTs they own')
+      return
+    }
+
+    setButtonLoading(true)
     try {
       const { hash } = await contractMarket.createOrder(skuId)
       setTxHash(hash)

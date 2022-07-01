@@ -5,7 +5,7 @@ const webpack = require('webpack')
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['tva1.sinaimg.cn', 'ipfs.io'],
+    domains: ['tva1.sinaimg.cn', 'ipfs.io', 'gateway.pinata.cloud'],
     loader: 'akamai',
     path: '',
   },

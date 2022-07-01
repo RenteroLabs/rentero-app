@@ -118,6 +118,7 @@ const Detail: NextPage = () => {
           {baseInfo.status !== 'Renting' && (isMounted && account ?
             <RentNFTModal
               skuId={router.query['skuId'] as string}
+              baseInfo={baseInfo}
               trigger={<Box
                 className={cx({
                   'rentButton': true,

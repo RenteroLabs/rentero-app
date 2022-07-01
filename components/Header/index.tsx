@@ -84,6 +84,13 @@ export default function Header() {
       console.log(err.message)
     }
   }
+  // const updateURI = async () => {
+  //   try {
+  //     await contract.setBaseURI("ipfs://QmaV3ixoANZQcgTNnTFnXDtVR7wgBKQq7wX4JSrpYmkmer/")
+  //   } catch (err: any) {
+  //     console.log(err.message)
+  //   }
+  // }
 
   const transfer721 = async () => {
     try {
@@ -151,6 +158,7 @@ export default function Header() {
         TransitionComponent={(props: TransitionProps) => <Slide {...props} direction="right" />}
       />
     </nav>
+    {/* <button onClick={updateURI}>updateURI</button> */}
     {/* <button onClick={mint721}>Click</button> */}
     {/* <button onClick={transfer721}>Transfer</button> */}
     {(isMounted && account) &&
