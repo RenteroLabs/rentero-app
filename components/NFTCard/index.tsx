@@ -18,7 +18,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     <div className={styles.card}>
       {/* 先用背景图片替换 */}
       <div className={styles.nftImage}>
-        {metadata && metadata?.media && <Image src={metadata?.media[0]?.gateway} layout="fill" />}
+        {metadata && metadata?.media && metadata?.media[0]?.gateway && <Image src={metadata?.media[0]?.gateway.replace("ipfs.io", 'gateway.pinata.cloud')} layout="fill" />}
       </div>
       <div className={styles.cardTitle}>
         <span className={styles.nftCollectionImage}>
