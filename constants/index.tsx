@@ -13,6 +13,13 @@ export const SUPPORT_CHAINS = [
   chain.rinkeby
 ]
 
+type EtherscanChains = "mainnet" | "ropsten" | "rinkeby" | "goerli" | "kovan" | "optimism" | "optimismKovan" | "polygon" | "polygonMumbai" | "arbitrum" | "arbitrumRinkeby"
+export const CHAIN_NAME: Record<number, EtherscanChains> = {
+  1: 'mainnet',
+  3: 'ropsten',
+  137: 'polygon'
+}
+
 export const ALCHEMY_POLYGON_URL = `https://polygon-mainnet.g.alchemy.com/nft/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`
 
 export const ALCHEMY_ETHEREUM_URL = `https://eth-mainnet.alchemyapi.io/nft/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`

@@ -1,4 +1,4 @@
-import { Box, Card, Chip, CircularProgress, IconButton, InputBase, Pagination, Paper, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
+import { Alert, Box, Button, Card, Chip, CircularProgress, IconButton, InputBase, Pagination, Paper, Slide, SlideProps, Snackbar, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
 import styles from './index.module.scss'
 import classNames from "classnames/bind"
 import NotFound from '../../public/table_not_found.svg'
@@ -12,8 +12,10 @@ import { useLocalStorageState, useRequest } from "ahooks"
 import { borrowerList, lenderList, overviewData } from "../../services/dashboard"
 import { OrderInfo } from "../../types/dashboard"
 import { web3GetNFTMetadata } from "../../services/web3NFT"
-import { Ropsten_721_AXE_NFT } from "../../constants/contractABI"
+import { Ropsten_721_AXE_NFT, ROPSTEN_ACCOUNT_ABI, ROPSTEN_ACCOUNT, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from "../../constants/contractABI"
 import { dateFormat, formatAddress } from "../../utils/format"
+import { useContract, useSigner } from "wagmi"
+import { LoadingButton } from "@mui/lab"
 
 const cx = classNames.bind(styles)
 
@@ -24,7 +26,8 @@ export interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = (props) => {
   const { } = props
   const isMounted = useIsMounted()
-  const [jwtToken] = useLocalStorageState<string>('token')
+  const { data: signer } = useSigner()
+  const [rawToken] = useLocalStorageState<string>('token')
   const [tableType, setTableType] = useState<"RENT" | "LEND">('RENT')
 
   const [lendDataSource, setLendDataSource] = useState<OrderInfo[]>([])
@@ -34,6 +37,27 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const [overview, setOverview] = useState<Record<string, any>>({})
 
   const [metadata, setMetaData] = useState<Record<number, any>>({})
+
+  const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>()
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false)
+
+  const jwtToken = useMemo(() => {
+    if (!rawToken) return ''
+    return rawToken.split('*')[1]
+  }, [rawToken])
+
+  const contractWrap = useContract({
+    addressOrName: Ropsten_WrapNFT,
+    contractInterface: Ropsten_WrapNFT_ABI,
+    signerOrProvider: signer
+  })
+
+  const contractAccount = useContract({
+    addressOrName: ROPSTEN_ACCOUNT,
+    contractInterface: ROPSTEN_ACCOUNT_ABI,
+    signerOrProvider: signer
+  })
 
   const { run: getLenderList, loading: lenderListLoading } = useRequest(lenderList, {
     manual: true,
@@ -114,6 +138,43 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     }
   ]
 
+  // 赎回 NFT
+  const withdrawNFT = async (nftUid: number) => {
+    try {
+      await contractWrap.redeem(nftUid)
+    } catch (err: any) {
+      console.error(err.message)
+    }
+  }
+
+  const lendOperation = (item: OrderInfo) => {
+    switch (item.status) {
+      case 'Doing': return <WithdrawNFTModal
+        trigger={<span className={cx({ "returnButton": true, "returnButton_disable": item.status !== 'Doing' })}>TakeOff</span>}
+        orderId={item.orderId}
+      />;
+      case 'LCancel': return <span
+        className={cx({ "returnButton": true, })}
+        onClick={() => withdrawNFT(item.nftUid)}>Withdraw</span>;
+      default: return <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>
+    }
+  }
+
+  // 提取收益
+  const withdrawEarning = async () => {
+    setWithdrawLoading(true)
+    setErrorMessage(undefined)
+    try {
+      await contractAccount.withdrawToken(0)
+    } catch (err: any) {
+      setErrorMessage(err.message)
+      setShowSnackbar(true)
+    }
+    setWithdrawLoading(false)
+  }
+
+  // TODO: dashboard页在调用合约操作之前需判断当前所处网络
+
   return <div>
     <Stack direction="row" className={styles.overviewBox}>
       <Card variant="outlined">
@@ -131,7 +192,27 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       <Card variant="outlined">
         <Box>Total Income </Box>
         <Box>{overview.borrowInCome + overview.lendInCome}</Box>
+        <LoadingButton
+          loading={withdrawLoading}
+          variant="outlined"
+          color="success"
+          size="small"
+          onClick={withdrawEarning}
+        >Withdraw</LoadingButton>
       </Card>
+      <Snackbar
+        open={showSnackbar}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right'
+        }}
+        autoHideDuration={7000}
+        TransitionComponent={(props: SlideProps) => <Slide {...props} direction="up" />}
+        onClose={() => setShowSnackbar(false)}>
+        <Alert severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
 
     <Box className={styles.tableSearch}>
@@ -196,13 +277,8 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                       orderId={item.orderId}
                     /> :
                     <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Return</span>)}
-                {tableType === 'LEND' &&
-                  (item.status === 'Doing' ?
-                    <WithdrawNFTModal
-                      trigger={<span className={cx({ "returnButton": true, "returnButton_disable": item.status !== 'Doing' })}>Withdraw</span>}
-                      orderId={item.orderId}
-                    /> :
-                    <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>)}
+                {tableType === 'LEND' && lendOperation(item)}
+
               </TableCell>
             </TableRow>
           })

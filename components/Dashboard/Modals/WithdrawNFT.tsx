@@ -1,6 +1,7 @@
-import { Box, Stack, Typography } from '@mui/material'
+import { Alert, Box, Stack, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import { useAccount, useContract, useSigner } from 'wagmi'
+import CircularProgress from '@mui/material/CircularProgress';
 import { ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../../constants/contractABI'
 import AppDialog from '../../Dialog'
 import styles from './modal.module.scss'
@@ -13,6 +14,8 @@ interface WithdrawNFTModalProps {
 const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   const { trigger, orderId } = props
   const [hiddenDialog, setHiddenDialog] = useState<boolean>(false)
+  const [txError, setTxError] = useState<string | undefined>()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const { data: account } = useAccount()
   const { data: signer } = useSigner()
 
@@ -23,11 +26,15 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   })
 
   const withdrawLendNFT = async () => {
+    if (isLoading) return
+    setIsLoading(true)
+    setTxError('')
     try {
       await contractMarket.cancelOrderForLender(orderId)
     } catch (err: any) {
-      console.log(err.message)
+      setTxError(err.message)
     }
+    setIsLoading(false)
   }
 
   const hiddenAppDialog = () => {
@@ -45,8 +52,12 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
         Are you sure to withdraw the NFT? You will stop earning yields once confirming, your NFT will be sent to the address below. <span className={styles.tipsText}>(please check it carefully)</span>
       </Typography>
       <Box className={styles.addressBox}>{account?.address}</Box>
+      {txError && <Alert variant="outlined" severity="error" sx={{ mt: '2rem', maxWidth: '40rem' }}>{txError}</Alert>}
       <Stack direction="row" spacing="3.33rem" sx={{ mt: '2.67rem' }}>
-        <Box className={styles.primaryButton} onClick={withdrawLendNFT}>Confirm</Box>
+        <Box className={styles.primaryButton} onClick={withdrawLendNFT}>
+          {isLoading && <CircularProgress sx={{ width: '2rem', height: '2rem' }} />}
+          Confirm
+        </Box>
         <Box className={styles.defaultButton} onClick={hiddenAppDialog}>Cancel</Box>
       </Stack>
     </Box>

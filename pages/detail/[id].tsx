@@ -1,4 +1,4 @@
-import { Avatar, Box, Breadcrumbs, Paper, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Breadcrumbs, Fade, IconButton, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { NextPage } from "next/types";
@@ -7,18 +7,21 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import styles from '../../styles/detail.module.scss'
 import NFTCard from "../../components/NFTCard";
 import ConnectWallet from "../../components/ConnectWallet";
-import { useAccount } from "wagmi";
-import { useAlchemyService, useIsMounted } from "../../hooks";
+import { chain, etherscanBlockExplorers, useAccount } from "wagmi";
+import { useAlchemyService, useCopyToClipboard, useIsMounted } from "../../hooks";
 import classNames from "classnames/bind";
 import RentNFTModal from "../../components/RentNFT/RentNFTModal";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Ropsten_721_AXE_NFT } from "../../constants/contractABI";
 import { useRequest } from "ahooks";
 import { getMarketNFTList, getNFTDetail } from "../../services/market";
 import { formatAddress } from "../../utils/format";
 import { web3GetNFTMetadata } from "../../services/web3NFT";
-import { CHAIN_ICON } from "../../constants";
+import { CHAIN_ICON, CHAIN_NAME } from "../../constants";
 import Head from "next/head";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
+import LaunchIcon from '@mui/icons-material/Launch';
 
 const cx = classNames.bind(styles)
 
@@ -32,7 +35,14 @@ const Detail: NextPage = () => {
   const [nftList, setNFTList] = useState<Record<string, any>[]>([])
   const [NFTMetadataList, setNFTMetadataList] = useState<Record<string, any>[]>([])
 
+  const [_, copyAddress] = useCopyToClipboard()
+  const [isCopyed, setIsCopyed] = useState<boolean>(false)
+
   const { id } = router.query
+
+  const contractBlockExplore = useMemo(() => {
+    return `${etherscanBlockExplorers[CHAIN_NAME[3 | baseInfo.chainId]]?.url}/address/${baseInfo.nftAddress}`
+  }, [baseInfo])
 
   useEffect(() => {
     fetchNFTDetail({ skuId: router.query['skuId'] });
@@ -141,8 +151,34 @@ const Detail: NextPage = () => {
               <span>#{baseInfo.nftUid}</span>
             </Box>
             <Typography variant="h2">{baseInfo.nftName} #{baseInfo.nftUid}</Typography>
-            <Stack direction="row" spacing="4.83rem">
-              <Box>Owned by <span className={styles.ownerAddress}>{formatAddress(baseInfo.lenderAddress, 6)}</span></Box>
+            <Stack direction="row" spacing="4.83rem" className={styles.addressInfo}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography >Owned by</Typography>
+                <span className={styles.ownerAddress}>
+                  {formatAddress(baseInfo.lenderAddress, 6)}
+                </span>
+                {
+                  isCopyed ?
+                    <Tooltip title="Copyed">
+                      <Fade in={true}>
+                        <IconButton size="small"><CheckIcon color="success" fontSize="small" /></IconButton>
+                      </Fade>
+                    </Tooltip> :
+                    <Tooltip title="Copy Address To Clipboard">
+                      <Fade in={true}>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            copyAddress(baseInfo.lenderAddress)
+                            setIsCopyed(true)
+                            setTimeout(() => setIsCopyed(false), 2500)
+                          }}>
+                          <ContentCopyIcon fontSize="small" sx={{ opacity: '0.8' }} />
+                        </IconButton>
+                      </Fade>
+                    </Tooltip>
+                }
+              </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>Blockchain <span className={styles.deployedChainType}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem', mr: '0.67rem' }} /> ETH</span></Box>
             </Stack>
           </Paper>
@@ -151,7 +187,12 @@ const Detail: NextPage = () => {
             <Stack className={styles.detailList}>
               <Box>
                 <Box>Contract Address</Box>
-                <Box className={styles.linkAddress}>{formatAddress(baseInfo.nftAddress, 6)}</Box>
+                <a href={contractBlockExplore} target="_blank" rel="noreferrer">
+                  <Box className={styles.linkAddress}>
+                    {formatAddress(baseInfo.nftAddress, 6)}&nbsp;
+                    <LaunchIcon />
+                  </Box>
+                </a>
               </Box>
               <Box>
                 <Box>Token ID</Box>

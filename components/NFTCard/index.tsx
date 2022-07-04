@@ -12,13 +12,12 @@ interface NFTCardProps {
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
   const { nftInfo, metadata } = props
-  // console.log(metadata, nftInfo)
 
   return <Link href={`/detail/${nftInfo.nftUid}?skuId=${nftInfo.skuId}`}  >
     <div className={styles.card}>
       {/* 先用背景图片替换 */}
       <div className={styles.nftImage}>
-        {metadata && metadata?.media && metadata?.media[0]?.gateway && <Image src={metadata?.media[0]?.gateway.replace("ipfs.io", 'gateway.pinata.cloud')} layout="fill" />}
+        {metadata && metadata?.media && metadata?.media[0]?.gateway && <Image src={metadata?.media[0]?.gateway} layout="fill" />}
       </div>
       <div className={styles.cardTitle}>
         <span className={styles.nftCollectionImage}>

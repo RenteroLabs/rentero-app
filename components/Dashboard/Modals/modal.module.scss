@@ -25,17 +25,17 @@
   text-align: center;
   user-select: none;
   cursor: pointer;
-  border-top-right-radius: 2.2rem;
-  clip-path: polygon(
-    30% 0%,
-    93.5% 0%,
-    100% 40%,
-    100% 100%,
-    70% 100%,
-    0 100%,
-    0% 70%,
-    0 0
-  );
+  // border-top-right-radius: 2.2rem;
+  // clip-path: polygon(
+  //   30% 0%,
+  //   93.5% 0%,
+  //   100% 40%,
+  //   100% 100%,
+  //   70% 100%,
+  //   0 100%,
+  //   0% 70%,
+  //   0 0
+  // );
 }
 
 .defaultButton {
@@ -44,6 +44,7 @@
 
 .primaryButton {
   @extend .baseButton;
+  border-top-right-radius: 2.2rem;
   background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
   border: none;
   clip-path: polygon(
@@ -56,6 +57,14 @@
     0% 70%,
     0 0
   );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  span {
+    width: 2rem !important;
+    height: 2rem !important;
+    margin-right: 1rem;
+  }
 }
 
 .addressBox {
