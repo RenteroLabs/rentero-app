@@ -11,7 +11,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
 import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList, Slide, Snackbar, Typography, Box, Button } from '@mui/material'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
 import { utils } from 'ethers'
@@ -28,6 +28,14 @@ export default function Header() {
     defaultValue: ''
   })
   const { data: account } = useAccount()
+
+  useEffect(() => {
+    const [address] = jwtToken.split('*')
+    if (account?.address !== address && router.pathname === '/dashboard') {
+      setTimeout(signMessage, 2000)
+    }
+  }, [account])
+
   const {
     activeChain,
     error,
@@ -35,7 +43,7 @@ export default function Header() {
     pendingChainId,
     switchNetwork, } = useNetwork()
 
-  const { isSuccess, signMessage, data } = useSignMessage({
+  const { signMessage } = useSignMessage({
     message: 'Login Rentero',
     onSuccess: async (data) => {
       const params: UserLoginParams = {
@@ -45,7 +53,7 @@ export default function Header() {
       }
       const result = await userLogin(params)
       // 存储 jwt token
-      setJwtToken(result.data.authToken)
+      setJwtToken(`${account?.address}*${result.data.authToken}`)
       router.push('/dashboard')
     }
   })
@@ -116,6 +124,11 @@ export default function Header() {
     handleClose(event)
     if (!jwtToken) {
       signMessage()
+    } else {
+      const [address] = jwtToken.split('*')
+      if (address !== account?.address) {
+        signMessage()
+      }
     }
     router.push('/dashboard')
   }
@@ -139,8 +152,9 @@ export default function Header() {
 
   return <header className={styles.header}>
     <div className={styles.logo}>
-      {/* <Image src={Logo} alt="Rentero Logo" width="126" height="36" /> */}
-      <img src='/header_logo.svg' alt='Rentero Logo' />
+      <a href='https://rentero.io' rel='noreferrer'>
+        <img src='/header_logo.svg' alt='Rentero Logo' />
+      </a>
     </div>
     <nav className={styles.navList}>
       <Link href="/"  >
@@ -227,12 +241,10 @@ export default function Header() {
           horizontal: 'center',
         }}
       >
-        {/* <Link href="/dashboard"> */}
         <MenuItem onClick={handleEnterDashboard}>
           <DashboardIcon />
           <span className={styles.menuText}>Dashboard</span>
         </MenuItem>
-        {/* </Link> */}
         <MenuItem onClick={handleLogout}>
           <LogoutIcon />
           <span className={styles.menuText}>Disconnect</span>

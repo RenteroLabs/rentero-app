@@ -46,7 +46,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     manual: true,
     onSuccess: async ({ data }) => {
       const { totalRemain, pageContent } = data
-      setNFTList(pageContent)
+      setNFTList([...NFTList, ...pageContent])
       setNFTTotal(totalRemain)
 
       // let metalist: Record<number, any> = {}
@@ -88,6 +88,11 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     fetchNFTList({ pageIndex: 1, pageSize: 10 })
   }, [])
 
+  const handelGetMoreList = async () => {
+    fetchNFTList({ pageIndex: currentPage + 1, pageSize: 10 })
+    setCurrentPage(currentPage + 1)
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -117,12 +122,12 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
               <ToggleButton value="0" >
                 <Box>All games</Box>
               </ToggleButton>
-              <ToggleButton value="1" sx={{ cursor: 'not-allowed' }}>
+              {/* <ToggleButton value="1" sx={{ cursor: 'not-allowed' }}>
                 <Box><img src='/axie-logo.png' alt='game_logo' />Axie</Box>
               </ToggleButton>
               <ToggleButton value="2" sx={{ cursor: 'not-allowed' }}>
                 <Box><img src='/stepn-logo.jpeg' alt='game_logo_stepn' />Stepn</Box>
-              </ToggleButton>
+              </ToggleButton> */}
             </ToggleButtonGroup>
           </AccordionDetails>
         </Accordion>
@@ -133,20 +138,20 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             <Typography variant='h4' className={styles.gameTitle}>
               {currentGameInfo.gameName}
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {currentGame !== '0' && <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ScheduleIcon style={{ color: '#48475b', width: '22px', height: '22px' }} />
               <Typography variant="body2" display="block" className={styles.releaseTime}>
                 Released at {dateFormat("YYYY-mm-dd", new Date(currentGameInfo.releaseTime))}
               </Typography>
               <Box className={styles.gameStatus}>Beta</Box>
-            </Box>
-            <Typography className={styles.tagList}>
+            </Box>}
+            {currentGame !== '0' && <Typography className={styles.tagList}>
               <span>NFT</span>
               <span>Rent</span>
               <span>Lend</span>
-            </Typography>
+            </Typography>}
             <Typography className={styles.gameDesc}>{currentGameInfo.gameDesc}</Typography>
-            <Box justifyContent="left" sx={{ display: 'flex', alignItems: 'center', mt: '1rem' }} >
+            {currentGame !== '0' && <Box justifyContent="left" sx={{ display: 'flex', alignItems: 'center', mt: '1rem' }} >
               <a href={currentGameInfo.gameHomeUrl} target="_blank" rel="noreferrer">
                 <span className={styles.websiteBtn}>
                   Website &nbsp;&nbsp;&nbsp; <ArrowRightAltRoundedIcon style={{ width: '18px', height: '18px', color: 'white' }} />
@@ -176,7 +181,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
                   <span className={styles.facebookLink}></span>
                 </a>
               }
-            </Box>
+            </Box>}
           </Box>
         </section>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.67rem' }}>
@@ -204,7 +209,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
                   {item}
                 </MenuItem>)}
             </Menu>
-            <Box
+            {/* <Box
               ref={sortTypeRef}
               onClick={() => setSortTypeShow(true)}
             >
@@ -227,7 +232,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
                   {item}
                 </MenuItem>
               )}
-            </Menu>
+            </Menu>*/}
           </Box>
         </Box>
 
@@ -253,7 +258,11 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             })
           }
         </div>
-        {((10 * currentPage) < NFTTotal) && isMounted && <div className={styles.showMore}><span>Show more</span></div>}
+        {((10 * currentPage) < NFTTotal) && isMounted &&
+          <div
+            className={styles.showMore}
+            onClick={handelGetMoreList}
+          ><span>Show more</span></div>}
       </div>
     </div >
   )

@@ -11,7 +11,9 @@ export default function Footer() {
   return <div className={styles.footer} >
     <div className={styles.context}>
       <div className={styles.iconList}>
-        <img src='/header_logo.svg' alt='RenteroLogo' />
+        <a href='https://rentero.io' rel='noreferrer'>
+          <img src='/header_logo.svg' alt='RenteroLogo' />
+        </a>
         <div className={styles.communityList}>
           <a href='https://discord.io/rentero' target="_blank" rel="noreferrer" ><Image src={DiscordLogo} /></a>
           <a href='https://twitter.com/RenteroProtocol' target="_blank" rel="noreferrer"><Image src={TwitterLogo} /></a>
