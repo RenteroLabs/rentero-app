@@ -152,8 +152,9 @@ export default function Header() {
 
   return <header className={styles.header}>
     <div className={styles.logo}>
-      {/* <Image src={Logo} alt="Rentero Logo" width="126" height="36" /> */}
-      <img src='/header_logo.svg' alt='Rentero Logo' />
+      <a href='https://rentero.io' rel='noreferrer'>
+        <img src='/header_logo.svg' alt='Rentero Logo' />
+      </a>
     </div>
     <nav className={styles.navList}>
       <Link href="/"  >

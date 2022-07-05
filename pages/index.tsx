@@ -46,7 +46,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     manual: true,
     onSuccess: async ({ data }) => {
       const { totalRemain, pageContent } = data
-      setNFTList(pageContent)
+      setNFTList([...NFTList, ...pageContent])
       setNFTTotal(totalRemain)
 
       // let metalist: Record<number, any> = {}
@@ -87,6 +87,11 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   useEffect(() => {
     fetchNFTList({ pageIndex: 1, pageSize: 10 })
   }, [])
+
+  const handelGetMoreList = async () => {
+    fetchNFTList({ pageIndex: currentPage + 1, pageSize: 10 })
+    setCurrentPage(currentPage + 1)
+  }
 
   return (
     <div className={styles.container}>
@@ -228,7 +233,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
                 </MenuItem>
               )}
             </Menu>*/}
-          </Box> 
+          </Box>
         </Box>
 
         {/* 骨架图 */}
@@ -253,7 +258,11 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             })
           }
         </div>
-        {((10 * currentPage) < NFTTotal) && isMounted && <div className={styles.showMore}><span>Show more</span></div>}
+        {((10 * currentPage) < NFTTotal) && isMounted &&
+          <div
+            className={styles.showMore}
+            onClick={handelGetMoreList}
+          ><span>Show more</span></div>}
       </div>
     </div >
   )
