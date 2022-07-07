@@ -20,6 +20,7 @@ import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT } from '../../constants/co
 import { UserLoginParams } from '../../types/service'
 import { userLogin } from '../../services/dashboard'
 import { useLocalStorageState } from 'ahooks'
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 export default function Header() {
   const router = useRouter()
@@ -83,7 +84,7 @@ export default function Header() {
 
   const mint721 = async () => {
     try {
-      await contract.mint(address)
+      await contract.mint()
     } catch (err: any) {
       console.log(err.message)
     }
@@ -211,7 +212,7 @@ export default function Header() {
 
     {(isMounted && isConnected) ?
       <Chip
-        avatar={<Avatar src={ensAvatar} alt="account_avatar" />}
+        avatar={<AccountBalanceWalletIcon />}
         label={<div className={styles.addressOrEns}>
           {ensName ? ensName : formatAddress(address, 4)}
           <KeyboardArrowDownOutlinedIcon className={styles.downIcon} />

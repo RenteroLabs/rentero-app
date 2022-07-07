@@ -128,12 +128,17 @@
 
 .lendSuccess {
   text-align: center;
+  img {
+    width: 64px;
+    height: 64px;
+  }
   h3 {
     font-size: 1.67rem;
     font-family: Poppins-Bold, Poppins;
     font-weight: bold;
     color: #ffffff;
     line-height: 2.33rem;
+    margin-top: 1rem;
   }
   & > span {
     font-size: 1.33rem;

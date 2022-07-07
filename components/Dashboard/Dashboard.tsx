@@ -187,7 +187,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       </Card>
       <Card variant="outlined">
         <Box>Total Deposit</Box>
-        <Box>{overview.totalDeposit}</Box>
+        <Box>{'0' || overview.totalDeposit}</Box>
       </Card>
       <Card variant="outlined">
         <Box>Total Income </Box>
@@ -267,7 +267,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
               <TableCell>{item.totalInComeValue}</TableCell>
               <TableCell>{item.lenderEarnRatio}%</TableCell>
               <TableCell>AXE</TableCell>
-              <TableCell>{dateFormat('YYYY-mm-dd HH:MM:SS', new Date(item.orderTime))}</TableCell>
+              <TableCell>{dateFormat('YYYY-mm-dd HH:MM:SS', new Date(item.orderTime * 1000))}</TableCell>
               <TableCell>{item.status}</TableCell>
               <TableCell align="center">
                 {tableType === 'RENT' &&

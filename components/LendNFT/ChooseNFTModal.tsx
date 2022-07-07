@@ -34,10 +34,10 @@ const formatNFTdata = (nftList: any[]) => {
 }
 
 const OpenInExplorer: React.FC<{ txHash: string | undefined }> = ({ txHash }) => {
-  // TODO: 判断当前所处链，生成前缀地址
-
+  const { chain } = useNetwork()
+  const url = `${chain?.blockExplorers?.default.url}/tx/${txHash}`
   return <Box className={styles.openInExplorer}>
-    <a href='' target="_blank" rel="noreferrer">
+    <a href={url} target="_blank" rel="noreferrer">
       View on blockchain explorer&nbsp;<OpenInNewIcon />
     </a>
   </Box>
@@ -50,7 +50,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const [isRequestingNFT, setIsRequestingNFT] = useState<boolean>(false)
   const [showSwitchNetworkDialog, setShowSwitchNetworkDialog] = useState<boolean>(false)
   const { chain } = useNetwork()
-  const { switchNetwork, } = useSwitchNetwork()
+  const { switchNetwork } = useSwitchNetwork()
   const { address, isConnected } = useAccount()
   const { data: signer } = useSigner()
   const [NFTList, setNFTList] = useState<any[]>([])
@@ -110,21 +110,40 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
+  // 查询用户钱包地址所拥有的当前游戏 NFT 信息
+  const queryWalletNFT = async () => {
+    setIsRequestingNFT(true)
+    const nft = await web3GetNFTS({
+      owner: address || '',
+      contractAddresses: [gameNFTCollection]
+    })
+    setNFTList(formatNFTdata(nft.ownedNfts))
+    setIsRequestingNFT(false)
+  }
+
   useEffect(() => {
     (async () => {
       if (!isConnected) {
+        // 尚未连接钱包
         setNFTList([])
       } else {
-        setIsRequestingNFT(true)
-        const nft = await web3GetNFTS({
-          owner: address || '',
-          contractAddresses: [gameNFTCollection]
-        })
-        setNFTList(formatNFTdata(nft.ownedNfts))
-        setIsRequestingNFT(false)
+        await queryWalletNFT()
       }
     })();
   }, [address, isConnected])
+
+
+  useEffect(() => {
+    if (visibile) {
+      setIsChooseNFT(true)
+      setSelectedNFT('')
+      setActiveStep(0)
+      setStepComplete({})
+      if (isConnected) {
+        queryWalletNFT()
+      }
+    }
+  }, [visibile])
 
   useEffect(() => {
     // 判断当前选中 NFT 之前是否已经被授权
@@ -196,8 +215,9 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   // 当前用户没有 Axe NFT 时，可以 mint NFT 进行体验
   const mint721WhenEmpty = async () => {
     // 判断当前所在区块链网络
-    if (chain?.id !== 137 && switchNetwork) {
+    if (chain?.id !== 3 && switchNetwork) {
       await switchNetwork(3)
+      return
     }
     try {
       await contract721.mint()
@@ -206,11 +226,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     }
   }
 
-  const handleStepClick = (index: number) => {
-    if (stepComplete[index] || stepComplete[index - 1]) {
-      setActiveStep(index)
-    }
-  }
+  const handleStepClick = (index: number) => { }
 
   const handleConfirmChoose = () => {
     if (!selectedNFT) return
@@ -223,7 +239,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   }
 
   return <React.Fragment>
-    <Dialog keepMounted aria-describedby={`NFT-${new Date()}`} aria-labelledby="nft-choose" open={visibile} className={styles.container} >
+    {visibile && <Dialog open={visibile} className={styles.container} >
       <DialogTitle className={styles.dialogTitle} sx={{ width: 'auto' }}>
         Choose NFT to deposit
         <IconButton
@@ -270,7 +286,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
               <Stack className={styles.emptyBoxContent}>
                 <PageviewIcon sx={{ fontSize: '8rem', mt: "6rem" }} />
                 <Typography sx={{ opacity: 0.8, textAlign: 'center', margin: '1rem auto', fontSize: '1.2rem' }}>
-                  No {gameName} NFT found in current wallet address
+                  No {gameName} NFT found in current wallet address or not connect wallet
                   <br />
                   <Button
                     sx={{ marginTop: '1rem' }}
@@ -412,7 +428,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
           </Box>
         }
       </div>
-    </Dialog>
+    </Dialog>}
   </React.Fragment >
 
 }

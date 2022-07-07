@@ -7,16 +7,18 @@ import styles from './rentModal.module.scss'
 import { erc20ABI, etherscanBlockExplorers, useAccount, useContract, useNetwork, useSigner, useWaitForTransaction } from 'wagmi';
 import { Ropsten_721_AXE_NFT, ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../constants/contractABI';
 import { LoadingButton } from '@mui/lab';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 interface RentNFTModalProps {
   trigger: React.ReactElement,
   skuId: number | string,
-  baseInfo: Record<string, any>
+  baseInfo: Record<string, any>,
+  reloadInfo: () => any;
 }
 
 const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
-  const { trigger, skuId, baseInfo } = props
-  const [closeModal, setCloseModal] = useState<boolean>(false)
+  const { trigger, skuId, baseInfo, reloadInfo } = props
+  const [visibile, setVisibile] = useState<boolean>(false)
   const [txHash, setTxHash] = useState<string | undefined>()
   const [txError, setTxError] = useState<string>('')
   const { chain } = useNetwork()
@@ -64,7 +66,6 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
       const { hash } = await contractMarket.createOrder(skuId)
       setTxHash(hash)
     } catch (err: any) {
-      console.error(err.message)
       setTxError(err.message)
     }
     setButtonLoading(false)
@@ -73,7 +74,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   return <AppDialog
     trigger={trigger}
     title="Rent NFT"
-    hiddenDialog={false}
+    hiddenDialog={visibile}
   >
     <Box className={styles.rentModal}>
       <Box>
@@ -98,16 +99,26 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
           Approve To Rent
         </LoadingButton>}
         {isLoading &&
-          < Box className={styles.txProcessing}>
+          <Box className={styles.txProcessing}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img src='/block-loading.svg' />
               The transaction is waiting for being packaged...
             </Box>
-            <Typography>
-              <a href={blockscanUrl} target="_blank" rel="noreferrer">See detail in blockscan</a>
-            </Typography>
+            <a href={blockscanUrl} target="_blank" rel="noreferrer">
+              <Typography sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' , marginTop: '0.5rem'}}>
+                See detail in blockscan&nbsp;<OpenInNewIcon />
+              </Typography>
+            </a>
           </Box>}
-        {isRented && <Button variant="text" color="success" sx={{ fontWeight: 'bolder' }}><DoneIcon />&nbsp; Rented</Button>}
+        {isRented &&
+          <Button variant="text" color="success" sx={{ fontWeight: 'bolder' }}
+            onClick={() => {
+              reloadInfo()
+              setVisibile(true)
+            }}
+          >
+            🎉&nbsp; Rented
+          </Button>}
       </Box>
     </Box>
   </AppDialog >

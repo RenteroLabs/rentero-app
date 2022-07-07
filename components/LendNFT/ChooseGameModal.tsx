@@ -16,7 +16,7 @@ const GameList: GameItem[] = [
     gameName: 'Axe Game',
     gameDesc: 'A true play to earn game, get money and fun in bear market',
     gameCover: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3nrmn495jj209804mt8t.jpg',
-    gameLogo: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3nrlzaxskj2020020t8h.jpg',
+    gameLogo: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3yth290wij20690693yk.jpg',
     gameStatus: 0,
     gameNFTCollection: Ropsten_721_AXE_NFT,
     chainId: 3,
@@ -43,12 +43,11 @@ const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
     changeVisibile(false)
   }
 
-  console.log(choosedGame)
   return <React.Fragment>
     <div onClick={() => { changeVisibile(true) }} style={{ display: 'inline-block', marginTop: '4.67rem', width: 'auto' }}>
       {trigger}
     </div>
-    <Dialog keepMounted aria-describedby={`GAME-${new Date()}`} open={visibile} className={styles.container} >
+    <Dialog open={visibile} className={styles.container} >
       <DialogTitle className={styles.dialogTitle} sx={{ width: 'auto' }}>
         Choose Game
         <IconButton

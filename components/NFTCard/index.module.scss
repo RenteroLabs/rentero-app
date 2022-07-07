@@ -99,3 +99,18 @@
   justify-content: flex-start;
   align-items: center;
 }
+
+.rentedTag {
+  display: block;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #ae34ff;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.33rem;
+  padding: 0.17rem 0.67rem;
+}

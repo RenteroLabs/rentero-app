@@ -1,4 +1,4 @@
-import { Avatar } from '@mui/material'
+import { Avatar, Box } from '@mui/material'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -15,17 +15,19 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
 
   return <Link href={`/detail/${nftInfo.nftUid}?skuId=${nftInfo.skuId}`}  >
     <div className={styles.card}>
-      {/* 先用背景图片替换 */}
       <div className={styles.nftImage}>
-        {metadata && metadata?.media && metadata?.media[0]?.gateway && <Image src={metadata?.media[0]?.gateway.replace('ipfs.io', 'gateway.pinata.cloud')} layout="fill" />}
+        {metadata && metadata?.media && metadata?.media[0]?.gateway &&
+          <Image src={metadata?.media[0]?.gateway} layout="fill" />}
+        {nftInfo.status === 'Renting' &&
+          <Box component="span" className={styles.rentedTag}>Rented</Box>}
       </div>
       <div className={styles.cardTitle}>
         <span className={styles.nftCollectionImage}>
-          <Image src="https://tva1.sinaimg.cn/large/e6c9d24egy1h3lgqmbf5cj20u00u0q8u.jpg" layout="fill" />
+          <Image src="https://tva1.sinaimg.cn/large/e6c9d24egy1h3yrt5tycej20nw0kxdh5.jpg" layout="fill" />
         </span>
         <span className={styles.nftName}>{nftInfo.nftName}</span>
       </div>
-      <p className={styles.nftDesc}>short introduce about this NFT </p>
+      <p className={styles.nftDesc}>Axe&#39;s Game NFT Collection </p>
       <div className={styles.nftChainInfo}>
         <span className={styles.nftNumber}>#{nftInfo.nftUid}</span>
         <span className={styles.nftChain}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem' }} /></span>

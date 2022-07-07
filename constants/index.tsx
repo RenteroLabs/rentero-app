@@ -10,7 +10,7 @@ export const SUPPORT_CHAINS = [
   chain.mainnet,
   chain.polygon,
   chain.ropsten,
-  chain.rinkeby
+  // chain.rinkeby
 ]
 
 type EtherscanChains = "mainnet" | "ropsten" | "rinkeby" | "goerli" | "kovan" | "optimism" | "optimismKovan" | "polygon" | "polygonMumbai" | "arbitrum" | "arbitrumRinkeby"

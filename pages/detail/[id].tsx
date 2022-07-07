@@ -111,10 +111,10 @@ const Detail: NextPage = () => {
           </Paper>
           <Paper className={styles.rentDetail}>
             <Typography>DAILY EARNING:</Typography>
-            <Typography variant="h4" >100 SLP</Typography>
+            <Typography variant="h4" >{baseInfo.minGain} AXE</Typography>
             <Typography>≈ 8.3 ~ 12.6 USD</Typography>
             <Typography className={styles.earnRatio}>RATIO OF PLAYER EARNINGS:</Typography>
-            <Typography variant="h4" className={styles.earnRatioValue}>25%</Typography>
+            <Typography variant="h4" className={styles.earnRatioValue}>{baseInfo.borrowerEarnRatio}%</Typography>
           </Paper>
 
           {/* 已出租 */}
@@ -127,6 +127,7 @@ const Detail: NextPage = () => {
 
           {baseInfo.status !== 'Renting' && (isMounted && isConnected ?
             <RentNFTModal
+              reloadInfo={() => { fetchNFTDetail({ skuId: router.query['skuId'] }) }}
               skuId={router.query['skuId'] as string}
               baseInfo={baseInfo}
               trigger={<Box
@@ -143,13 +144,13 @@ const Detail: NextPage = () => {
       <Box className={styles.rightBox} sx={{ marginLeft: '5.33rem', width: '60.83rem' }}>
         <Stack spacing="2rem">
           <Paper className={styles.rentNFTinfo}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            {/* <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Avatar src="/rebel_logo.gif" variant="rounded" sx={{ width: '2.67rem', height: '2.67rem' }} />
                 <span className={styles.nftCollectionName}>{baseInfo.nftName}</span>
               </Box>
               <span>#{baseInfo.nftUid}</span>
-            </Box>
+            </Box> */}
             <Typography variant="h2">{baseInfo.nftName} #{baseInfo.nftUid}</Typography>
             <Stack direction="row" spacing="4.83rem" className={styles.addressInfo}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -232,7 +233,12 @@ const Detail: NextPage = () => {
       </Box>
       <Stack direction="row" spacing="2rem">
         {
-          nftList.map((item: any, index: number) => <NFTCard nftInfo={item} metadata={NFTMetadataList[parseInt(item.skuId)]} key={index} />)
+          nftList.map((item: any, index: number) =>
+            <NFTCard
+              nftInfo={item}
+              metadata={NFTMetadataList[parseInt(item.skuId)]}
+              key={index}
+            />)
         }
       </Stack>
     </Box>
