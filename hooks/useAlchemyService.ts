@@ -4,11 +4,11 @@ import { useNetwork } from 'wagmi';
 import { ALCHEMY_ETHEREUM_URL, ALCHEMY_POLYGON_URL, ALCHEMY_ROPSTEN_URL } from '../constants';
 
 export function useAlchemyService() {
-  const { activeChain } = useNetwork()
+  const { chain } = useNetwork()
 
   const service = useMemo(() => {
     let archemyUrl
-    switch (activeChain?.id) {
+    switch (chain?.id) {
       case 1: archemyUrl = ALCHEMY_ETHEREUM_URL; break;
       case 3: archemyUrl = ALCHEMY_ROPSTEN_URL; break;
       case 137: archemyUrl = ALCHEMY_POLYGON_URL; break;
@@ -16,7 +16,7 @@ export function useAlchemyService() {
     }
     // return createAlchemyWeb3(archemyUrl)
     return {}
-  }, [activeChain])
+  }, [chain])
 
   return service
 }

@@ -1,7 +1,7 @@
 import { LoadingButton } from '@mui/lab';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material'
 import React, { useState } from 'react'
-import { useSwitchNetwork } from 'wagmi'
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi'
 import styles from './styles.module.scss'
 
 interface SwitchNetworkProps {
@@ -15,8 +15,9 @@ const SwitchNetwork: React.FC<SwitchNetworkProps> = (props) => {
   const { showDialog, closeDialog, targetNetwork, callback } = props
   const [loading, setLoading] = useState<boolean>(false)
 
+  const { isConnected } = useAccount()
+  const { chain } = useNetwork()
   const { isLoading, switchNetwork } = useSwitchNetwork({
-    chainId: targetNetwork,
     onError(error: any) {
       console.error(error.message)
     },
@@ -26,7 +27,9 @@ const SwitchNetwork: React.FC<SwitchNetworkProps> = (props) => {
   })
 
   const handleSwitchNetwork = async () => {
-
+    if (switchNetwork && isConnected && chain?.id !== targetNetwork) {
+      switchNetwork(targetNetwork)
+    }
   }
 
   return <Dialog
@@ -43,7 +46,7 @@ const SwitchNetwork: React.FC<SwitchNetworkProps> = (props) => {
         <LoadingButton
           loading={isLoading}
           variant="contained"
-          onClick={() => switchNetwork(targetNetwork)}
+          onClick={() => handleSwitchNetwork()}
         >
           Switch Network
         </LoadingButton>

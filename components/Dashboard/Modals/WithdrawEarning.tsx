@@ -10,7 +10,7 @@ interface WithdrawEarningModalProps {
 
 const WithdrawEarningModal: React.FC<WithdrawEarningModalProps> = (props) => {
   const { trigger } = props
-  const { data: account } = useAccount()
+  const { address } = useAccount()
 
   return <AppDialog
     trigger={trigger}
@@ -20,7 +20,7 @@ const WithdrawEarningModal: React.FC<WithdrawEarningModalProps> = (props) => {
       <Typography className={styles.normalText} >
         Are you sure to withdraw your earnings? your earnings will be sent to the address below <span className={styles.tipsText}>(once confirmed, couldn&#39;t be changed, please check it carefully)</span>
       </Typography>
-      <Box className={styles.addressBox}>{account?.address}</Box>
+      <Box className={styles.addressBox}>{address}</Box>
       <Stack direction="row" spacing="3.33rem" sx={{ mt: '2.67rem' }}>
         <Box className={styles.primaryButton}>Confirm</Box>
         <Box className={styles.defaultButton}>Cancel</Box>

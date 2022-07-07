@@ -168,3 +168,29 @@
   border-radius: 1rem;
   cursor: pointer;
 }
+
+.openInExplorer {
+  margin-left: 2rem;
+  a {
+    display: flex;
+    align-items: center;
+    font-size: 1.17rem;
+    font-family: Poppins-Medium, Poppins;
+    font-weight: 500;
+    color: #5adcfe;
+    line-height: 1.67rem;
+  }
+}
+
+.stepContent {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.emptyBoxContent {
+  display: flex;
+  align-items: center;
+  margin: auto;
+  justify-content: center;
+}

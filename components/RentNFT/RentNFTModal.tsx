@@ -19,15 +19,15 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   const [closeModal, setCloseModal] = useState<boolean>(false)
   const [txHash, setTxHash] = useState<string | undefined>()
   const [txError, setTxError] = useState<string>('')
-  const { activeChain } = useNetwork()
+  const { chain } = useNetwork()
   const [buttonLoading, setButtonLoading] = useState<boolean>(false)
   const [isRented, setIsRented] = useState<boolean>(false)
-  const { data: account } = useAccount()
+  const { address } = useAccount()
   const { data: signer } = useSigner()
 
   const blockscanUrl = useMemo(() => {
-    return `${activeChain?.blockExplorers?.default.url}/tx/${txHash}`
-  }, [txHash, activeChain])
+    return `${chain?.blockExplorers?.default.url}/tx/${txHash}`
+  }, [txHash, chain])
 
   const contractMarket = useContract({
     addressOrName: ROPSTEN_MARKET,
@@ -54,7 +54,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   const handleCreateOrder = async () => {
     setTxError('')
     // 用户不能租借自己出租的 NFT
-    if (baseInfo.lenderAddress === account?.address?.toLowerCase()) {
+    if (baseInfo.lenderAddress === address?.toLowerCase()) {
       setTxError('Users cannot rent NFTs they own')
       return
     }
