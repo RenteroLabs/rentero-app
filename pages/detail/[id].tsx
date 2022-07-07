@@ -27,7 +27,7 @@ const cx = classNames.bind(styles)
 
 const Detail: NextPage = () => {
   const router = useRouter()
-  const { data: account } = useAccount()
+  const { isConnected } = useAccount()
   const isMounted = useIsMounted()
   const [nftInfo, setNFTInfo] = useState<Record<string, any>>({})
   const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
@@ -125,7 +125,7 @@ const Detail: NextPage = () => {
             })}
           >Rented</Box>}
 
-          {baseInfo.status !== 'Renting' && (isMounted && account ?
+          {baseInfo.status !== 'Renting' && (isMounted && isConnected ?
             <RentNFTModal
               skuId={router.query['skuId'] as string}
               baseInfo={baseInfo}

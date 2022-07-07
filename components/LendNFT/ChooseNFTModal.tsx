@@ -1,7 +1,7 @@
 import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Grid, IconButton, Stack, Step, StepButton, StepContent, StepLabel, Stepper, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
-import { chain, erc721ABI, useAccount, useContract, useNetwork, useSigner, useWaitForTransaction } from 'wagmi'
+import { chain, erc721ABI, useAccount, useContract, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from 'wagmi'
 import { Ropsten_721_AXE_NFT, Ropsten_721_AXE_NFT_ABI, ROPSTEN_MARKET, ROPSTEN_MARKET_ABI, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../constants/contractABI'
 import NFTCard from '../IntegrationCard/NFTCard'
 import styles from './style.module.scss'
@@ -13,11 +13,16 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useAlchemyService } from '../../hooks';
 import { web3GetNFTS } from '../../services/web3NFT';
 import Link from 'next/link';
+import DefaultButton from '../Buttons/DefaultButton';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import SwitchNetwork from '../SwitchNetwork';
+import { ethers } from 'ethers';
 
 interface ChooseNFTModalProps {
-  trigger: React.ReactElement
   gameName: string
   gameNFTCollection: string
+  visibile: boolean;
+  setVisibile: (v: boolean) => any;
 }
 
 const formatNFTdata = (nftList: any[]) => {
@@ -28,14 +33,25 @@ const formatNFTdata = (nftList: any[]) => {
   }))
 }
 
+const OpenInExplorer: React.FC<{ txHash: string }> = ({ txHash }) => {
+  // TODO: 判断当前所处链，生成前缀地址
+
+  return <Box>
+    <a href='' target="_blank" rel="noreferrer">
+      View on blockchain explorer&nbsp;<OpenInNewIcon />
+    </a>
+  </Box>
+}
+
 const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
-  const { trigger, gameName, gameNFTCollection } = props
-  const [visibile, setVisibile] = useState<boolean>(false)
+  const { gameName, gameNFTCollection, visibile, setVisibile } = props
 
   const [selectedNFT, setSelectedNFT] = useState<string>('')
   const [isRequestingNFT, setIsRequestingNFT] = useState<boolean>(false)
-  const { activeChain, switchNetwork, chains } = useNetwork()
-  const { data: account } = useAccount()
+  const [showSwitchNetworkDialog, setShowSwitchNetworkDialog] = useState<boolean>(false)
+  const { chain } = useNetwork()
+  const { switchNetwork, } = useSwitchNetwork()
+  const { address, isConnected } = useAccount()
   const { data: signer } = useSigner()
   const [NFTList, setNFTList] = useState<any[]>([])
 
@@ -74,27 +90,21 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
-
   useEffect(() => {
     (async () => {
-      if (!account) {
+      if (!isConnected) {
         setNFTList([])
       } else {
         setIsRequestingNFT(true)
-        // https://docs.alchemy.com/alchemy/enhanced-apis/nft-api/getnfts
-        // const nft = await Web3.alchemy.getNfts({
-        //   owner: account?.address || '',
-        //   contractAddresses: [gameNFTCollection]
-        // })
         const nft = await web3GetNFTS({
-          owner: account?.address || '',
+          owner: address || '',
           contractAddresses: [gameNFTCollection]
         })
         setNFTList(formatNFTdata(nft.ownedNfts))
         setIsRequestingNFT(false)
       }
     })();
-  }, [account])
+  }, [address, isConnected])
 
   useEffect(() => {
     // 判断当前选中 NFT 之前是否已经被授权
@@ -169,8 +179,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     setIsLoading(true)
 
     try {
-      const result = await contractMarket.createSkunInfo(parseInt(selectedNFT), Ropsten_WrapNFT)
-      console.log(result)
+      const result = await contractMarket.createSkunInfo(parseInt(selectedNFT), Ropsten_WrapNFT, '0x0000000000000000000000000000000000000000', 80, 20)
       setStepComplete({ ...stepComplete, [activeStep]: true })
       setActiveStep(activeStep + 1)
     } catch (err: any) {
@@ -198,11 +207,11 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   // 当前用户没有 Axe NFT 时，可以 mint NFT 进行体验
   const mint721WhenEmpty = async () => {
     // 判断当前所在区块链网络
-    if (activeChain?.id !== 137 && switchNetwork) {
-      await switchNetwork(chain.ropsten.id)
+    if (chain?.id !== 137 && switchNetwork) {
+      await switchNetwork(3)
     }
     try {
-      await contract721.mint(account?.address, 105)
+      await contract721.mint()
     } catch (err: any) {
       console.log(err.message)
     }
@@ -216,14 +225,16 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
   const handleConfirmChoose = () => {
     if (!selectedNFT) return
-    setIsChooseNFT(false)
+    // 判断当前所处网络和当前游戏支持网络
+    if (chain?.id !== 3) {
+      setShowSwitchNetworkDialog(true)
+    } else {
+      setIsChooseNFT(false)
+    }
   }
 
   return <React.Fragment>
-    <Box onClick={() => { setVisibile(true) }} >
-      {trigger}
-    </Box>
-    <Dialog open={visibile} className={styles.container} key="Choose NFT to deposit" >
+    <Dialog keepMounted aria-describedby={`NFT-${new Date()}`} aria-labelledby="nft-choose" open={visibile} className={styles.container} >
       <DialogTitle className={styles.dialogTitle} sx={{ width: 'auto' }}>
         Choose NFT to deposit
         <IconButton
@@ -287,18 +298,36 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
           {selectedNFT && <Typography className={styles.selectedMessage}>#{selectedNFT} have been selected</Typography>}
           <Stack direction="row" justifyContent="center" spacing="3.33rem" mb="1.33rem" mt="1.33rem">
             <Box className={styles.defaultButton} onClick={() => setVisibile(false)}>Back  Game</Box>
-            <Box className={`${styles.primaryButton} ${!selectedNFT ? styles.primaryButton_disable : null}`} onClick={handleConfirmChoose}>Confirm</Box>
+            <Box
+              className={`${styles.primaryButton} ${!selectedNFT ? styles.primaryButton_disable : null}`}
+              onClick={handleConfirmChoose}>
+              Confirm
+            </Box>
           </Stack>
         </Box>}
+
+        <SwitchNetwork
+          showDialog={showSwitchNetworkDialog}
+          closeDialog={() => setShowSwitchNetworkDialog(false)}
+          callback={() => setIsChooseNFT(false)}
+          targetNetwork={4}
+        />
 
         {
           !isChooseNFT && <Box className={styles.lendStep} width="65rem" minHeight="40rem">
             <Box className={styles.lendStepTitle}>
-              <Button startIcon={<ChevronLeftIcon />} onClick={() => setIsChooseNFT(true)}>Back</Button>
+              <Box
+                onClick={() => setIsChooseNFT(true)}
+              >
+                <ChevronLeftIcon />
+                Back
+              </Box>
               <Typography>Current Lending NFT #{selectedNFT} to Market</Typography>
             </Box>
             <Divider sx={{ mb: '2.5rem' }} />
+
             {errorMessage && <Alert variant="outlined" severity="error">{errorMessage}</Alert>}
+
             <Stepper
               orientation="vertical"
               activeStep={activeStep}
@@ -312,18 +341,26 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                 </StepButton>
 
                 <StepContent>
-                  {!stepComplete[0] ? <LoadingButton
+                  {!stepComplete[0] ?
+                    <DefaultButton
+                      loading={isLoading}
+                      className={styles.stepButton}
+                      onClick={handleApproveErc721}>
+                      Approve
+                    </DefaultButton> :
+                    <>
+                      {/* <Button color='success'>🎉 &nbsp;Approved</Button>
+                      <IconButton onClick={() => setActiveStep(activeStep + 1)}><NavigateNextIcon sx={{ transform: 'rotate(90deg)', opacity: '0.8' }} /></IconButton> */}
+                    </>
+                  }
+                  {/* <LoadingButton
                     loading={isLoading}
                     variant="contained"
                     onClick={handleApproveErc721}
                   >
                     Approve
-                  </LoadingButton> :
-                    <>
-                      <Button color='success'>🎉 &nbsp;Approved</Button>
-                      <IconButton onClick={() => setActiveStep(activeStep + 1)}><NavigateNextIcon sx={{ transform: 'rotate(90deg)', opacity: '0.8' }} /></IconButton>
-                    </>
-                  }
+                  </LoadingButton> */}
+
                 </StepContent>
               </Step>
               <Step key="Stake ERC721 NFT & Receive WrapNFT" completed={stepComplete[1]}>
@@ -334,27 +371,32 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                 </StepButton>
 
                 <StepContent>
-                  <Typography>Stake your game NFT and receive a new WrapNFT, WrapNFT is to withdraw the credentials of your original NFT, don&#39;t lose it!</Typography>
+                  {/* <Typography>Stake your game NFT and receive a new WrapNFT, WrapNFT is to withdraw the credentials of your original NFT, don&#39;t lose it!</Typography> */}
                   {
                     !stepComplete[1] ?
-                      <LoadingButton
+                      <DefaultButton
                         loading={isLoading}
-                        variant="contained"
                         onClick={handleStakeNFT}
-                        endIcon={<SendIcon />}
-                        loadingPosition="end"
-                        sx={{ mt: '1rem' }}
-                      >
-                        Stake
-                      </LoadingButton>
+                        className={styles.stepButton}
+                      >Stack</DefaultButton>
                       : <>
-                        <Button color='success'>🎉 &nbsp;Staked</Button>
-                        <IconButton onClick={() => setActiveStep(activeStep + 1)}><NavigateNextIcon sx={{ transform: 'rotate(90deg)', opacity: '0.8' }} /></IconButton>
+                        {/* <Button color='success'>🎉 &nbsp;Staked</Button>
+                        <IconButton onClick={() => setActiveStep(activeStep + 1)}><NavigateNextIcon sx={{ transform: 'rotate(90deg)', opacity: '0.8' }} /></IconButton> */}
                       </>
                   }
+                  {/* <LoadingButton
+                    loading={isLoading}
+                    variant="contained"
+                    onClick={handleStakeNFT}
+                    endIcon={<SendIcon />}
+                    loadingPosition="end"
+                  >
+                    Stake
+                  </LoadingButton> */}
+
                 </StepContent>
               </Step>
-              <Step key="Approve WrapNFT" completed={stepComplete[2]}>
+              {/* <Step key="Approve WrapNFT" completed={stepComplete[2]}>
                 <StepButton onClick={() => handleStepClick(2)}>
                   <StepLabel>
                     Approve WrapNFT
@@ -376,37 +418,48 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                   }
 
                 </StepContent>
-              </Step>
-              <Step key="ListToMarket" completed={stepComplete[3]}>
-                <StepButton onClick={() => handleStepClick(3)}>
+              </Step> */}
+              <Step key="ListToMarket" completed={stepComplete[2]}>
+                <StepButton onClick={() => handleStepClick(2)}>
                   <StepLabel>
                     List To Market
                   </StepLabel>
                 </StepButton>
                 <StepContent >
                   {
-                    !stepComplete[3] ? <LoadingButton
+                    !stepComplete[2] ? <DefaultButton
                       loading={isLoading}
-                      variant="contained"
                       onClick={handleListToMarket}
                     >
                       List
-                    </LoadingButton> : <Button color='success'>🎉 &nbsp;Listed</Button>
+                    </DefaultButton> : <Button color='success'>🎉 &nbsp;Listed</Button>
                   }
+
+                  {/* <LoadingButton
+                    loading={isLoading}
+                    variant="contained"
+                    onClick={handleListToMarket}
+                  >
+                    List
+                  </LoadingButton> */}
                 </StepContent>
               </Step>
             </Stepper>
 
-            {stepComplete[3] && <Box sx={{ mt: '3rem' }}>
-              <Typography variant='h3' sx={{ fontSize: '2.5rem', textAlign: 'center' }}>🎉 Successful Lend Your NFT 🎉</Typography>
-              <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: '1rem', fontSize: '1.5rem' }}>
-                Your Lend NFT Will List In Market In Minutes!
-                <Link href="/">
-                  <Typography variant='overline' className={styles.linkStyle}>Go To Market</Typography>
-                </Link>
-              </Typography>
-            </Box>}
-
+            {stepComplete[2] &&
+              <Box sx={{ mt: '3rem' }} className={styles.lendSuccess}>
+                <img src='/success_smile.png' alt='success_smile' />
+                <Typography variant='h3' > Successful Lend Your NFT </Typography>
+                <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: '1rem', fontSize: '1.5rem' }}>
+                  Your Lend NFT Will List In Market In Minutes!
+                  <Link href="/">
+                    <Typography variant='overline' className={styles.linkStyle}>Go To Market</Typography>
+                  </Link>
+                </Typography>
+                <DefaultButton sx={{ marginTop: '2rem' }}
+                  onClick={() => setVisibile(false)}
+                >Finished</DefaultButton>
+              </Box>}
           </Box>
         }
       </div>
