@@ -62,12 +62,6 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
       // });
 
       const metarequests = pageContent.map((item: any) => {
-        // return Web3?.alchemy.getNftMetadata({
-        //   // 此处在此直接请求 ERC721 合约地址
-        //   contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
-        //   tokenId: item.nftUid,
-        //   tokenType: 'erc721'
-        // })
         return web3GetNFTMetadata({
           contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
           tokenId: item.nftUid,
@@ -85,11 +79,11 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   })
 
   useEffect(() => {
-    fetchNFTList({ pageIndex: 1, pageSize: 10 })
+    fetchNFTList({ pageIndex: 1, pageSize: 12 })
   }, [])
 
   const handelGetMoreList = async () => {
-    fetchNFTList({ pageIndex: currentPage + 1, pageSize: 10 })
+    fetchNFTList({ pageIndex: currentPage + 1, pageSize: 12 })
     setCurrentPage(currentPage + 1)
   }
 
@@ -138,20 +132,20 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             <Typography variant='h4' className={styles.gameTitle}>
               {currentGameInfo.gameName}
             </Typography>
-            {currentGame !== '0' && <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {currentGame !== '-1' && <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ScheduleIcon style={{ color: '#48475b', width: '22px', height: '22px' }} />
               <Typography variant="body2" display="block" className={styles.releaseTime}>
                 Released at {dateFormat("YYYY-mm-dd", new Date(currentGameInfo.releaseTime))}
               </Typography>
               <Box className={styles.gameStatus}>Beta</Box>
             </Box>}
-            {currentGame !== '0' && <Typography className={styles.tagList}>
+            {currentGame !== '-1' && <Typography className={styles.tagList}>
               <span>NFT</span>
               <span>Rent</span>
               <span>Lend</span>
             </Typography>}
             <Typography className={styles.gameDesc}>{currentGameInfo.gameDesc}</Typography>
-            {currentGame !== '0' && <Box justifyContent="left" sx={{ display: 'flex', alignItems: 'center', mt: '1rem' }} >
+            {currentGame !== '-1' && <Box justifyContent="left" sx={{ display: 'flex', alignItems: 'center', mt: '1rem' }} >
               <a href={currentGameInfo.gameHomeUrl} target="_blank" rel="noreferrer">
                 <span className={styles.websiteBtn}>
                   Website &nbsp;&nbsp;&nbsp; <ArrowRightAltRoundedIcon style={{ width: '18px', height: '18px', color: 'white' }} />
@@ -185,7 +179,10 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </section>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.67rem' }}>
-          <div className={styles.listTitle}>{NFTTotal} Items &nbsp;<span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 10 })}><AutorenewIcon /></span></div>
+          <div className={styles.listTitle}>
+            {NFTTotal} Items &nbsp;
+            {/* <span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 12 })}><AutorenewIcon /></span> */}
+          </div>
           <Box className={styles.sortList}>
             <Box
               ref={chainTypeRef}
@@ -236,6 +233,14 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </Box>
 
+        <div className={styles.nftCardList}>
+          {
+            NFTList.map((item, index) => {
+              return <NFTCard nftInfo={item} metadata={NFTMetadataList[parseInt(item.skuId)]} key={index} />
+            })
+          }
+        </div>
+
         {/* 骨架图 */}
         {loading && <Box>
           <Box className={styles.nftCardList}>
@@ -251,14 +256,8 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             <SkeletonNFTCard />
           </Box>
         </Box>}
-        <div className={styles.nftCardList}>
-          {
-            !loading && NFTList.map((item, index) => {
-              return <NFTCard nftInfo={item} metadata={NFTMetadataList[parseInt(item.skuId)]} key={index} />
-            })
-          }
-        </div>
-        {((10 * currentPage) < NFTTotal) && isMounted &&
+
+        {((12 * currentPage) < NFTTotal) && isMounted &&
           <div
             className={styles.showMore}
             onClick={handelGetMoreList}

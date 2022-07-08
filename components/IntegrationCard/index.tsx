@@ -6,12 +6,13 @@ import styles from './index.module.scss'
 import Upcoming from '../../public/game-upcoming.svg'
 
 interface IntegrationCardProps {
+  index: number
   gameItem: GameItem
-  changeModal: () => any
+  updateGame: (index: number) => any
 }
 
 const IntegrationCard: React.FC<IntegrationCardProps> = (props) => {
-  const { changeModal, gameItem } = props
+  const { gameItem, updateGame, index } = props
 
   return <div className={styles.card}>
     <div className={styles.cover_image}>
@@ -26,19 +27,20 @@ const IntegrationCard: React.FC<IntegrationCardProps> = (props) => {
       <h4>{gameItem.gameName || 'Upcoming...'}</h4>
       <p>{gameItem.gameDesc || 'Submit the game name and reasons for us to support in time.'}</p>
     </div>
-    {/* Hide current choose game modal, show choose NFT modal */}
     {
       gameItem.gameStatus === 0 ?
-        <ChooseNFTModal
-          gameName={gameItem.gameName}
-          gameNFTCollection={gameItem.gameNFTCollection}
-          trigger={<div
-            className={styles.depositButton}
-          >Deposit</div>
-          }
-        /> : <div className={`${styles.depositButton} ${styles.disableButton}`}  >
+        <div
+          className={styles.depositButton}
+          onClick={() => updateGame(index)}
+        >Deposit</div>
+        : <div className={`${styles.depositButton} ${styles.disableButton}`}  >
           Deposit
         </div>}
+
+    {/* <ChooseNFTModal
+          gameName={gameItem.gameName}
+          gameNFTCollection={gameItem.gameNFTCollection}
+        /> */}
   </div >
 }
 

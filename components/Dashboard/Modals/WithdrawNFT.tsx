@@ -16,7 +16,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   const [hiddenDialog, setHiddenDialog] = useState<boolean>(false)
   const [txError, setTxError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const { data: account } = useAccount()
+  const { address } = useAccount()
   const { data: signer } = useSigner()
 
   const contractMarket = useContract({
@@ -51,7 +51,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
       <Typography className={styles.normalText} >
         Are you sure to withdraw the NFT? You will stop earning yields once confirming, your NFT will be sent to the address below. <span className={styles.tipsText}>(please check it carefully)</span>
       </Typography>
-      <Box className={styles.addressBox}>{account?.address}</Box>
+      <Box className={styles.addressBox}>{address}</Box>
       {txError && <Alert variant="outlined" severity="error" sx={{ mt: '2rem', maxWidth: '40rem' }}>{txError}</Alert>}
       <Stack direction="row" spacing="3.33rem" sx={{ mt: '2.67rem' }}>
         <Box className={styles.primaryButton} onClick={withdrawLendNFT}>

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Logo from '../../public/header_logo.svg'
 import ConnectWallet from '../ConnectWallet'
 import { useIsMounted } from '../../hooks'
-import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner, erc721ABI, useSignMessage } from 'wagmi'
+import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner, erc721ABI, useSignMessage, useSwitchNetwork } from 'wagmi'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -16,10 +16,11 @@ import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
 import { utils } from 'ethers'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
-import { ERC721DemoABI, Ropsten_ERC721Demo_Contract, AXE_ABI, Ropsten_721_AXE_NFT } from '../../constants/contractABI'
+import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT } from '../../constants/contractABI'
 import { UserLoginParams } from '../../types/service'
 import { userLogin } from '../../services/dashboard'
 import { useLocalStorageState } from 'ahooks'
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 export default function Header() {
   const router = useRouter()
@@ -27,21 +28,17 @@ export default function Header() {
   const [jwtToken, setJwtToken] = useLocalStorageState<string>('token', {
     defaultValue: ''
   })
-  const { data: account } = useAccount()
+  const { address, isConnected } = useAccount()
 
   useEffect(() => {
-    const [address] = jwtToken.split('*')
-    if (account?.address !== address && router.pathname === '/dashboard') {
+    const [recordAddress] = jwtToken.split('*')
+    if (address !== recordAddress && router.pathname === '/dashboard') {
       setTimeout(signMessage, 2000)
     }
-  }, [account])
+  }, [address])
 
-  const {
-    activeChain,
-    error,
-    isLoading,
-    pendingChainId,
-    switchNetwork, } = useNetwork()
+  const { chain } = useNetwork()
+  const { pendingChainId, switchNetwork } = useSwitchNetwork()
 
   const { signMessage } = useSignMessage({
     message: 'Login Rentero',
@@ -49,24 +46,24 @@ export default function Header() {
       const params: UserLoginParams = {
         signature: data,
         timestamp: new Date().getTime(),
-        userAddress: account.address
+        userAddress: address
       }
       const result = await userLogin(params)
       // 存储 jwt token
-      setJwtToken(`${account?.address}*${result.data.authToken}`)
+      setJwtToken(`${address}*${result.data.authToken}`)
       router.push('/dashboard')
     }
   })
 
   const isEth = useMemo(() => {
-    if (activeChain && activeChain.id === 1) {
+    if (chain && chain.id === 1) {
       return true
     }
     return false
-  }, [activeChain])
+  }, [chain])
 
-  const { data: ensAvatar } = useEnsAvatar({ addressOrName: account?.address, enabled: isEth })
-  const { data: ensName } = useEnsName({ address: account?.address, enabled: isEth })
+  const { data: ensAvatar } = useEnsAvatar({ addressOrName: address, enabled: isEth })
+  const { data: ensName } = useEnsName({ address: address, enabled: isEth })
   const { disconnect } = useDisconnect()
 
   const [openSetting, setOpenSetting] = useState<boolean>(false)
@@ -81,13 +78,13 @@ export default function Header() {
 
   const contract = useContract({
     addressOrName: Ropsten_721_AXE_NFT,
-    contractInterface: AXE_ABI,
+    contractInterface: Ropsten_721_AXE_NFT_ABI,
     signerOrProvider: signer
   })
 
   const mint721 = async () => {
     try {
-      await contract.mint(account?.address, 105)
+      await contract.mint()
     } catch (err: any) {
       console.log(err.message)
     }
@@ -102,7 +99,7 @@ export default function Header() {
 
   const transfer721 = async () => {
     try {
-      await contract.transferFrom(account?.address, '0xBEaa278dB721b34e61721C1F8edaB25c069bae8D', 16)
+      await contract.transferFrom(address, '0xBEaa278dB721b34e61721C1F8edaB25c069bae8D', 16)
     } catch (err: any) {
       console.log(err.message)
 
@@ -125,8 +122,8 @@ export default function Header() {
     if (!jwtToken) {
       signMessage()
     } else {
-      const [address] = jwtToken.split('*')
-      if (address !== account?.address) {
+      const [recordAddress] = jwtToken.split('*')
+      if (recordAddress !== address) {
         signMessage()
       }
     }
@@ -145,7 +142,7 @@ export default function Header() {
 
   const chooseSwitchNetwork = (id) => {
     setNetworkListOpen(false)
-    if ((activeChain?.id !== id || pendingChainId !== id)) {
+    if ((chain?.id !== id || pendingChainId !== id)) {
       switchNetwork(id)
     }
   }
@@ -175,10 +172,10 @@ export default function Header() {
     {/* <button onClick={updateURI}>updateURI</button> */}
     {/* <button onClick={mint721}>Click</button> */}
     {/* <button onClick={transfer721}>Transfer</button> */}
-    {(isMounted && account) &&
+    {(isMounted && isConnected) &&
       <Chip
-        avatar={<Avatar alt={activeChain?.name} className={styles.networkIcon} src={CHAIN_ICON[activeChain?.id || chain.mainnet.id]} />}
-        label={activeChain?.name || chain.mainnet.name}
+        avatar={<Avatar alt={chain?.name} className={styles.networkIcon} src={CHAIN_ICON[chain?.id || 1]} />}
+        label={chain?.name || "Ethereum"}
         className={styles.networkList}
         ref={networkListAnchorRef}
         onDelete={() => setNetworkListOpen(true)}
@@ -207,17 +204,17 @@ export default function Header() {
           return <MenuItem key={item.id} onClick={() => chooseSwitchNetwork(item.id)} className={styles.networkListItem}>
             <Avatar src={CHAIN_ICON[item.id]} alt={item.name} sx={{ width: '20px', height: '20px', marginRight: '0.8rem' }} />
             <span>{item.name}</span>
-            {activeChain && <Box className={item.id === activeChain.id && styles.currentNetwork}></Box>}
+            {chain && <Box className={item.id === chain.id && styles.currentNetwork}></Box>}
           </MenuItem>
         })
       }
     </Menu>
 
-    {(isMounted && account) ?
+    {(isMounted && isConnected) ?
       <Chip
-        avatar={<Avatar src={ensAvatar} alt="account_avatar" />}
+        avatar={<AccountBalanceWalletIcon />}
         label={<div className={styles.addressOrEns}>
-          {ensName ? ensName : formatAddress(account.address, 4)}
+          {ensName ? ensName : formatAddress(address, 4)}
           <KeyboardArrowDownOutlinedIcon className={styles.downIcon} />
         </div>}
         className={styles.accountBox}

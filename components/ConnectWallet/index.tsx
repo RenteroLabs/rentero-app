@@ -7,7 +7,7 @@ import WalletConnectLogo from '../../public/png_walletconnect.svg'
 import styles from './index.module.scss'
 import Image from 'next/image'
 import { useIsMounted } from '../../hooks';
-import { Connector, useConnect } from 'wagmi';
+import { Connector, useAccount, useConnect } from 'wagmi';
 
 interface ConnectWalletProps {
   trigger: React.ReactElement
@@ -18,31 +18,30 @@ const ConnectWallet: React.FC<ConnectWalletProps> = (props) => {
   const [hiddenModal, setHiddenModal] = useState<boolean>(false)
 
   const isMounted = useIsMounted()
-  const { activeConnector, connect, connectors, error, isConnecting, pendingConnector } = useConnect()
+  const { connector: activeConnector, isConnected } = useAccount()
+  const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
+    onSuccess() {
+      setHiddenModal(true)
+    }
+  })
 
   const [MetaMaskConnector, WalletConnectConnector] = connectors
 
   const [MetaMaskConnecting, WalletConnectConnecting] = useMemo(() => {
-    if (!isConnecting) return [false, false]
+    if (!isLoading) return [false, false]
 
     return [
       MetaMaskConnector.id === pendingConnector?.id,
       WalletConnectConnector.id === pendingConnector?.id
     ]
-  }, [isConnecting, pendingConnector])
+  }, [isLoading, pendingConnector])
 
-  // close dialog after connected 
-  useEffect(() => {
-    if (activeConnector) {
-      setHiddenModal(true)
-    }
-  }, [activeConnector])
-
-  const handleConnect = (selectedConnector: Connector) => {
-    if (isConnecting && pendingConnector?.id === selectedConnector.id) {
+  const handleConnect = async (selectedConnector: Connector) => {
+    if (isLoading && pendingConnector?.id === selectedConnector.id) {
       return
     }
-    connect(selectedConnector)
+    console.log('sss')
+    await connect({ connector: selectedConnector })
   }
 
   // current support metamask and walletconnect to login
@@ -53,15 +52,21 @@ const ConnectWallet: React.FC<ConnectWalletProps> = (props) => {
   >
     <Box className={styles.walletList}>
       {error &&
-        <Alert severity="error" sx={{ display: 'flex', alignItems: 'center' }}> {error.message} </Alert>}
+        <Alert severity="error" sx={{ display: 'flex', alignItems: 'center' }}>
+          {error.message}
+        </Alert>}
 
-      <div className={styles.walletItem} onClick={() => handleConnect(MetaMaskConnector)}>
+      <div
+        className={styles.walletItem}
+        onClick={() => handleConnect(connectors[0])}>
         <Image src={MetaMaskLogo} alt='metamask_logo' />
         <p>MetaMask</p>
         {MetaMaskConnecting ? <CircularProgress /> : <ArrowRightAltRoundedIcon />}
       </div>
 
-      <div className={styles.walletItem} onClick={() => handleConnect(WalletConnectConnector)}>
+      <div
+        className={styles.walletItem}
+        onClick={() => handleConnect(WalletConnectConnector)}>
         <Image src={WalletConnectLogo} alt='walletconnect_logo' />
         <p>WalletConnect</p>
         {WalletConnectConnecting ? <CircularProgress /> : <ArrowRightAltRoundedIcon />}

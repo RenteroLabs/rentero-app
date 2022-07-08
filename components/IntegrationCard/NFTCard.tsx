@@ -17,7 +17,7 @@ interface NFTCardProps {
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
   const { nftImage, nftName, nftNumber, selectedNFT, setSelectedNFT } = props
-  const { activeChain } = useNetwork()
+  const { chain } = useNetwork()
 
   const handleClickNFT = () => {
     setSelectedNFT(selectedNFT !== nftNumber ? nftNumber : '')
@@ -35,9 +35,9 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     <Typography variant='h3' className={styles.nftName}>{nftName}</Typography>
     <Typography variant="body2" className={styles.nftNumber} >
       #{nftNumber}
-      {activeChain && <Avatar
-        src={CHAIN_ICON[activeChain?.id]}
-        alt={activeChain?.name}
+      {chain && <Avatar
+        src={CHAIN_ICON[chain?.id]}
+        alt={chain?.name}
         sx={{ width: '1.67rem', height: '1.67rem', marginLeft: '1rem' }}
       />}
     </Typography>

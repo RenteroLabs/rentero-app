@@ -5,6 +5,7 @@ import { Ropsten_721_AXE_NFT } from '../../constants/contractABI'
 import { GameItem } from '../../types'
 import IntegrationCard from '../IntegrationCard'
 import styles from './style.module.scss'
+import ChooseNFTModal from './ChooseNFTModal';
 
 interface LendNFTModalProps {
   trigger: React.ReactElement
@@ -15,7 +16,7 @@ const GameList: GameItem[] = [
     gameName: 'Axe Game',
     gameDesc: 'A true play to earn game, get money and fun in bear market',
     gameCover: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3nrmn495jj209804mt8t.jpg',
-    gameLogo: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3nrlzaxskj2020020t8h.jpg',
+    gameLogo: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3yth290wij20690693yk.jpg',
     gameStatus: 0,
     gameNFTCollection: Ropsten_721_AXE_NFT,
     chainId: 3,
@@ -32,22 +33,26 @@ const GameList: GameItem[] = [
 
 const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
   const { trigger } = props
-  const [visibile, setVisibile] = useState<boolean>(false)
+  const [visibile, changeVisibile] = useState<boolean>(false)
+  const [NFTModalShow, setNFTModalShow] = useState<boolean>(false)
+  const [choosedGame, setChoosedGame] = useState<number>(-1)
 
-  const closeModal = () => {
-    setVisibile(false)
+  const updateChooseGame = (index: number) => {
+    setChoosedGame(index)
+    setNFTModalShow(true)
+    changeVisibile(false)
   }
 
   return <React.Fragment>
-    <div onClick={() => { setVisibile(true) }} style={{ display: 'inline-block', marginTop: '4.67rem', width: 'auto' }}>
+    <div onClick={() => { changeVisibile(true) }} style={{ display: 'inline-block', marginTop: '4.67rem', width: 'auto' }}>
       {trigger}
     </div>
-    <Dialog open={visibile} className={styles.container} key="ChooseGame" >
+    <Dialog open={visibile} className={styles.container} >
       <DialogTitle className={styles.dialogTitle} sx={{ width: 'auto' }}>
         Choose Game
         <IconButton
           aria-label="close"
-          onClick={() => setVisibile(false)}
+          onClick={() => changeVisibile(false)}
           sx={{
             position: 'absolute',
             right: 8,
@@ -71,8 +76,10 @@ const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
               return <Grid item xs="auto" key={index}>
                 <IntegrationCard
                   key={`${index}_${new Date().getTime()}`}
-                  changeModal={closeModal}
-                  gameItem={item} />
+                  gameItem={item}
+                  index={index}
+                  updateGame={updateChooseGame}
+                />
               </Grid>
             })}
 
@@ -80,6 +87,13 @@ const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
         </Box>
       </div>
     </Dialog>
+    {choosedGame !== -1 &&
+      <ChooseNFTModal
+        visibile={NFTModalShow}
+        setVisibile={setNFTModalShow}
+        gameName={GameList[choosedGame].gameName}
+        gameNFTCollection={GameList[choosedGame].gameNFTCollection}
+      />}
   </React.Fragment >
 }
 
