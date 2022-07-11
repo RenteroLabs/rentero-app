@@ -14,7 +14,7 @@ const DefaultButton: React.FC<PropsWithChildren<DefaultButtonProps>> = (props) =
   const { onClick, children, sx, btnText, className, loading = false } = props
 
   return <Box
-    className={className ? className : styles.defaultButton}
+    className={`${className} ${styles.defaultButton}`}
     onClick={onClick}
     sx={sx}
   >
