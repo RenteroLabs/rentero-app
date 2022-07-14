@@ -15,44 +15,35 @@ export interface WithdrawProps {
 }
 const columns = [
   {
-    title: 'ID',
-    dataIndex: 'id'
+    title: 'Token',
+    dataIndex: 'token',
   }, {
-    title: 'NFT',
-    dataindex: 'nft',
+    title: 'Game/Blockchain',
+    dataIndex: 'game',
   }, {
-    title: 'Total Earning',
-    dataIndex: 'totalEarning'
+    title: 'Amount',
+    dataIndex: 'amount',
   }, {
-    title: 'Ratio',
-    dataIndex: 'radio',
-  }, {
-    title: 'Game Name',
-    dataIndex: 'gameName',
-  }, {
-    title: 'Time',
-    dataIndex: 'time',
-  }, {
-    title: 'Manage'
+    title: 'Operate'
   }
 ]
 
-const nftColumns = [
+const operateRecordColumns = [
   {
-    title: 'ID',
-    dataIndex: 'id'
+    title: 'Token',
+    dataIndex: 'token'
+  }, {
+    title: 'Game',
+    dataindex: 'game',
   }, {
     title: 'NFT',
-    dataindex: 'nft',
+    dataIndex: 'nft',
   }, {
-    title: 'Address',
-    dataIndex: 'address',
+    title: 'Operation',
+    dataIndex: 'operation',
   }, {
-    title: 'Game Name',
-    dataIndex: 'gameName',
-  }, {
-    title: 'Status',
-    dataIndex: 'status',
+    title: 'Change',
+    dataIndex: 'change',
   }, {
     title: 'Time',
     dataIndex: 'time',
@@ -61,60 +52,49 @@ const nftColumns = [
 
 const dataSource = [
   {
-    id: 231,
-    nftImageUrl: '',
-    nftName: '',
-    nftOwnerAddress: '',
-    totalEarning: '',
-    ratio: '',
-    gameName: '',
-    time: '',
+    token: 'SLP',
+    amount: '100',
+    game: 'Axie',
   }, {
-    id: 243,
-    nftImageUrl: '',
-    nftName: '',
-    nftOwnerAddress: '',
-    totalEarning: '',
-    ratio: '',
-    gameName: '',
-    time: '',
+    token: 'ABC',
+    amount: '122',
+    game: 'Game'
+  }
+]
+
+const operationDataSource = [
+  {
+    token: 'SLP',
+    game: 'Axieinfinity',
+    nft: '#9527',
+    operation: 'withdraw',
+    change: '-100',
+    time: '2022-02-30 12:59:59'
   }, {
-    id: 261,
-    nftImageUrl: '',
-    nftName: '',
-    nftOwnerAddress: '',
-    totalEarning: '',
-    ratio: '',
-    gameName: '',
-    time: '',
-  },
+    token: 'SLP',
+    game: 'Axieinfinity',
+    nft: '',
+    operation: 'withdraw',
+    change: '-100',
+    time: ''
+  }, {
+    token: 'SLP',
+    game: 'Axieinfinity',
+    nft: '',
+    operation: 'withdraw',
+    change: '-100',
+    time: ''
+  }
 ]
 
 const Withdraw: React.FC<WithdrawProps> = (props) => {
   const { } = props
   const isMounted = useIsMounted()
-  const [tableType, setTableType] = useState<"EARNING" | "NFT">("EARNING")
 
   return <div>
     <Box className={styles.tableSearch}>
-      <Typography className={styles.tableTitle}>Withdraw</Typography>
-      {/* <Box className={styles.toggleBtnGroup}>
-        <div onClick={() => setTableType('EARNING')}>
-          <Chip
-            label="Earnings"
-            variant="outlined"
-            className={cx({ 'activeButton': tableType === 'EARNING' })}
-          />
-        </div>
-        <div onClick={() => setTableType("NFT")}>
-          <Chip
-            label="NFTs"
-            variant="outlined"
-            className={cx({ 'activeButton': tableType === "NFT" })}
-          />
-        </div>
-      </Box> */}
-      <Paper component="form" className={styles.searchInput}>
+      <Typography className={styles.tableTitle}>Total Assets</Typography>
+      {/* <Paper component="form" className={styles.searchInput}>
         <IconButton>
           <SearchIcon sx={{ color: '#777E90' }} />
         </IconButton>
@@ -122,34 +102,29 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
           sx={{ flex: 1 }}
           placeholder="Enter NFT Id or Name For Searching"
         />
-      </Paper>
+      </Paper> */}
     </Box>
+    {/* 钱包提现 List */}
     <Table className={styles.tableBox}>
       <TableHead className={styles.tableHeader}>
-        {tableType === 'EARNING' && <TableRow>
+        <TableRow>
           {columns.map((item, index) => {
             return <TableCell key={index} align={index === columns.length - 1 ? 'center' : 'left'}>{item.title}</TableCell>
           })}
-        </TableRow>}
-        {tableType === 'NFT' && <TableRow>
-          {nftColumns.map((item, index) => <TableCell key={index} >{item.title}</TableCell>)}
-        </TableRow>}
+        </TableRow>
       </TableHead>
       <TableBody className={styles.tableBody}>
         {
           dataSource.map((item, index) => {
             return <TableRow key={index}>
-              <TableCell>{item.id}</TableCell>
-              <TableCell>{item.nftImageUrl}</TableCell>
-              <TableCell>{item.totalEarning}</TableCell>
-              <TableCell>{item.ratio}</TableCell>
-              <TableCell>{item.gameName}</TableCell>
-              <TableCell>{item.time}</TableCell>
-              {tableType === 'EARNING' && <TableCell align="center">
+              <TableCell>{item.token}</TableCell>
+              <TableCell>{item.game}</TableCell>
+              <TableCell>{item.amount}</TableCell>
+              <TableCell align="center">
                 <WithdrawEarningModal
                   trigger={<span className={cx({ "returnButton": true, "returnButton_disable": index === 1 })}>Withdraw</span>}
                 />
-              </TableCell>}
+              </TableCell>
             </TableRow>
           })
         }
@@ -165,9 +140,40 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
         </TableFooter>
       }
     </Table>
-    <Pagination count={3} className={styles.pagination} onChange={(_, currentPage: number) => {
+    {/* <Pagination count={3} className={styles.pagination} onChange={(_, currentPage: number) => {
       console.log(currentPage)
-    }} />
+    }} /> */}
+
+    <Box className={styles.operationBox}>
+      <Box className={styles.operationHeader}>
+        <Typography className={styles.tableTitle}>Value Change Record</Typography>
+      </Box>
+      <Table
+        className={styles.tableBox}
+        sx={{ borderTopRightRadius: '0px !important', borderTopLeftRadius: '0px !important'}}>
+        <TableHead className={styles.recordBoxHeader} >
+          <TableRow>
+            {operateRecordColumns.map((item, index) => {
+              return <TableCell key={index} align={index === columns.length - 1 ? 'center' : 'left'}>{item.title}</TableCell>
+            })}
+          </TableRow>
+        </TableHead>
+        <TableBody className={styles.tableBody}>
+          {
+            operationDataSource.map((item, index) => {
+              return <TableRow key={index}>
+                <TableCell>{item.token}</TableCell>
+                <TableCell>{item.game}</TableCell>
+                <TableCell>{item.nft}</TableCell>
+                <TableCell>{item.operation}</TableCell>
+                <TableCell>{item.change}</TableCell>
+                <TableCell>{item.time}</TableCell>
+              </TableRow>
+            })
+          }
+        </TableBody>
+      </Table>
+    </Box>
   </div>
 }
 

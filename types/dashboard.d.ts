@@ -34,5 +34,9 @@ export interface OrderInfo {
   skuId: number,
   status: 'Cancel' | 'Doing' | 'BCancel' | 'LCancel',
   totalInComeValue: number,
-  wrapNftAddress: string
+  wrapNftAddress: string,
+  gameName: string;
+  imageUrl: string;
+  whiteAddress: string;
+  metadata: string;
 }

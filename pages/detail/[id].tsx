@@ -106,7 +106,7 @@ const Detail: NextPage = () => {
       <Box className={styles.leftBox}>
         <Stack spacing="2rem">
           <Paper className={styles.itemCover} >
-            {nftInfo?.media && <img src={nftInfo?.media[0]?.gateway} />}
+            {(baseInfo.imageUrl || nftInfo?.media) && <img src={baseInfo.imageUrl || nftInfo?.media[0]?.gateway} />}
             {/* {baseInfo.status === 'Renting' && <Box component="span" >Rented</Box>} */}
           </Paper>
           <Paper className={styles.rentDetail}>

@@ -67,17 +67,26 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       setLendTotal(Math.ceil((data.totalRemain || 0) / 10))
 
       // 获取 NFT metadata 数据
-      const metarequests = data.pageContent.map((item: any) => {
-        return web3GetNFTMetadata({
-          contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
-          tokenId: item.nftUid,
-          tokenType: 'erc721'
-        })
-      })
-      const result = await Promise.all(metarequests)
+      // const metarequests = data.pageContent.map((item: any) => {
+      //   return web3GetNFTMetadata({
+      //     contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
+      //     tokenId: item.nftUid,
+      //     tokenType: 'erc721'
+      //   })
+      // })
+      // const result = await Promise.all(metarequests)
+      // let newMetaList: Record<number, any> = {}
+      // result.forEach((item: any, index: number) => {
+      //   newMetaList[parseInt(data.pageContent[index].skuId)] = item
+      // })
+      // setMetaData({ ...metadata, ...newMetaList })
       let newMetaList: Record<number, any> = {}
-      result.forEach((item: any, index: number) => {
-        newMetaList[parseInt(data.pageContent[index].skuId)] = item
+      data.pageContent.forEach((item: OrderInfo, index: number) => {
+        try {
+          newMetaList[parseInt(data.pageContent[index].skuId)] = JSON.parse(item.metadata)
+        } catch (err: any) {
+          console.error(err.message)
+        }
       })
       setMetaData({ ...metadata, ...newMetaList })
     }
@@ -85,10 +94,20 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
 
   const { run: getBorrowerList, loading: borrowerListLoading } = useRequest(borrowerList, {
     manual: true,
-    onSuccess: ({ data }) => {
+    onSuccess: async ({ data }) => {
       console.log(data)
       setBorrowerDataSource(data.pageContent)
       setBorrowerTotal(Math.ceil((data.totalRemain || 0) / 10))
+   
+      let newMetaList: Record<number, any> = {}
+      data.pageContent.forEach((item: OrderInfo, index: number) => {
+        try {
+          newMetaList[parseInt(data.pageContent[index].skuId)] = JSON.parse(item.metadata)
+        } catch (err: any) {
+          console.error(err.message)
+        }
+      })
+      setMetaData({ ...metadata, ...newMetaList })
     }
   })
 
@@ -114,7 +133,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const columns = [
     {
       title: 'ID',
-      dataIndex: 'orderId'
+      dataIndex: 'skuId'
     }, {
       title: 'NFT',
       dataindex: 'nft',
@@ -128,7 +147,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       title: 'Game Name',
       dataIndex: 'gameName',
     }, {
-      title: 'Time',
+      title: 'Order Time',
       dataIndex: 'orderTime',
     }, {
       title: 'Status',
@@ -148,16 +167,28 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   }
 
   const lendOperation = (item: OrderInfo) => {
+    let redeemButton
     switch (item.status) {
-      case 'Doing': return <WithdrawNFTModal
+      case 'Doing': redeemButton = <WithdrawNFTModal
         trigger={<span className={cx({ "returnButton": true, "returnButton_disable": item.status !== 'Doing' })}>TakeOff</span>}
         orderId={item.orderId}
-      />;
-      case 'LCancel': return <span
+      />; break;
+      case 'BCancel':
+      case 'LCancel': redeemButton = <span
         className={cx({ "returnButton": true, })}
         onClick={() => withdrawNFT(item.nftUid)}>Withdraw</span>;
-      default: return <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>
+        break;
+      default:
+        redeemButton = <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>;
+        break;
     }
+
+    const editButton = <Box className={styles.returnButton}>Edit</Box>
+
+    return <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      {editButton}
+      {redeemButton}
+    </Box>
   }
 
   // 提取收益
@@ -254,20 +285,20 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         {
           !isLoading && (tableType === 'RENT' ? borrowerDataSource : lendDataSource).map((item, index) => {
             return <TableRow key={index}>
-              <TableCell>{item.orderId}</TableCell>
+              <TableCell>{item.skuId}</TableCell>
               <TableCell>
                 <Box className={styles.nftBoxCell}>
-                  <img src={metadata[item.skuId]?.media[0]?.gateway} />
+                  <img src={item.imageUrl} />
                   <Stack sx={{ margin: 'auto 1rem' }}>
-                    <Typography className={styles.nftCollectionName}>{metadata[item.skuId]?.title} &nbsp;#{metadata[item.skuId]?.id.tokenId}</Typography>
+                    <Typography className={styles.nftCollectionName}>{metadata[item.skuId]?.name} &nbsp;#{item.nftUid}</Typography>
                     <Typography className={styles.nftAddress}>{formatAddress(tableType === 'RENT' ? item.lenderAddress : item.borrowAddress, 5)}</Typography>
                   </Stack>
                 </Box>
               </TableCell>
-              <TableCell>{item.totalInComeValue}</TableCell>
+              <TableCell>{item.totalInComeValue || 0}</TableCell>
               <TableCell>{item.lenderEarnRatio}%</TableCell>
-              <TableCell>AXE</TableCell>
-              <TableCell>{dateFormat('YYYY-mm-dd HH:MM:SS', new Date(item.orderTime * 1000))}</TableCell>
+              <TableCell>{item.gameName}</TableCell>
+              <TableCell>{item.orderTime ? dateFormat('YYYY-mm-dd HH:MM:SS', new Date(item.orderTime * 1000)) : '-'}</TableCell>
               <TableCell>{item.status}</TableCell>
               <TableCell align="center">
                 {tableType === 'RENT' &&
@@ -278,7 +309,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     /> :
                     <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Return</span>)}
                 {tableType === 'LEND' && lendOperation(item)}
-
               </TableCell>
             </TableRow>
           })

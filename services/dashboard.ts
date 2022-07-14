@@ -58,3 +58,31 @@ export const overviewData = async (token: string) => {
   })
   return await data.json()
 }
+
+/**
+ * wallet account list
+ * @param token 
+ * @returns 
+ */
+export const getWalletList = async (token: string) => {
+  const data = await fetch(`${BaseURL}/account/list`, {
+    headers: {
+      sessionToken: token
+    }
+  })
+  return await data.json()
+}
+
+/**
+ * 订单、账单记录
+ * @param token 
+ * @returns 
+ */
+export const getOperationRecord = async (token: string) => {
+  const data = await fetch(`${BaseURL}/order/record/list`, {
+    headers: {
+      sessionToken: token
+    }
+  })
+  return await data.json()
+}
