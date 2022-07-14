@@ -3,10 +3,11 @@ import InputNumber from 'rc-input-number'
 import React, { useMemo, useState } from 'react'
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import styles from './style.module.scss'
 import DefaultButton from '../Buttons/DefaultButton';
 import { UserLendConfigInfo } from './ChooseNFTModal';
+import * as ether from 'ethers'
 
 interface LendConfigProps {
   setNextStep: () => any;
@@ -19,10 +20,11 @@ const LendConfig: React.FC<LendConfigProps> = (props) => {
   const [ratioType, setRatioType] = useState<number>(30)
   const [customRatio, setCustomRatio] = useState<number | undefined>()
   const [securityMoney, setSecurityMoney] = useState<number | string>("")
+  const [whitelist, setWhitelist] = useState<string>('')
+  const [isErrorFormatAddress, setIsErrorFormatAddress] = useState<boolean>(false)
 
   const isReady = useMemo(() => {
-    console.log(customRatio)
-    console.log(securityMoney)
+    if (isErrorFormatAddress) return false
     if (ratioType === -1 && (!customRatio && customRatio != 0)) {
       return false
     }
@@ -30,14 +32,15 @@ const LendConfig: React.FC<LendConfigProps> = (props) => {
       return false
     }
     return true
-  }, [customRatio, ratioType, securityMoney])
+  }, [customRatio, ratioType, securityMoney, isErrorFormatAddress])
 
   const handleNextStep = () => {
     if (isReady) {
       setNextStep()
       setUserLendConfigInfo({
         borrowerRatio: ratioType !== -1 ? ratioType : customRatio,
-        securityMoney: parseFloat(securityMoney as string)
+        securityMoney: parseFloat(securityMoney as string),
+        whiteList: whitelist
       })
     }
   }
@@ -96,12 +99,27 @@ const LendConfig: React.FC<LendConfigProps> = (props) => {
       <Box>
         <Typography className={styles.formLabel}>Whitelist</Typography>
         <Box className={styles.formItem} sx={{ width: '41.67rem' }}>
-          <InputBase sx={{ width: '100%', height: '2rem' }} />
+          <InputBase
+            sx={{ width: '100%', height: '2rem' }}
+            value={whitelist}
+            onChange={(e: any) => {
+              const newVal = e.target.value
+              setWhitelist(newVal)
+              if (newVal && !ether.utils.isAddress(newVal)) {
+                setIsErrorFormatAddress(true)
+              } else {
+                setIsErrorFormatAddress(false)
+              }
+            }}
+          />
         </Box>
       </Box>
       <Box sx={{ marginTop: '1rem !important' }}>
         <Typography className={styles.formLabel}></Typography>
-        <Typography className={styles.tipInfo}>* Specify the address to use. Check that the address is filled in correctly.</Typography>
+        {isErrorFormatAddress ?
+          <Typography className={styles.errorFormat}><ErrorOutlineIcon />&nbsp; Error format address</Typography> :
+          <Typography className={styles.tipInfo}>* Specify the address to use. Check that the address is filled in correctly.</Typography>
+        }
       </Box>
     </Stack>
 

@@ -2,7 +2,7 @@ import { Avatar, Box } from '@mui/material'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
-import { CHAIN_ICON } from '../../constants'
+import { CHAIN_ICON, ZERO_ADDRESS } from '../../constants'
 import styles from './index.module.scss'
 
 interface NFTCardProps {
@@ -18,8 +18,14 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
       <div className={styles.nftImage}>
         {metadata && metadata?.media && metadata?.media[0]?.gateway &&
           <Image src={metadata?.media[0]?.gateway} layout="fill" />}
-        {nftInfo.status === 'Renting' &&
-          <Box component="span" className={styles.rentedTag}>Rented</Box>}
+        <Box className={styles.tagList}>
+          {nftInfo.status === 'Renting' &&
+            <Box component="span" className={styles.rentedTag}>Rented</Box>}
+          {
+            nftInfo.whiteAddress != ZERO_ADDRESS &&
+            <Box component="span" className={styles.whitelistTag} >Whitelist</Box>
+          }
+        </Box>
       </div>
       <div className={styles.cardTitle}>
         <span className={styles.nftCollectionImage}>

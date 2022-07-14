@@ -17,7 +17,7 @@ import { useRequest } from "ahooks";
 import { getMarketNFTList, getNFTDetail } from "../../services/market";
 import { formatAddress } from "../../utils/format";
 import { web3GetNFTMetadata } from "../../services/web3NFT";
-import { CHAIN_ICON, CHAIN_NAME } from "../../constants";
+import { CHAIN_ICON, CHAIN_NAME, ZERO_ADDRESS } from "../../constants";
 import Head from "next/head";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
@@ -27,7 +27,7 @@ const cx = classNames.bind(styles)
 
 const Detail: NextPage = () => {
   const router = useRouter()
-  const { isConnected } = useAccount()
+  const { isConnected, address } = useAccount()
   const isMounted = useIsMounted()
   const [nftInfo, setNFTInfo] = useState<Record<string, any>>({})
   const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
@@ -107,7 +107,7 @@ const Detail: NextPage = () => {
         <Stack spacing="2rem">
           <Paper className={styles.itemCover} >
             {nftInfo?.media && <img src={nftInfo?.media[0]?.gateway} />}
-            {baseInfo.status === 'Renting' && <Box component="span" >Rented</Box>}
+            {/* {baseInfo.status === 'Renting' && <Box component="span" >Rented</Box>} */}
           </Paper>
           <Paper className={styles.rentDetail}>
             <Typography>DAILY EARNING:</Typography>
@@ -125,38 +125,65 @@ const Detail: NextPage = () => {
             })}
           >Rented</Box>}
 
-          {baseInfo.status !== 'Renting' && (isMounted && isConnected ?
-            <RentNFTModal
-              reloadInfo={() => { fetchNFTDetail({ skuId: router.query['skuId'] }) }}
-              skuId={router.query['skuId'] as string}
-              baseInfo={baseInfo}
-              trigger={<Box
-                className={cx({
-                  'rentButton': true,
-                  'rentedButton': false,
-                })}
-              >Rent</Box>} /> :
-            <ConnectWallet trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />)}
+          {baseInfo.status !== 'Renting' && isMounted && !isConnected &&
+            <ConnectWallet trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />
+          }
 
+          {
+            baseInfo.status !== 'Renting' && isMounted && isConnected &&
+            ([ZERO_ADDRESS, address].includes(baseInfo.whiteAddress) ?
+              <RentNFTModal
+                reloadInfo={() => { fetchNFTDetail({ skuId: router.query['skuId'] }) }}
+                skuId={router.query['skuId'] as string}
+                baseInfo={baseInfo}
+                trigger={<Box
+                  className={cx({
+                    'rentButton': true,
+                    'rentedButton': false,
+                  })}
+                >Rent</Box>} /> :
+              <Box>
+                <Box
+                  className={cx({
+                    'rentButton': true,
+                    'rentedButton': true,
+                  })}
+                >
+                  Rent
+                </Box>
+                {baseInfo.whiteAddress &&
+                  <Typography className={styles.whitelistButtonTip}>
+                    * This NFT is only for the whitelist user.
+                  </Typography>}
+              </Box>
+            )
+          }
         </Stack>
       </Box>
 
       <Box className={styles.rightBox} sx={{ marginLeft: '5.33rem', width: '60.83rem' }}>
         <Stack spacing="2rem">
           <Paper className={styles.rentNFTinfo}>
-            {/* <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Avatar src="/rebel_logo.gif" variant="rounded" sx={{ width: '2.67rem', height: '2.67rem' }} />
+                <Avatar src="https://tva1.sinaimg.cn/large/e6c9d24egy1h3yrt5tycej20nw0kxdh5.jpg" variant="rounded" sx={{ width: '2.67rem', height: '2.67rem' }} />
                 <span className={styles.nftCollectionName}>{baseInfo.nftName}</span>
               </Box>
-              <span>#{baseInfo.nftUid}</span>
-            </Box> */}
+              <Box className={styles.tagList}>
+                {baseInfo.status === 'Renting' &&
+                  <Box component="span" className={styles.rentedTag}>Rented</Box>}
+                {
+                  baseInfo.whiteAddress && baseInfo.whiteAddress != ZERO_ADDRESS &&
+                  <Box component="span" className={styles.whitelistTag} >Whitelist</Box>
+                }
+              </Box>
+            </Box>
             <Typography variant="h2">{baseInfo.nftName} #{baseInfo.nftUid}</Typography>
             <Stack direction="row" spacing="4.83rem" className={styles.addressInfo}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography >Owned by</Typography>
                 <span className={styles.ownerAddress}>
-                  {formatAddress(baseInfo.lenderAddress, 6)}
+                  {formatAddress(baseInfo.lenderAddress, 4)}
                 </span>
                 {
                   isCopyed ?
@@ -190,7 +217,7 @@ const Detail: NextPage = () => {
                 <Box>Contract Address</Box>
                 <a href={contractBlockExplore} target="_blank" rel="noreferrer">
                   <Box className={styles.linkAddress}>
-                    {formatAddress(baseInfo.nftAddress, 6)}&nbsp;
+                    {formatAddress(baseInfo.nftAddress, 4)}&nbsp;
                     <LaunchIcon />
                   </Box>
                 </a>

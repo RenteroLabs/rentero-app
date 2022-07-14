@@ -17,6 +17,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SwitchNetwork from '../SwitchNetwork';
 import { ethers } from 'ethers';
 import LendConfig from './LendConfig';
+import { ZERO_ADDRESS } from '../../constants';
 
 interface ChooseNFTModalProps {
   gameName: string
@@ -211,7 +212,12 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     setIsLoading(true)
 
     try {
-      const { hash } = await contractMarket.createSkunInfo(parseInt(selectedNFT), Ropsten_WrapNFT, '0x0000000000000000000000000000000000000000', 100 - (userLendConfigInfo?.borrowerRatio || 0), userLendConfigInfo.borrowerRatio)
+      const { hash } = await contractMarket.createSkunInfo(
+        parseInt(selectedNFT),
+        Ropsten_WrapNFT,
+        userLendConfigInfo.whiteList || ZERO_ADDRESS,
+        100 - (userLendConfigInfo?.borrowerRatio || 25),
+        userLendConfigInfo.borrowerRatio || 25)
       setListMarketTxHash(hash)
     } catch (err: any) {
       setErrorMessage(err.message)

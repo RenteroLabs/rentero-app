@@ -258,10 +258,9 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
         </Box>}
 
         {((12 * currentPage) < NFTTotal) && isMounted &&
-          <div
-            className={styles.showMore}
-            onClick={handelGetMoreList}
-          ><span>Show more</span></div>}
+          <div className={styles.showMore}>
+            <span onClick={handelGetMoreList}>Show more</span>
+          </div>}
       </div>
     </div >
   )

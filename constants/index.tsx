@@ -27,3 +27,5 @@ export const ALCHEMY_ETHEREUM_URL = `https://eth-mainnet.alchemyapi.io/nft/v2/${
 export const ALCHEMY_ROPSTEN_URL = `https://eth-ropsten.alchemyapi.io/nft/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`
 
 export const BaseURL = 'https://devapi.rentero.io'
+
+export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000'

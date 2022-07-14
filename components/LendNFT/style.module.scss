@@ -255,6 +255,17 @@
       color: #777e90;
       line-height: 1.67rem;
     }
+    .errorFormat {
+      display: flex;
+      align-items: center;
+      width: 41.67rem;
+      text-align: left;
+      font-size: 1.33rem;
+      font-family: Poppins-Regular, Poppins;
+      font-weight: 400;
+      color: rgb(205, 78, 78);
+      line-height: 1.67rem;
+    }
 
     :global {
       .Mui-selected {
