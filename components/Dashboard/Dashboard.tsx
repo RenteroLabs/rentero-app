@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Card, Chip, CircularProgress, IconButton, InputBase, Pagination, Paper, Slide, SlideProps, Snackbar, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
+import { Alert, Box, Button, Card, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, InputBase, Pagination, Paper, Slide, SlideProps, Snackbar, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
 import styles from './index.module.scss'
 import classNames from "classnames/bind"
 import NotFound from '../../public/table_not_found.svg'
@@ -16,8 +16,58 @@ import { Ropsten_721_AXE_NFT, ROPSTEN_ACCOUNT_ABI, ROPSTEN_ACCOUNT, Ropsten_Wrap
 import { dateFormat, formatAddress } from "../../utils/format"
 import { useContract, useSigner } from "wagmi"
 import { LoadingButton } from "@mui/lab"
+import TakeOffNFTModal from "./Modals/TakeOffNFT"
+import LendConfig from "../LendNFT/LendConfig"
+import CloseIcon from '@mui/icons-material/Close'
 
 const cx = classNames.bind(styles)
+
+
+const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
+  const [showModal, setShowModal] = useState<boolean>(false)
+
+  let redeemButton
+  switch (item.status) {
+    case 'Doing': redeemButton = <TakeOffNFTModal
+      trigger={<span className={cx({ "returnButton": true, "returnButton_disable": item.status !== 'Doing' })}>TakeOff</span>}
+      orderId={item.orderId}
+    />; break;
+    case 'BCancel':
+    case 'LCancel':
+      redeemButton = <WithdrawNFTModal
+        trigger={<span className={cx({ "returnButton": true, })} >Withdraw</span>}
+        nftUid={item.nftUid}
+      />
+      break;
+    default:
+      redeemButton = <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>;
+      break;
+  }
+
+  return <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box className={styles.returnButton} onClick={() => setShowModal(true)}>Edit</Box>
+    {redeemButton}
+    <Dialog open={showModal} className={styles.container}>
+      <DialogTitle className={styles.dialogTitle}>
+        <Box className={styles.emptyBox}></Box>
+        Update Lend NFT Config
+        <IconButton
+          aria-label="close"
+          onClick={() => setShowModal(false)}
+          sx={{
+            color: (theme) => theme.palette.grey[500],
+            
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent className={styles.dialogContent}>
+        <LendConfig />
+      </DialogContent>
+    </Dialog>
+  </Box>
+}
 
 export interface DashboardProps {
 
@@ -62,24 +112,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const { run: getLenderList, loading: lenderListLoading } = useRequest(lenderList, {
     manual: true,
     onSuccess: async ({ data }) => {
-      console.log(data)
       setLendDataSource(data.pageContent)
       setLendTotal(Math.ceil((data.totalRemain || 0) / 10))
 
-      // 获取 NFT metadata 数据
-      // const metarequests = data.pageContent.map((item: any) => {
-      //   return web3GetNFTMetadata({
-      //     contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
-      //     tokenId: item.nftUid,
-      //     tokenType: 'erc721'
-      //   })
-      // })
-      // const result = await Promise.all(metarequests)
-      // let newMetaList: Record<number, any> = {}
-      // result.forEach((item: any, index: number) => {
-      //   newMetaList[parseInt(data.pageContent[index].skuId)] = item
-      // })
-      // setMetaData({ ...metadata, ...newMetaList })
       let newMetaList: Record<number, any> = {}
       data.pageContent.forEach((item: OrderInfo, index: number) => {
         try {
@@ -95,10 +130,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const { run: getBorrowerList, loading: borrowerListLoading } = useRequest(borrowerList, {
     manual: true,
     onSuccess: async ({ data }) => {
-      console.log(data)
       setBorrowerDataSource(data.pageContent)
       setBorrowerTotal(Math.ceil((data.totalRemain || 0) / 10))
-   
+
       let newMetaList: Record<number, any> = {}
       data.pageContent.forEach((item: OrderInfo, index: number) => {
         try {
@@ -114,7 +148,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const { run: getOverview } = useRequest(overviewData, {
     manual: true,
     onSuccess: ({ data }) => {
-      console.log(data)
       setOverview(data)
     }
   })
@@ -166,30 +199,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     }
   }
 
-  const lendOperation = (item: OrderInfo) => {
-    let redeemButton
-    switch (item.status) {
-      case 'Doing': redeemButton = <WithdrawNFTModal
-        trigger={<span className={cx({ "returnButton": true, "returnButton_disable": item.status !== 'Doing' })}>TakeOff</span>}
-        orderId={item.orderId}
-      />; break;
-      case 'BCancel':
-      case 'LCancel': redeemButton = <span
-        className={cx({ "returnButton": true, })}
-        onClick={() => withdrawNFT(item.nftUid)}>Withdraw</span>;
-        break;
-      default:
-        redeemButton = <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>;
-        break;
-    }
 
-    const editButton = <Box className={styles.returnButton}>Edit</Box>
-
-    return <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {editButton}
-      {redeemButton}
-    </Box>
-  }
 
   // 提取收益
   const withdrawEarning = async () => {
@@ -308,7 +318,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                       orderId={item.orderId}
                     /> :
                     <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Return</span>)}
-                {tableType === 'LEND' && lendOperation(item)}
+                {tableType === 'LEND' && <LendOperation item={item} />}
               </TableCell>
             </TableRow>
           })

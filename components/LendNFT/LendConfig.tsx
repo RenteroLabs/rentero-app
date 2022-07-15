@@ -10,12 +10,15 @@ import { UserLendConfigInfo } from './ChooseNFTModal';
 import * as ether from 'ethers'
 
 interface LendConfigProps {
-  setNextStep: () => any;
-  setUserLendConfigInfo: (info: UserLendConfigInfo) => any;
+  configType?: '@add' | '@modify';
+  setNextStep?: () => any;
+  setUserLendConfigInfo?: (info: UserLendConfigInfo) => any;
 }
 
 const LendConfig: React.FC<LendConfigProps> = (props) => {
-  const { setNextStep, setUserLendConfigInfo } = props
+  const { setNextStep = () => { },
+    setUserLendConfigInfo = (info: UserLendConfigInfo) => { },
+    configType = '@add' } = props
 
   const [ratioType, setRatioType] = useState<number>(30)
   const [customRatio, setCustomRatio] = useState<number | undefined>()

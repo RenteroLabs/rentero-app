@@ -29,11 +29,16 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
     setTxError('')
     try {
       await contractMarket.cancelOrderBorrow(orderId)
-      setShowDialog(true)
+      hiddenAppDialog()
     } catch (err: any) {
       setTxError(err.message)
     }
     setIsLoading(false)
+  }
+
+  const hiddenAppDialog = () => {
+    setShowDialog(true)
+    setTxError('')
   }
 
   return <AppDialog
@@ -43,7 +48,9 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
   >
     <Box sx={{ p: '3.33rem', pt: '2.67rem' }}>
       <Typography className={styles.normalText}>Are you sure to return the NFT, once returned you won&#39;t be able to earn yields by using that anymore.</Typography>
+
       {txError && <Alert variant="outlined" severity="error" sx={{ mt: '2rem' }}>{txError}</Alert>}
+      
       <Stack direction="row" spacing="3.33rem" sx={{ mt: '2.67rem' }}>
         <Box className={styles.primaryButton} onClick={returnBorrowerNFT}>
           {
@@ -53,7 +60,7 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
             </> : <>Confirm</>
           }
         </Box>
-        <Box className={styles.defaultButton} onClick={() => setShowDialog(true)}>Cancel</Box>
+        <Box className={styles.defaultButton} onClick={hiddenAppDialog}>Cancel</Box>
       </Stack>
     </Box>
   </AppDialog>

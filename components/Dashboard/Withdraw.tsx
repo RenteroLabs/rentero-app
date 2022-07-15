@@ -1,5 +1,5 @@
-import { Box, Chip, IconButton, InputBase, Pagination, Paper, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
-import { useState } from 'react'
+import { Box, Chip, CircularProgress, IconButton, InputBase, Pagination, Paper, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { useEffect, useMemo, useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search';
 import styles from './index.module.scss'
 import classNames from 'classnames/bind';
@@ -7,6 +7,9 @@ import NotFound from '../../public/table_not_found.svg'
 import { useIsMounted } from '../../hooks';
 import WithdrawEarningModal from './Modals/WithdrawEarning';
 import Image from 'next/image';
+import ManageSearchOutlinedIcon from '@mui/icons-material/ManageSearchOutlined';
+import { useLocalStorageState, useRequest } from 'ahooks';
+import { getBillList, getWalletList } from '../../services/dashboard';
 
 const cx = classNames.bind(styles)
 
@@ -62,47 +65,41 @@ const dataSource = [
   }
 ]
 
-const operationDataSource = [
-  {
-    token: 'SLP',
-    game: 'Axieinfinity',
-    nft: '#9527',
-    operation: 'withdraw',
-    change: '-100',
-    time: '2022-02-30 12:59:59'
-  }, {
-    token: 'SLP',
-    game: 'Axieinfinity',
-    nft: '',
-    operation: 'withdraw',
-    change: '-100',
-    time: ''
-  }, {
-    token: 'SLP',
-    game: 'Axieinfinity',
-    nft: '',
-    operation: 'withdraw',
-    change: '-100',
-    time: ''
-  }
-]
-
 const Withdraw: React.FC<WithdrawProps> = (props) => {
   const { } = props
   const isMounted = useIsMounted()
+  const [rawToken] = useLocalStorageState<string>('token')
+  const [billListData, setBillListData] = useState<Record<string, any>[]>([])
+  const [walletList, setWalletList] = useState<Record<string, any>[]>([])
+
+  const jwtToken = useMemo(() => {
+    if (!rawToken) return ''
+    return rawToken.split('*')[1]
+  }, [rawToken])
+
+  const { run: queryBillList, loading: billLoading } = useRequest(getBillList, {
+    manual: true,
+    onSuccess: ({ data }) => {
+      setBillListData(data || [])
+    }
+  })
+
+  const { run: queryWalletList, loading: walletLoading } = useRequest(getWalletList, {
+    manual: true,
+    onSuccess: ({ data }) => {
+      console.log(data)
+      setWalletList(data || [])
+    }
+  })
+
+  useEffect(() => {
+    queryBillList(jwtToken)
+    queryWalletList(jwtToken)
+  }, [])
 
   return <div>
     <Box className={styles.tableSearch}>
       <Typography className={styles.tableTitle}>Total Assets</Typography>
-      {/* <Paper component="form" className={styles.searchInput}>
-        <IconButton>
-          <SearchIcon sx={{ color: '#777E90' }} />
-        </IconButton>
-        <InputBase
-          sx={{ flex: 1 }}
-          placeholder="Enter NFT Id or Name For Searching"
-        />
-      </Paper> */}
     </Box>
     {/* 钱包提现 List */}
     <Table className={styles.tableBox}>
@@ -115,7 +112,7 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
       </TableHead>
       <TableBody className={styles.tableBody}>
         {
-          dataSource.map((item, index) => {
+          walletList.map((item, index) => {
             return <TableRow key={index}>
               <TableCell>{item.token}</TableCell>
               <TableCell>{item.game}</TableCell>
@@ -130,11 +127,13 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
         }
       </TableBody>
       {
-        dataSource.length === 0 && isMounted && <TableFooter className={styles.tableFooter}>
+        walletList.length === 0 && isMounted && <TableFooter className={styles.tableFooter}>
           <TableRow>
             <TableCell colSpan={12}>
-              <Image src={NotFound} />
-              <Typography>Nothing Found</Typography>
+              <Typography
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+                <ManageSearchOutlinedIcon />&nbsp; No Assets
+              </Typography>
             </TableCell>
           </TableRow>
         </TableFooter>
@@ -150,7 +149,7 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
       </Box>
       <Table
         className={styles.tableBox}
-        sx={{ borderTopRightRadius: '0px !important', borderTopLeftRadius: '0px !important'}}>
+        sx={{ borderTopRightRadius: '0px !important', borderTopLeftRadius: '0px !important' }}>
         <TableHead className={styles.recordBoxHeader} >
           <TableRow>
             {operateRecordColumns.map((item, index) => {
@@ -160,7 +159,7 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
         </TableHead>
         <TableBody className={styles.tableBody}>
           {
-            operationDataSource.map((item, index) => {
+            billListData.map((item, index) => {
               return <TableRow key={index}>
                 <TableCell>{item.token}</TableCell>
                 <TableCell>{item.game}</TableCell>
@@ -172,6 +171,27 @@ const Withdraw: React.FC<WithdrawProps> = (props) => {
             })
           }
         </TableBody>
+        {
+          billLoading &&
+          <TableFooter className={styles.tableFooter}>
+            <TableRow>
+              <TableCell colSpan={12}>
+                <CircularProgress />
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        }
+        {
+          !billLoading && isMounted && billListData.length === 0 &&
+          <TableFooter className={styles.tableFooter}>
+            <TableRow>
+              <TableCell colSpan={12}>
+                <Image src={NotFound} />
+                <Typography>Nothing Found</Typography>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        }
       </Table>
     </Box>
   </div>

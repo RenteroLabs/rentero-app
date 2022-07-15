@@ -74,6 +74,20 @@ export const getWalletList = async (token: string) => {
 }
 
 /**
+ * account bill record list
+ * @param token 
+ * @returns 
+ */
+export const getBillList = async (token: string) => {
+  const data = await fetch(`${BaseURL}/account/bill/list`, {
+    headers: {
+      sessionToken: token
+    }
+  })
+  return await data.json()
+}
+
+/**
  * 订单、账单记录
  * @param token 
  * @returns 
