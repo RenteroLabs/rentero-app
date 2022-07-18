@@ -7,17 +7,16 @@ import styles from './index.module.scss'
 
 interface NFTCardProps {
   nftInfo: Record<string, any>
-  metadata: Record<string, any>
 }
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
-  const { nftInfo, metadata } = props
+  const { nftInfo } = props
 
   return <Link href={`/detail/${nftInfo.nftUid}?skuId=${nftInfo.skuId}`}  >
     <div className={styles.card}>
       <div className={styles.nftImage}>
-        {metadata && metadata?.media && metadata?.media[0]?.gateway &&
-          <Image src={metadata?.media[0]?.gateway} layout="fill" />}
+        {nftInfo.imageUrl &&
+          <Image src={nftInfo.imageUrl} layout="fill" />}
         <Box className={styles.tagList}>
           {nftInfo.status === 'Renting' &&
             <Box component="span" className={styles.rentedTag}>Rented</Box>}

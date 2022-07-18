@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import Head from 'next/head'
-import Image from 'next/image'
 import type { NextPage } from 'next'
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -15,7 +13,6 @@ import { useRequest } from 'ahooks'
 import { getGameInfos, getMarketNFTList } from '../services/market'
 import { dateFormat } from '../utils/format'
 import { useAlchemyService, useIsMounted } from '../hooks'
-import { Ropsten_721_AXE_NFT } from '../constants/contractABI'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
 import { web3GetNFTMetadata } from '../services/web3NFT'
 import AutorenewIcon from '@mui/icons-material/Autorenew';
@@ -34,9 +31,6 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
   const [NFTTotal, setNFTTotal] = useState<number>(0)
-  const [NFTMetadataList, setNFTMetadataList] = useState<Record<number, any>>({})
-
-  // const Web3 = useAlchemyService()
 
   const currentGameInfo = useMemo(() => {
     return gamesInfo[parseInt(currentGame)] || {}
@@ -48,33 +42,6 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
       const { totalRemain, pageContent } = data
       setNFTList([...NFTList, ...pageContent])
       setNFTTotal(totalRemain)
-
-      // let metalist: Record<number, any> = {}
-      // // 获取 MarketList 中每个 NFT 的 metadata 数据
-      // pageContent.forEach(async (item: any) => {
-      //   const result = await Web3?.alchemy.getNftMetadata({
-      //     // 此处在此直接请求 ERC721 合约地址
-      //     contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
-      //     tokenId: item.nftUid,
-      //     tokenType: 'erc721'
-      //   })
-      //   metalist[parseInt(item.skuId)] = result
-      // });
-
-      const metarequests = pageContent.map((item: any) => {
-        return web3GetNFTMetadata({
-          contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
-          tokenId: item.nftUid,
-          tokenType: 'erc721'
-        })
-      })
-      const result = await Promise.all(metarequests)
-      let newMetaList: Record<number, any> = {}
-      result.forEach((item: any, index: number) => {
-        newMetaList[parseInt(pageContent[index].skuId)] = item
-      })
-
-      setNFTMetadataList({ ...NFTMetadataList, ...newMetaList })
     }
   })
 
@@ -236,7 +203,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
         <div className={styles.nftCardList}>
           {
             NFTList.map((item, index) => {
-              return <NFTCard nftInfo={item} metadata={NFTMetadataList[parseInt(item.skuId)]} key={index} />
+              return <NFTCard nftInfo={item} key={index} />
             })
           }
         </div>
