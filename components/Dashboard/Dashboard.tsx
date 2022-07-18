@@ -112,11 +112,11 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const { run: getLenderList, loading: lenderListLoading } = useRequest(lenderList, {
     manual: true,
     onSuccess: async ({ data }) => {
-      setLendDataSource(data.pageContent)
-      setLendTotal(Math.ceil((data.totalRemain || 0) / 10))
+      setLendDataSource(data?.pageContent || [])
+      setLendTotal(Math.ceil((data?.totalRemain || 0) / 10))
 
       let newMetaList: Record<number, any> = {}
-      data.pageContent.forEach((item: OrderInfo, index: number) => {
+      data?.pageContent.forEach((item: OrderInfo, index: number) => {
         try {
           newMetaList[parseInt(data.pageContent[index].skuId)] = JSON.parse(item.metadata)
         } catch (err: any) {

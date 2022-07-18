@@ -131,7 +131,7 @@ const Detail: NextPage = () => {
 
           {
             baseInfo.status !== 'Renting' && isMounted && isConnected &&
-            ([ZERO_ADDRESS, address].includes(baseInfo.whiteAddress) ?
+            ([ZERO_ADDRESS, address?.toLowerCase()].includes(baseInfo.whiteAddress) ?
               <RentNFTModal
                 reloadInfo={() => { fetchNFTDetail({ skuId: router.query['skuId'] }) }}
                 skuId={router.query['skuId'] as string}
