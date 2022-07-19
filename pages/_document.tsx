@@ -20,6 +20,17 @@ export default class AppDocument extends Document {
           />
           <link rel="preload" href="/font/Agrandir-GrandHeavy.otf" type="font/otf" as="font" crossOrigin="anonymous" />
           <link rel="preload" href="/font/MonumentExtended.otf" type="font/otf" as="font" crossOrigin="anonymous" />
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-RKM0TCB2X6"></script>
+
+          <script dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-RKM0TCB2X6');
+            `
+          }} />
         </Head>
         <body>
           <Main />

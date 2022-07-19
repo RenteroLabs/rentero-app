@@ -18,6 +18,7 @@ import { LoadingButton } from "@mui/lab"
 import TakeOffNFTModal from "./Modals/TakeOffNFT"
 import LendConfig from "../LendNFT/LendConfig"
 import CloseIcon from '@mui/icons-material/Close'
+import { ZERO_ADDRESS } from "../../constants"
 
 const cx = classNames.bind(styles)
 
@@ -246,6 +247,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       return <span className={styles.removedStatus}>Removed</span>
     }
   }
+  
   return <div>
     <Stack direction="row" className={styles.overviewBox}>
       <Card variant="outlined">
@@ -328,7 +330,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
               <TableCell>{item.skuId}</TableCell>
               <TableCell>
                 <Box className={styles.nftBoxCell}>
-                  <img src={item.imageUrl} />
+                  <Box className={styles.boxImage}>
+                    <img src={item.imageUrl} />
+                    {item.whiteAddress !== ZERO_ADDRESS && <span className={styles.whitelistIcon}></span>}
+                  </Box>
                   <Stack sx={{ margin: 'auto 1rem' }}>
                     <Typography className={styles.nftCollectionName}>{metadata[item.skuId]?.name} &nbsp;#{item.nftUid}</Typography>
                     <Typography className={styles.nftAddress}>{formatAddress(tableType === 'RENT' ? item.lenderAddress : item.borrowAddress, 5)}</Typography>
