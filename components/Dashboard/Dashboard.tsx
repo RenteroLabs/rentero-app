@@ -11,7 +11,6 @@ import WithdrawNFTModal from "./Modals/WithdrawNFT"
 import { useLocalStorageState, useRequest } from "ahooks"
 import { borrowerList, lenderList, overviewData } from "../../services/dashboard"
 import { OrderInfo } from "../../types/dashboard"
-import { web3GetNFTMetadata } from "../../services/web3NFT"
 import { Ropsten_721_AXE_NFT, ROPSTEN_ACCOUNT_ABI, ROPSTEN_ACCOUNT, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from "../../constants/contractABI"
 import { dateFormat, formatAddress } from "../../utils/format"
 import { useContract, useSigner } from "wagmi"
@@ -21,7 +20,6 @@ import LendConfig from "../LendNFT/LendConfig"
 import CloseIcon from '@mui/icons-material/Close'
 
 const cx = classNames.bind(styles)
-
 
 const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
   const [showModal, setShowModal] = useState<boolean>(false)
@@ -34,10 +32,12 @@ const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
     />; break;
     case 'BCancel':
     case 'LCancel':
-      redeemButton = <WithdrawNFTModal
-        trigger={<span className={cx({ "returnButton": true, })} >Withdraw</span>}
-        nftUid={item.nftUid}
-      />
+      redeemButton = (item.itemStatus === 'Renting' ?
+        <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>
+        : <WithdrawNFTModal
+          trigger={<span className={cx({ "returnButton": true, })} >Withdraw</span>}
+          nftUid={item.nftUid}
+        />)
       break;
     default:
       redeemButton = <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>;
@@ -45,8 +45,16 @@ const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
   }
 
   return <Box sx={{ display: 'flex', alignItems: 'center' }}>
-    <Box className={styles.returnButton} onClick={() => setShowModal(true)}>Edit</Box>
+    <Box
+      className={`${styles.returnButton} ${item.status && styles.returnButton_disable}`}
+      onClick={() => {
+        if (!item.status) {
+          setShowModal(true)
+        }
+      }}>
+      Edit</Box>
     {redeemButton}
+
     <Dialog open={showModal} className={styles.container}>
       <DialogTitle className={styles.dialogTitle}>
         <Box className={styles.emptyBox}></Box>
@@ -54,10 +62,7 @@ const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
         <IconButton
           aria-label="close"
           onClick={() => setShowModal(false)}
-          sx={{
-            color: (theme) => theme.palette.grey[500],
-            
-          }}
+          sx={{ color: (theme) => theme.palette.grey[500] }}
         >
           <CloseIcon />
         </IconButton>
@@ -199,8 +204,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     }
   }
 
-
-
   // 提取收益
   const withdrawEarning = async () => {
     setWithdrawLoading(true)
@@ -216,6 +219,33 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
 
   // TODO: dashboard页在调用合约操作之前需判断当前所处网络
 
+
+  const lendingStatus = (item: OrderInfo) => {
+    if (tableType === 'RENT') {
+      switch (item.status) {
+        case 'Doing': return <span className={styles.rentingStatus}>Renting</span>
+        case "BCancel": return <span className={styles.returningStatus}>Returning</span>
+        case "LCancel": return <span className={styles.returningStatus}>Redeeming</span>
+        default: return <span>{item.status}</span>
+      }
+    }
+
+    if (item.itemStatus === "Active" && !item.status) {
+      return <span className={styles.listingStatus}>Listing</span>
+    }
+    if (item.itemStatus === 'Renting') {
+      switch (item.status) {
+        case 'Doing': return <span className={styles.lendingStatus}>Lending</span>
+        case 'BCancel':
+        case "LCancel":
+        case 'Cancel':
+          return <span className={styles.removingStatus}>Removing</span>
+      }
+    }
+    if (item.itemStatus === 'TakeDown') {
+      return <span className={styles.removedStatus}>Removed</span>
+    }
+  }
   return <div>
     <Stack direction="row" className={styles.overviewBox}>
       <Card variant="outlined">
@@ -275,7 +305,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       </Box>
       <Paper component="form" className={styles.searchInput}>
         <IconButton>
-          <SearchIcon sx={{ color: '#777E90' }} />
+          <SearchIcon sx={{ color: '#777E90', width: '1.4rem', height: '1.4rem' }} />
         </IconButton>
         <InputBase
           sx={{ flex: 1 }}
@@ -309,7 +339,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
               <TableCell>{item.lenderEarnRatio}%</TableCell>
               <TableCell>{item.gameName}</TableCell>
               <TableCell>{item.orderTime ? dateFormat('YYYY-mm-dd HH:MM:SS', new Date(item.orderTime * 1000)) : '-'}</TableCell>
-              <TableCell>{item.status}</TableCell>
+              <TableCell>{lendingStatus(item)}</TableCell>
               <TableCell align="center">
                 {tableType === 'RENT' &&
                   (item.status === 'Doing' ?

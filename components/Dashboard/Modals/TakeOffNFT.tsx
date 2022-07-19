@@ -52,7 +52,7 @@ const TakeOffNFTModal: React.FC<TakeOffNFTModalProps> = (props) => {
   >
     <Box sx={{ p: '3.33rem', pt: '2.67rem', width: '46rem' }}>
       <Typography className={styles.normalText} >
-        Are you sure to take off the NFT in the market?
+        Are you sure to take off the NFT in the market? You will stop earning yields once confirming.
       </Typography>
 
       {txError && <Alert variant="outlined" severity="error" sx={{ mt: '2rem', minWidth: 'none' }}>{txError}</Alert>}

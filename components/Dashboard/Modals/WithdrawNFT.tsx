@@ -18,7 +18,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { address } = useAccount()
   const { data: signer } = useSigner()
-
+  console.log(nftUid)
   const contractWrap = useContract({
     addressOrName: Ropsten_WrapNFT,
     contractInterface: Ropsten_WrapNFT_ABI,
@@ -50,7 +50,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   >
     <Box sx={{ p: '3.33rem', pt: '2.67rem', width: '46rem' }}>
       <Typography className={styles.normalText} >
-        Are you sure to withdraw the NFT? You will stop earning yields once confirming, your NFT will be sent to the address below. <span className={styles.tipsText}>(please check it carefully)</span>
+        Are you sure to withdraw the NFT? Your NFT will be sent to the address below. <span className={styles.tipsText}>(please check it carefully)</span>
       </Typography>
       <Box className={styles.addressBox}>{address}</Box>
 

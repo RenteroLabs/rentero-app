@@ -273,3 +273,61 @@
     justify-content: center;
   }
 }
+
+.baseStatusCol {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  line-height: 20px;
+  &::before {
+    display: block;
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.58rem;
+    border-radius: 50%;
+    background-color: inherit;
+  }
+}
+
+.listingStatus {
+  @extend .baseStatusCol;
+  color: #5adcfe;
+  &::before {
+    background-color: #5adcfe;
+  }
+}
+
+.lendingStatus, .rentingStatus {
+  @extend .baseStatusCol;
+  color: #a6ff00;
+  &::before {
+    background-color: #a6ff00;
+  }
+}
+
+.removingStatus {
+  @extend .baseStatusCol;
+  color: #e2615c;
+  &::before {
+    background-color: #e2615c;
+  }
+}
+
+.removedStatus {
+  @extend .baseStatusCol;
+  color: #777e90;
+  &::before {
+    background-color: #777e90;
+  }
+}
+
+.returningStatus {
+  @extend .baseStatusCol;
+  color: #f3ae43;
+  &::before {
+    background-color: #f3ae43;
+  }
+}

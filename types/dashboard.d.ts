@@ -1,22 +1,3 @@
-borrowAddress: "0x66567071d55a9fbe6b3944172592961c1c414075"
-borrowerEarnRatio: 70
-currencyKind: "ETH"
-expectedInCome: 0
-lenderAddress: "0x66567071d55a9fbe6b3944172592961c1c414075"
-lenderEarnRatio: 20
-minGain: 100
-newIncomeTime: null
-newIncomeValue: 0
-nftUid: 101
-orderId: 10000
-orderTime: 1656068000
-propertyUrl: "this is url "
-skuId: 10000
-status: "Cancel"
-totalInComeValue: 0
-wrapNftAddress: "0x9b01041815b301b728ed2b10a39ccb19f14cd4b2"
-
-
 export interface OrderInfo {
   borrowAddress: string,
   borrowerEarnRatio: number,
@@ -32,7 +13,27 @@ export interface OrderInfo {
   orderTime: number,
   propertyUrl: string,
   skuId: number,
-  status: 'Cancel' | 'Doing' | 'BCancel' | 'LCancel',
+
+  /** 
+   * 订单状态 
+   * 
+   * Doing: 租借中
+   * Finish: 完成
+   * BCancel: 借用方申请取消
+   * LCancel: 出租方申请取消
+   * Cancel: 取消
+   */
+  status: 'Doing' | 'Finish' | 'BCancel' | 'LCancel' | 'Cancel',
+
+  /**
+   * 商品 SKU 状态
+   * 
+   * Active: 上架中
+   * Renting: 租借中
+   * TakeDown: 已下架
+   * Delete: 已下架
+   */
+  itemStatus: 'Active' | 'Renting' | 'TakeDown' | 'Delete'
   totalInComeValue: number,
   wrapNftAddress: string,
   gameName: string;
