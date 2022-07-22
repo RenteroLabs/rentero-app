@@ -14,8 +14,7 @@ import { getGameInfos, getMarketNFTList } from '../services/market'
 import { dateFormat } from '../utils/format'
 import { useAlchemyService, useIsMounted } from '../hooks'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
-import { web3GetNFTMetadata } from '../services/web3NFT'
-import AutorenewIcon from '@mui/icons-material/Autorenew';
+import Link from 'next/link';
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
   const isMounted = useIsMounted()
@@ -30,6 +29,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
+  const [trialZoneList, setTrialZoneList] = useState<Record<string, any>[]>([])
   const [NFTTotal, setNFTTotal] = useState<number>(0)
 
   const currentGameInfo = useMemo(() => {
@@ -42,12 +42,25 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
       const { totalRemain, pageContent } = data
       setNFTList([...NFTList, ...pageContent])
       setNFTTotal(totalRemain)
+
+      // TODO: 暂时使用列表数据暂时试玩 NFT 数据
+      setTrialZoneList([...pageContent.splice(0, 4)])
+    }
+  })
+
+  // 白名单 NFT 数据
+  const { run: fetchWhitelistNFT } = useRequest(getMarketNFTList, {
+    manual: true,
+    onSuccess: (data) => {
+      console.log(data)
     }
   })
 
   useEffect(() => {
     fetchNFTList({ pageIndex: 1, pageSize: 12 })
+    fetchNFTList({ pageIndex: 1, pageSize: 12, whiteAddress: true })
   }, [])
+
 
   const handelGetMoreList = async () => {
     fetchNFTList({ pageIndex: currentPage + 1, pageSize: 12 })
@@ -145,6 +158,26 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             </Box>}
           </Box>
         </section>
+
+        <Box className={styles.trialZone}>
+          <Box className={styles.headerTitle}>
+            <Typography className={styles.titleText}>
+              Trial Zone
+              <img src='/fire.png' />
+            </Typography>
+            <Typography className={styles.moreLink}>
+              <Link href="/trial">See All&nbsp; &gt;</Link>
+            </Typography>
+          </Box>
+          <Box className={styles.trialNFTList}>
+            {
+              trialZoneList.map((item, index) => {
+                return <NFTCard nftInfo={item} key={index} mode="@trial" />
+              })
+            }
+          </Box>
+        </Box>
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.67rem' }}>
           <div className={styles.listTitle}>
             {NFTTotal} Items &nbsp;

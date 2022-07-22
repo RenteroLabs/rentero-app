@@ -20,6 +20,15 @@
   transition: all 0.1s ease 0s;
 }
 
+.cardTrialBackground {
+  background: linear-gradient(
+    92deg,
+    rgba(#f36a38, 0.15) 0%,
+    rgba(#90aa97, 0.15) 48%,
+    rgba(#26ebf5, 0.15) 100%
+  );
+}
+
 .nftImage {
   width: 19.5rem;
   height: 19.5rem;
@@ -130,4 +139,16 @@
   border-radius: 0.5rem;
   padding: 0.17rem 0.67rem;
   color: #305948;
+}
+
+.trialDayTag {
+  display: inline-block;
+  padding: 0.33rem 0.67rem;
+  background: linear-gradient(92deg, #f36a38 0%, #90aa97 48%, #26ecf5 100%);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.33rem;
 }

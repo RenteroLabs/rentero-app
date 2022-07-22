@@ -7,13 +7,14 @@ import styles from './index.module.scss'
 
 interface NFTCardProps {
   nftInfo: Record<string, any>
+  mode?: '@normal' | '@trial',
 }
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
-  const { nftInfo } = props
+  const { nftInfo, mode = '@normal' } = props
 
   return <Link href={`/detail/${nftInfo.nftUid}?skuId=${nftInfo.skuId}`}  >
-    <div className={styles.card}>
+    <div className={`${styles.card} ${mode === '@trial' && styles.cardTrialBackground}`}>
       <div className={styles.nftImage}>
         {nftInfo.imageUrl &&
           <Image src={nftInfo.imageUrl} layout="fill" />}
@@ -33,10 +34,14 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
         <span className={styles.nftName}>{nftInfo.nftName}</span>
       </div>
       <p className={styles.nftDesc}>Axe&#39;s Game NFT Collection </p>
-      <div className={styles.nftChainInfo}>
-        <span className={styles.nftNumber}>#{nftInfo.nftUid}</span>
-        <span className={styles.nftChain}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem' }} /></span>
-      </div>
+      {
+        mode === '@normal' ?
+          <div className={styles.nftChainInfo}>
+            <span className={styles.nftNumber}>#{nftInfo.nftUid}</span>
+            <span className={styles.nftChain}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem' }} /></span>
+          </div>
+          : <Box className={styles.trialDayTag}>7 Days Trial</Box>
+      }
     </div>
   </Link>
 }

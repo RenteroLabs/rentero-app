@@ -324,3 +324,42 @@
     }
   }
 }
+
+.trialZone {
+  margin: 6.47rem auto;
+
+  .headerTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+
+    .titleText {
+      font-size: 2rem;
+      font-family: MonumentExtended-Black, MonumentExtended;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 3.33rem;
+      display: flex;
+      align-items: center;
+      img {
+        margin-left: 1rem;
+        width: 2.4rem;
+        height: 2.4rem;
+        background: url(../public/fire.png);
+      }
+    }
+    .moreLink {
+      font-size: 1.33rem;
+      font-family: Poppins-Medium, Poppins;
+      font-weight: 500;
+      color: #5cd7fe;
+      line-height: 2rem;
+    }
+  }
+  .trialNFTList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}

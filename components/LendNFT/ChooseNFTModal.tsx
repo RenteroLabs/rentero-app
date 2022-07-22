@@ -1,4 +1,4 @@
-import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Grid, IconButton, InputBase, Stack, Step, StepButton, StepContent, StepLabel, Stepper, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Grid, IconButton, InputBase, Stack, Step, StepButton, StepContent, StepLabel, Stepper, Tabs, Tab, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { chain, erc721ABI, useAccount, useContract, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from 'wagmi'
@@ -16,8 +16,10 @@ import DefaultButton from '../Buttons/DefaultButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SwitchNetwork from '../SwitchNetwork';
 import { ethers } from 'ethers';
-import LendConfig from './LendConfig';
+import SliptModeLendConfig from './SliptModeLendConfig';
 import { ZERO_ADDRESS } from '../../constants';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
+import TrialModeLendConfig from './TrialModeLendConfig';
 
 interface ChooseNFTModalProps {
   gameName: string
@@ -29,7 +31,8 @@ interface ChooseNFTModalProps {
 export interface UserLendConfigInfo {
   borrowerRatio?: number,
   securityMoney?: number,
-  whiteList?: string
+  whiteList?: string,
+  lendingDay?: number,
 }
 
 const formatNFTdata = (nftList: any[]) => {
@@ -70,6 +73,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const [lendStep, setLendStep] = useState<number>(0)
   const [userLendConfigInfo, setUserLendConfigInfo] = useState<UserLendConfigInfo>({})
 
+  const [lendType, setLendType] = useState<'SliptMode' | 'TrialMode' | 'RentMode'>('SliptMode')  // 出借类型
 
   const [approveTxHash, setApproveTxHash] = useState<string | undefined>()
   const { isLoading: approveLoading, isSuccess: approveSuccess } = useWaitForTransaction({
@@ -321,7 +325,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
         </Box>}
 
         {isChooseNFT && <Box>
-          {selectedNFT && <Typography className={styles.selectedMessage}>#{selectedNFT} have been selected</Typography>}
+          {/* {selectedNFT && <Typography className={styles.selectedMessage}>#{selectedNFT} have been selected</Typography>} */}
           <Stack direction="row" justifyContent="center" spacing="3.33rem" mb="1.33rem" mt="1.33rem">
             <Box className={styles.defaultButton} onClick={() => setVisibile(false)}>Back  Game</Box>
             <Box
@@ -341,7 +345,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
         {
           !isChooseNFT &&
-          <Box className={styles.lendStep} width="65rem" minHeight="36rem">
+          <Box className={styles.lendStep} width="75rem" minHeight="36rem">
             {!stepComplete[2] && <Box className={styles.stepList}>
               <Stepper activeStep={lendStep} alternativeLabel>
                 <Step key="1. Configure">
@@ -352,14 +356,40 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                 </Step>
               </Stepper>
             </Box>}
+            {/* 出借第一步：出借信息配置 */}
+            {lendStep === 0 &&
+              <TabContext value={lendType}>
+                <TabList
+                  centered
+                  onChange={(_, val) => setLendType(val)}
+                  className={styles.lendTypeBox}
+                >
+                  <Tab label="Slipt Mode" value="SliptMode" />
+                  <Tab label="Trial Mode" value="TrialMode" />
+                  <Tab label="Rent Mode" value="RentMode" disabled />
+                </TabList>
 
-            {lendStep === 0 && <LendConfig
-              setNextStep={() => setLendStep(1)}
-              setUserLendConfigInfo={setUserLendConfigInfo} />}
+                <TabPanel value='SliptMode' key={0}>
+                  <SliptModeLendConfig
+                    setNextStep={() => setLendStep(1)}
+                    setUserLendConfigInfo={setUserLendConfigInfo} />
+                </TabPanel>
 
+                <TabPanel value='TrialMode' key={1}>
+                  <TrialModeLendConfig
+                    setNextStep={() => setLendStep(1)}
+                    setUserLendConfigInfo={setUserLendConfigInfo}
+                  />
+                </TabPanel>
+
+                <TabPanel value='RentMode' key={2}></TabPanel>
+              </TabContext>}
+
+            {/* 出借第二步：合约交互 */}
             <Box className={styles.lendStepTwoBox}>
               {errorMessage && <Alert variant="outlined" severity="error">{errorMessage}</Alert>}
 
+              {/* 三步合约交互出租流程 */}
               {!stepComplete[2] && lendStep === 1 &&
                 <Stepper
                   orientation="vertical"
@@ -435,6 +465,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                   </Step>
                 </Stepper>}
 
+              {/*   出租成功结果页 */}
               {stepComplete[2] &&
                 <Box sx={{ mt: '6rem' }} className={styles.lendSuccess}>
                   <img src='/success_smile.png' alt='success_smile' />

@@ -15,7 +15,12 @@ interface LendConfigProps {
   setUserLendConfigInfo?: (info: UserLendConfigInfo) => any;
 }
 
-const LendConfig: React.FC<LendConfigProps> = (props) => {
+/**
+ * 分成模式出借配置
+ * @param props 
+ * @returns 
+ */
+const SliptModeLendConfig: React.FC<LendConfigProps> = (props) => {
   const { setNextStep = () => { },
     setUserLendConfigInfo = (info: UserLendConfigInfo) => { },
     configType = '@add' } = props
@@ -127,8 +132,7 @@ const LendConfig: React.FC<LendConfigProps> = (props) => {
     </Stack>
 
     <DefaultButton
-      sx={{ margin: '2.67rem auto' }}
-      className={`${!isReady ? styles.noDoneButton : null}`}
+      className={`${!isReady ? styles.noDoneButton : styles.DoneButton}`}
       onClick={handleNextStep}
     >
       Confirm and Next
@@ -136,4 +140,4 @@ const LendConfig: React.FC<LendConfigProps> = (props) => {
   </Box>
 }
 
-export default LendConfig
+export default SliptModeLendConfig

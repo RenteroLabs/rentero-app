@@ -16,7 +16,7 @@ import { dateFormat, formatAddress } from "../../utils/format"
 import { useContract, useSigner } from "wagmi"
 import { LoadingButton } from "@mui/lab"
 import TakeOffNFTModal from "./Modals/TakeOffNFT"
-import LendConfig from "../LendNFT/LendConfig"
+import LendConfig from "../LendNFT/SliptModeLendConfig"
 import CloseIcon from '@mui/icons-material/Close'
 import { ZERO_ADDRESS } from "../../constants"
 
@@ -247,7 +247,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       return <span className={styles.removedStatus}>Removed</span>
     }
   }
-  
+
   return <div>
     <Stack direction="row" className={styles.overviewBox}>
       <Card variant="outlined">
