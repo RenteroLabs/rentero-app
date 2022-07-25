@@ -168,7 +168,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     getOverview(jwtToken)
   }, [])
 
-
   const columns = [
     {
       title: 'ID',
@@ -179,6 +178,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     }, {
       title: 'Total Earning',
       dataIndex: 'totalInComeValue'
+    }, {
+      title: 'Type',
+      dataIndex: 'mode',
     }, {
       title: 'Ratio',
       dataIndex: 'lenderEarnRatio',
@@ -220,7 +222,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
 
   // TODO: dashboard页在调用合约操作之前需判断当前所处网络
 
-
   const lendingStatus = (item: OrderInfo) => {
     if (tableType === 'RENT') {
       switch (item.status) {
@@ -245,6 +246,14 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     }
     if (item.itemStatus === 'TakeDown') {
       return <span className={styles.removedStatus}>Removed</span>
+    }
+  }
+
+  const showRentType = (mode: string) => {
+    switch (mode) {
+      case 'Dividend': return 'Slipt';
+      case 'FreeTrial': return 'Trial';
+      default: return '-';
     }
   }
 
@@ -341,6 +350,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 </Box>
               </TableCell>
               <TableCell>{item.totalInComeValue || 0}</TableCell>
+              <TableCell>{showRentType(item.mode)}</TableCell>
               <TableCell>{item.lenderEarnRatio}%</TableCell>
               <TableCell>{item.gameName}</TableCell>
               <TableCell>{item.orderTime ? dateFormat('YYYY-mm-dd HH:MM:SS', new Date(item.orderTime * 1000)) : '-'}</TableCell>

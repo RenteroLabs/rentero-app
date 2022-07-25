@@ -1,6 +1,7 @@
 import { Box, Stack } from "@mui/material";
 import { Container } from "@mui/system";
 import { NextPage } from "next";
+import Head from 'next/head';
 import styles from '../../styles/dashboard.module.scss'
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import BallotIcon from '@mui/icons-material/Ballot';
@@ -21,6 +22,10 @@ const Dashboard: NextPage = () => {
   const [currentNav, setCurrentNav] = useState<string>(NAV_ITEM_LIST[0])
 
   return <Container className={styles.mainBox}>
+    <Head>
+      <title>Dashboard | Rentero</title>
+      <meta name="description" content="Manage your lend & rent NFTs and incomes" />
+    </Head>
     <div className={styles.leftNav}>
       <Stack spacing="1.33rem">
         <Box className={classNames({ activeNavItem: currentNav === NAV_ITEM_LIST[0] })} onClick={() => setCurrentNav(NAV_ITEM_LIST[0])}>

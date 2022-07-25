@@ -40,4 +40,5 @@ export interface OrderInfo {
   imageUrl: string;
   whiteAddress: string;
   metadata: string;
+  mode: 'FreeTrial' | 'Dividend'
 }
