@@ -32,3 +32,5 @@ export const BaseURL = process.env.NEXT_PUBLIC_ENV === 'TEST' ? TEST_BASEAPI : D
 
 
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000'
+
+export const DEFAULT_LEND_TRIAL_MODEL_DAYS = 30

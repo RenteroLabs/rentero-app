@@ -124,7 +124,15 @@
   @extend .rentButton;
   background: #777e90;
   color: rgba($color: #fff, $alpha: 0.7);
-  cursor: default;
+  cursor:not-allowed;
+}
+
+.rentTrialButton {
+  background: linear-gradient(270deg, #28ebf3 0%, #f26b39 100%);
+}
+
+.rentedTrialButton {
+  background: linear-gradient(270deg, #083059 0%, #311634 100%);
 }
 
 .whitelistButtonTip {

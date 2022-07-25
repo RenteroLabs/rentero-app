@@ -215,13 +215,19 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     if (isLoading) return
     setIsLoading(true)
 
+    // 默认为试玩模式分成比例
+    let borrowerRatio = 0, lenderRatio = 100
+    if (lendType !== 'TrialMode') {
+      borrowerRatio = userLendConfigInfo.borrowerRatio || 25
+      lenderRatio = 100 - borrowerRatio
+    }
     try {
       const { hash } = await contractMarket.createSkunInfo(
         parseInt(selectedNFT),
         Ropsten_WrapNFT,
         userLendConfigInfo.whiteList || ZERO_ADDRESS,
-        100 - (userLendConfigInfo?.borrowerRatio || 25),
-        userLendConfigInfo.borrowerRatio || 25)
+        lenderRatio,
+        borrowerRatio)
       setListMarketTxHash(hash)
     } catch (err: any) {
       setErrorMessage(err.message)
@@ -417,7 +423,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                       </Box>
                     </StepContent>
                   </Step>
-                  <Step key="Stake ERC721 NFT & Receive WrapNFT" completed={stepComplete[1]}>
+                  <Step key="Stake ERC721 NFT & Receive reNFT" completed={stepComplete[1]}>
                     <StepButton onClick={() => handleStepClick(1)}>
                       <StepLabel >
                         Stake ERC721 NFT & Receive Your WrapNFT

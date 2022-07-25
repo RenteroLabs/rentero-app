@@ -305,6 +305,31 @@
 
 .sortList {
   display: flex;
+  align-items: center;
+
+  .whitelistForUser {
+    font-size: 1.33rem;
+    font-family: Poppins-Medium, Poppins;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 2rem;
+  }
+  .whitelistNum {
+    display: inline-block;
+    height: 2rem;
+    min-width: 2rem;
+    margin: auto 2.67rem auto 1rem;
+    text-align: center;
+    user-select: none;
+    background: #70eaab;
+    border-radius: 0.5rem;
+    padding: 0.17rem 0.5rem;
+    font-size: 1.17rem;
+    font-family: Poppins-SemiBold, Poppins;
+    font-weight: 600;
+    color: #305948;
+    line-height: 1.67rem;
+  }
 
   div {
     display: flex;

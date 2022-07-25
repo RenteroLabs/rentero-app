@@ -8,6 +8,7 @@ import DefaultButton from "../Buttons/DefaultButton";
 import { UserLendConfigInfo } from "./ChooseNFTModal";
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { DEFAULT_LEND_TRIAL_MODEL_DAYS } from "../../constants";
 
 interface TrialModeLendConfigProps {
   setNextStep?: () => any;
@@ -17,7 +18,7 @@ interface TrialModeLendConfigProps {
 const TrialModeLendConfig: React.FC<TrialModeLendConfigProps> = (props) => {
   const { setNextStep = () => { }, setUserLendConfigInfo = (info: UserLendConfigInfo) => { } } = props
 
-  const [lendingDays, setLendingDays] = useState<number>()
+  const [lendingDays, setLendingDays] = useState<number>(DEFAULT_LEND_TRIAL_MODEL_DAYS)
   const [whitelist, setWhitelist] = useState<string>('')
   const [isErrorFormatAddress, setIsErrorFormatAddress] = useState<boolean>(false)
 

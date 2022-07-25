@@ -9,11 +9,19 @@ export const getGameInfos = async () => {
 
 interface NFTListParams {
   pageIndex: number,
-  pageSize: number,
+  pageSize?: number,
   whiteAddress?: boolean
+  mode?: 'FreeTrial' | 'Dividend',
+  token?: any;
 }
 export const getMarketNFTList = async (params: NFTListParams) => {
-  const data = await fetch(`${BaseURL}/market/list?${qs.stringify(params)}`)
+  const { token, ...restParams } = params
+  const headerToken = {
+    sessionToken: token
+  }
+  const data = await fetch(`${BaseURL}/market/list?${qs.stringify(restParams)}`, {
+    headers: token ? headerToken : {}
+  })
   return data.json()
 }
 

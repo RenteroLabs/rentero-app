@@ -86,21 +86,29 @@ const Detail: NextPage = () => {
           <Paper className={styles.itemCover} >
             {(baseInfo.imageUrl) && <img src={baseInfo.imageUrl} />}
           </Paper>
-          <Paper className={styles.rentDetail}>
-            <Typography>DAILY EARNING:</Typography>
-            <Typography variant="h4" >{baseInfo.minGain} AXE</Typography>
-            <Typography>≈ 8.3 ~ 12.6 USD</Typography>
-            <Typography className={styles.earnRatio}>RATIO OF PLAYER EARNINGS:</Typography>
-            <Typography variant="h4" className={styles.earnRatioValue}>{baseInfo.borrowerEarnRatio}%</Typography>
-          </Paper>
+          {
+            baseInfo.mode === 'FreeTrial' ?
+              <Paper className={styles.rentDetail}>
+                <Typography>Trial Days:</Typography>
+                <Typography variant="h4" >{baseInfo.trialDays || 30} Days</Typography>
+              </Paper> :
+              <Paper className={styles.rentDetail}>
+                <Typography>DAILY EARNING:</Typography>
+                <Typography variant="h4" >{baseInfo.minGain} AXE</Typography>
+                <Typography>≈ 8.3 ~ 12.6 USD</Typography>
+                <Typography className={styles.earnRatio}>RATIO OF PLAYER EARNINGS:</Typography>
+                <Typography variant="h4" className={styles.earnRatioValue}>{baseInfo.borrowerEarnRatio}%</Typography>
+              </Paper>
+          }
 
           {/* 已出租 */}
           {baseInfo.status === 'Renting' && <Box
             className={cx({
               'rentButton': true,
               'rentedButton': true,
+              'rentedTrialButton': baseInfo.mode === 'FreeTrial'
             })}
-          >Rented</Box>}
+          >{baseInfo.mode === 'FreeTrial' ? 'Trialing' : 'Rented'}</Box>}
 
           {baseInfo.status !== 'Renting' && isMounted && !isConnected &&
             <ConnectWallet trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />
@@ -116,9 +124,11 @@ const Detail: NextPage = () => {
                 trigger={<Box
                   className={cx({
                     'rentButton': true,
-                    'rentedButton': false,
+                    'rentTrialButton': baseInfo.mode === 'FreeTrial'
                   })}
-                >Rent</Box>} /> :
+                >
+                  {baseInfo.mode === 'FreeTrial' ? 'Trial' : 'Rent'}
+                </Box>} /> :
               <Box>
                 <Box
                   className={cx({

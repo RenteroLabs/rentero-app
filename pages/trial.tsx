@@ -23,11 +23,11 @@ const TrialMode: NextPage = () => {
   })
 
   useEffect(() => {
-    fetchNFTList({ pageIndex: 1, pageSize: 12 })
+    fetchNFTList({ pageIndex: 1, pageSize: 12, mode: 'FreeTrial' })
   }, [])
 
   const handelGetMoreList = async () => {
-    fetchNFTList({ pageIndex: currentPage + 1, pageSize: 12 })
+    fetchNFTList({ pageIndex: currentPage + 1, pageSize: 12, mode: 'FreeTrial' })
     setCurrentPage(currentPage + 1)
   }
 
