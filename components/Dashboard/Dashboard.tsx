@@ -27,10 +27,6 @@ const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
 
   let redeemButton
   switch (item.status) {
-    case 'Doing': redeemButton = <TakeOffNFTModal
-      trigger={<span className={cx({ "returnButton": true, "returnButton_disable": item.status !== 'Doing' })}>TakeOff</span>}
-      orderId={item.orderId}
-    />; break;
     case 'BCancel':
     case 'LCancel':
       redeemButton = (item.itemStatus === 'Renting' ?
@@ -40,9 +36,16 @@ const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
           nftUid={item.nftUid}
         />)
       break;
+    case 'Doing':
     default:
-      redeemButton = <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>;
-      break;
+      redeemButton = <TakeOffNFTModal
+        trigger={<span className={cx({
+          "returnButton": true,
+          "returnButton_disable": item.status && item.status !== 'Doing'
+        })}>TakeOff</span>}
+        orderId={item.orderId}
+      />; break;
+
   }
 
   return <Box sx={{ display: 'flex', alignItems: 'center' }}>
