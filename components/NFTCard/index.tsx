@@ -1,48 +1,74 @@
-import { Avatar, Box } from '@mui/material'
+import { Avatar, Box, Collapse, Stack, Typography } from '@mui/material'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import NFT_RENTED from '../../public/nft_rented.png'
 import { CHAIN_ICON, ZERO_ADDRESS } from '../../constants'
 import styles from './index.module.scss'
 
 interface NFTCardProps {
   nftInfo: Record<string, any>
-  mode?: '@normal' | '@trial',
+  mode?: '@split' | '@trial' | '@lease', // @split: 分成模式 | @trial: 试玩模式 | @lease: 租金模式
 }
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
-  const { nftInfo, mode = '@normal' } = props
+  const { nftInfo, mode = '@split' } = props
+
+
+  const handleRentNow = (e: React.MouseEvent) => {
+    e.stopPropagation()
+  }
 
   return <Link href={`/detail/${nftInfo.nftUid}?skuId=${nftInfo.skuId}`}  >
-    <div className={`${styles.card} ${mode === '@trial' && styles.cardTrialBackground}`}>
-      <div className={styles.nftImage}>
+    <Box className={`${styles.card} ${mode === '@trial' && styles.cardTrialBackground}`}>
+      <Box className={styles.nftImage}>
         {nftInfo.imageUrl &&
           <Image src={nftInfo.imageUrl} layout="fill" />}
+        {nftInfo.status === 'Renting' &&
+          <Box className={styles.imageCover}>
+            <Stack direction="column" className={styles.lockCoverInfo}>
+              <Image src={NFT_RENTED} alt="NFT RENTED" className={styles.lockIcon} />
+              <Typography>Rented</Typography>
+              <Box className={styles.unlockTime}>10-12-2022 Available</Box>
+            </Stack>
+          </Box>}
+        {nftInfo.status === 'Active' &&
+          <Box className={styles.imageCoverAttr}>
+            <Stack direction="column" className={styles.attrList}>
+              <Box>Attr1: Fire</Box>
+            </Stack>
+          </Box>
+        }
         <Box className={styles.tagList}>
-          {nftInfo.status === 'Renting' &&
-            <Box component="span" className={styles.rentedTag}>Rented</Box>}
           {
             nftInfo.whiteAddress != ZERO_ADDRESS &&
             <Box component="span" className={styles.whitelistTag} >Whitelist</Box>
           }
         </Box>
-      </div>
-      <div className={styles.cardTitle}>
-        <span className={styles.nftCollectionImage}>
-          <Image src="https://tva1.sinaimg.cn/large/e6c9d24egy1h3yrt5tycej20nw0kxdh5.jpg" layout="fill" />
-        </span>
-        <span className={styles.nftName}>{nftInfo.nftName}</span>
-      </div>
-      <p className={styles.nftDesc}>Axe&#39;s Game NFT Collection </p>
+      </Box>
+      <Box className={styles.cardTitle}>
+        <Box className={styles.nftName}>{nftInfo.nftName}</Box>
+        <Box className={styles.nftNumber}>#{nftInfo.nftUid}</Box>
+      </Box>
       {
-        mode === '@normal' ?
-          <div className={styles.nftChainInfo}>
-            <span className={styles.nftNumber}>#{nftInfo.nftUid}</span>
-            <span className={styles.nftChain}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem' }} /></span>
-          </div>
-          : <Box className={styles.trialDayTag}>7 Days Trial</Box>
+        mode === '@trial' ? <Box className={styles.trialDayTag}>7 Days Trial</Box> :
+          <>
+            <Box className={styles.rentMode}>
+              <Box>Ratio To Renter</Box>
+              <Box>30%</Box>
+            </Box>
+            <Box className={styles.rentInfo}>
+              <Box>Rent</Box>
+              <Box>100/Day</Box>
+            </Box>
+          </>
       }
-    </div>
+      {nftInfo.status === 'Active' && mode !== '@trial' &&
+        <Box className={styles.rentButton} onClick={handleRentNow} >
+          Rent
+        </Box>
+      }
+    </Box>
   </Link>
 }
 

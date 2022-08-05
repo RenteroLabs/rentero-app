@@ -9,7 +9,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import PageviewIcon from '@mui/icons-material/Pageview';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { useAlchemyService } from '../../hooks';
 import { web3GetNFTS } from '../../services/web3NFT';
 import Link from 'next/link';
 import DefaultButton from '../Buttons/DefaultButton';

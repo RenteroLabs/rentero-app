@@ -12,7 +12,7 @@ import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
 import { useLocalStorageState, useRequest } from 'ahooks'
 import { getGameInfos, getMarketNFTList } from '../services/market'
 import { dateFormat } from '../utils/format'
-import { useAlchemyService, useIsMounted } from '../hooks'
+import { useIsMounted } from '../hooks'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
 import Link from 'next/link';
 
