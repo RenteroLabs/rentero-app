@@ -2,26 +2,26 @@ import { Alert, Box, Stack, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import { useAccount, useContract, useSigner } from 'wagmi'
 import CircularProgress from '@mui/material/CircularProgress';
-import { Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../../constants/contractABI'
+import { ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../../constants/contractABI'
 import AppDialog from '../../Dialog'
 import styles from './modal.module.scss'
 
-interface WithdrawNFTModalProps {
+interface TakeOffNFTModalProps {
   trigger: React.ReactElement,
-  nftUid: number
+  orderId: number
 }
 
-const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
-  const { trigger, nftUid } = props
+const TakeOffNFTModal: React.FC<TakeOffNFTModalProps> = (props) => {
+  const { trigger, orderId } = props
   const [hiddenDialog, setHiddenDialog] = useState<boolean>(false)
   const [txError, setTxError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { address } = useAccount()
   const { data: signer } = useSigner()
-  console.log(nftUid)
-  const contractWrap = useContract({
-    addressOrName: Ropsten_WrapNFT,
-    contractInterface: Ropsten_WrapNFT_ABI,
+
+  const contractMarket = useContract({
+    addressOrName: ROPSTEN_MARKET,
+    contractInterface: ROPSTEN_MARKET_ABI,
     signerOrProvider: signer
   })
 
@@ -30,8 +30,10 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
     setIsLoading(true)
     setTxError('')
     try {
-      await contractWrap.redeem(nftUid)
+      await contractMarket.cancelOrderForLender(orderId)
       hiddenAppDialog()
+      // TODO: 弹框提示：当前 NFT 将在几分钟内被下架
+
     } catch (err: any) {
       setTxError(err.message)
     }
@@ -45,16 +47,15 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
 
   return <AppDialog
     trigger={trigger}
-    title="Withdraw NFT"
+    title="TakeOff NFT"
     hiddenDialog={hiddenDialog}
   >
     <Box sx={{ p: '3.33rem', pt: '2.67rem', width: '46rem' }}>
       <Typography className={styles.normalText} >
-        Are you sure to withdraw the NFT? Your NFT will be sent to the address below. <span className={styles.tipsText}>(please check it carefully)</span>
+        Are you sure to take off the NFT in the market? You will stop earning yields once confirming.
       </Typography>
-      <Box className={styles.addressBox}>{address}</Box>
 
-      {txError && <Alert variant="outlined" severity="error" sx={{ mt: '2rem', minWidth: 'none !important' }}>{txError}</Alert>}
+      {txError && <Alert variant="outlined" severity="error" sx={{ mt: '2rem', minWidth: 'none' }}>{txError}</Alert>}
 
       <Stack direction="row" spacing="3.33rem" sx={{ mt: '2.67rem' }}>
         <Box className={styles.primaryButton} onClick={withdrawLendNFT}>
@@ -67,4 +68,4 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   </AppDialog>
 }
 
-export default WithdrawNFTModal
+export default TakeOffNFTModal

@@ -71,6 +71,7 @@
 }
 
 .returnButton {
+  min-width: 8rem;
   display: inline-block;
   background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
   border-radius: 1rem;
@@ -83,6 +84,7 @@
   font-weight: 600;
   color: #ffffff;
   line-height: 1.67rem;
+  margin-left: 1rem;
 }
 .returnButton_disable {
   @extend .returnButton;
@@ -94,6 +96,10 @@
 .tableHeader {
   background-color: #272750;
   border-radius: 1.67rem 1.67rem 0rem 0rem;
+}
+.recordBoxHeader {
+  @extend .tableHeader;
+  border-radius: 0px !important;
 }
 
 .tableBody {
@@ -118,8 +124,26 @@
   }
 }
 
+.operationBox {
+  background-color: #1a1a46;
+  margin-top: 3.33rem;
+  border-radius: 1rem;
+
+  .operationHeader {
+    padding: 2rem;
+  }
+
+  .tableTitle {
+    font-size: 1.5rem;
+    font-family: Poppins-SemiBold, Poppins;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 2rem;
+  }
+}
+
 .tableBox {
-  border-radius: 1.67rem;
+  border-radius: 1rem;
   overflow: hidden;
   :global {
     .MuiTableCell-root {
@@ -178,7 +202,6 @@
     text-align: center;
     justify-content: space-around;
     align-items: center;
-
   }
   & > div + div {
     margin-left: 1rem;
@@ -187,11 +210,27 @@
 
 .nftBoxCell {
   display: flex;
+  align-items: center;
 
-  img {
-    width: 3.33rem;
-    height: 3.33rem;
-    border-radius: 0.5rem;
+  .boxImage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    img {
+      width: 3.33rem;
+      height: 3.33rem;
+      border-radius: 0.5rem;
+      margin: auto;
+    }
+    .whitelistIcon {
+      position: absolute;
+      bottom: -1rem;
+      left: 0.08rem;
+      display: block;
+      width: 3.17rem;
+      height: 1.5rem;
+      background: url(../../public/whitelist_tag.png);
+    }
   }
 
   .nftCollectionName {
@@ -205,7 +244,107 @@
     font-size: 1rem;
     font-family: Poppins-Regular, Poppins;
     font-weight: 400;
-    color: #777e90;
+    color: #5adcfe;
     line-height: 1.33rem;
+  }
+}
+
+.container {
+  :global {
+    .MuiPaper-root {
+      background: transparent;
+      min-width: 46.67rem;
+      width: auto;
+      max-width: none;
+    }
+  }
+  .dialogTitle {
+    width: 100%;
+    background: #272750;
+    border-radius: 1.67rem 1.67rem 0rem 0rem;
+    font-size: 2rem;
+    font-family: Poppins-SemiBold, Poppins;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 2.67rem;
+    text-align: center;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .emptyBox {
+      width: 24px;
+      height: 24px;
+      visibility: hidden;
+    }
+  }
+  .dialogContent {
+    border-radius: 0rem 0rem 1.67rem 1.67rem;
+    background-color: #1a1a46;
+    overflow: hidden;
+  }
+  .gameModalTitle {
+    @extend .dialogTitle;
+    justify-content: center;
+  }
+}
+
+.baseStatusCol {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  line-height: 20px;
+  &::before {
+    display: block;
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.58rem;
+    border-radius: 50%;
+    background-color: inherit;
+  }
+}
+
+.listingStatus {
+  @extend .baseStatusCol;
+  color: #5adcfe;
+  &::before {
+    background-color: #5adcfe;
+  }
+}
+
+.lendingStatus,
+.rentingStatus {
+  @extend .baseStatusCol;
+  color: #a6ff00;
+  &::before {
+    background-color: #a6ff00;
+  }
+}
+
+.removingStatus {
+  @extend .baseStatusCol;
+  color: #e2615c;
+  &::before {
+    background-color: #e2615c;
+  }
+}
+
+.removedStatus {
+  @extend .baseStatusCol;
+  color: #777e90;
+  &::before {
+    background-color: #777e90;
+  }
+}
+
+.returningStatus {
+  @extend .baseStatusCol;
+  color: #f3ae43;
+  &::before {
+    background-color: #f3ae43;
   }
 }

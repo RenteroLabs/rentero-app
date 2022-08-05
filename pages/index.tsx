@@ -1,27 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import Head from 'next/head'
-import Image from 'next/image'
 import type { NextPage } from 'next'
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Menu, MenuItem, MenuList, Skeleton, ToggleButton, ToggleButtonGroup, Typography, useStepperContext } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Checkbox, FormControlLabel, Menu, MenuItem, MenuList, Skeleton, ToggleButton, ToggleButtonGroup, Typography, useStepperContext } from '@mui/material'
 import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
 import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
-import { useRequest } from 'ahooks'
+import { useLocalStorageState, useRequest } from 'ahooks'
 import { getGameInfos, getMarketNFTList } from '../services/market'
 import { dateFormat } from '../utils/format'
 import { useAlchemyService, useIsMounted } from '../hooks'
-import { Ropsten_721_AXE_NFT } from '../constants/contractABI'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
-import { web3GetNFTMetadata } from '../services/web3NFT'
-import AutorenewIcon from '@mui/icons-material/Autorenew';
+import Link from 'next/link';
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
   const isMounted = useIsMounted()
+  const [rawToken] = useLocalStorageState<string>('token')
   const [currentGame, setCurrentGame] = useState<string>("0")
 
   const chainTypeRef = useRef<HTMLElement>()
@@ -33,58 +30,73 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
+  const [trialZoneList, setTrialZoneList] = useState<Record<string, any>[]>([])
   const [NFTTotal, setNFTTotal] = useState<number>(0)
-  const [NFTMetadataList, setNFTMetadataList] = useState<Record<number, any>>({})
 
-  // const Web3 = useAlchemyService()
+  const [isWhitelistOnly, setIsWhitelistOnly] = useState<boolean>(false)
+  const [whitelistNums, setWhitelistNums] = useState<number>(0)
+  const [whitelistLists, setWhitelistLists] = useState<Record<string, any>[]>([])
 
   const currentGameInfo = useMemo(() => {
     return gamesInfo[parseInt(currentGame)] || {}
   }, [currentGame, gamesInfo])
 
+  // market list
   const { run: fetchNFTList, loading } = useRequest(getMarketNFTList, {
     manual: true,
     onSuccess: async ({ data }) => {
-      const { totalRemain, pageContent } = data
+      const { totalRemain, pageContent = [] } = data || {}
       setNFTList([...NFTList, ...pageContent])
       setNFTTotal(totalRemain)
-
-      // let metalist: Record<number, any> = {}
-      // // 获取 MarketList 中每个 NFT 的 metadata 数据
-      // pageContent.forEach(async (item: any) => {
-      //   const result = await Web3?.alchemy.getNftMetadata({
-      //     // 此处在此直接请求 ERC721 合约地址
-      //     contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
-      //     tokenId: item.nftUid,
-      //     tokenType: 'erc721'
-      //   })
-      //   metalist[parseInt(item.skuId)] = result
-      // });
-
-      const metarequests = pageContent.map((item: any) => {
-        return web3GetNFTMetadata({
-          contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
-          tokenId: item.nftUid,
-          tokenType: 'erc721'
-        })
-      })
-      const result = await Promise.all(metarequests)
-      let newMetaList: Record<number, any> = {}
-      result.forEach((item: any, index: number) => {
-        newMetaList[parseInt(pageContent[index].skuId)] = item
-      })
-
-      setNFTMetadataList({ ...NFTMetadataList, ...newMetaList })
     }
   })
 
+  // 白名单 NFT 数据
+  const { run: fetchWhitelistNFT } = useRequest(getMarketNFTList, {
+    manual: true,
+    onSuccess: ({ data }) => {
+      const { totalRemain, pageContent } = data || {}
+      setWhitelistNums(totalRemain || 0)
+      setWhitelistLists(pageContent || [])
+    }
+  })
+
+  // 试玩 NFT 数据
+  const { run: fetchTrialList, loading: isTrialLoading } = useRequest(getMarketNFTList, {
+    manual: true,
+    onSuccess: ({ data }) => {
+      const { pageContent = [] } = data || {}
+      setTrialZoneList([...pageContent.splice(0, 4)])
+    }
+  })
+
+  const jwtToken = useMemo(() => {
+    if (!rawToken) return ''
+    return rawToken.split('*')[1]
+  }, [rawToken])
+
   useEffect(() => {
-    fetchNFTList({ pageIndex: 1, pageSize: 12 })
+    fetchNFTList({ pageIndex: 1, pageSize: 12 });
+    fetchWhitelistNFT({ pageIndex: 1, token: jwtToken, whiteAddress: true });
+    fetchTrialList({ pageIndex: 1, pageSize: 4, mode: 'FreeTrial' });
   }, [])
 
   const handelGetMoreList = async () => {
     fetchNFTList({ pageIndex: currentPage + 1, pageSize: 12 })
     setCurrentPage(currentPage + 1)
+  }
+
+  const handleCheckWhitelist = (_: any, checked: boolean) => {
+    if (checked) {
+      setIsWhitelistOnly(true)
+      setNFTTotal(whitelistNums)
+      setNFTList([...whitelistLists])
+    } else {
+      setIsWhitelistOnly(false)
+      setCurrentPage(1)
+      setNFTList([])
+      fetchNFTList({ pageIndex: 1, pageSize: 12 });
+    }
   }
 
   return (
@@ -178,12 +190,56 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             </Box>}
           </Box>
         </section>
+
+        <Box className={styles.trialZone}>
+          <Box className={styles.headerTitle}>
+            <Typography className={styles.titleText}>
+              Trial Zone
+              <img src='/fire.png' />
+            </Typography>
+            <Typography className={styles.moreLink}>
+              <Link href="/trial">See All&nbsp; &gt;</Link>
+            </Typography>
+          </Box>
+          <Box className={styles.trialNFTList}>
+            {isTrialLoading && <Box>
+              <Box className={styles.nftCardList}>
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+              </Box>
+            </Box>}
+            {
+              trialZoneList.map((item, index) => {
+                return <NFTCard nftInfo={item} key={index} mode="@trial" />
+              })
+            }
+          </Box>
+        </Box>
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.67rem' }}>
           <div className={styles.listTitle}>
             {NFTTotal} Items &nbsp;
             {/* <span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 12 })}><AutorenewIcon /></span> */}
           </div>
           <Box className={styles.sortList}>
+            {whitelistNums > 0 && <FormControlLabel
+              control={<Checkbox
+                disableRipple
+                onChange={handleCheckWhitelist}
+                sx={{
+                  '& .MuiSvgIcon-root': { fontSize: 24 },
+                  '&.Mui-checked': { color: '#5adcfe' }
+                }}
+              />}
+              label={<>
+                <Box component="span" className={styles.whitelistForUser}>
+                  Whitelist Only For Me
+                </Box>
+                <Box component="span" className={styles.whitelistNum}>{whitelistNums}</Box>
+              </>}
+            />}
             <Box
               ref={chainTypeRef}
               onClick={() => setChainTypeShow(true)}
@@ -236,7 +292,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
         <div className={styles.nftCardList}>
           {
             NFTList.map((item, index) => {
-              return <NFTCard nftInfo={item} metadata={NFTMetadataList[parseInt(item.skuId)]} key={index} />
+              return <NFTCard nftInfo={item} key={index} />
             })
           }
         </div>
@@ -257,11 +313,10 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </Box>}
 
-        {((12 * currentPage) < NFTTotal) && isMounted &&
-          <div
-            className={styles.showMore}
-            onClick={handelGetMoreList}
-          ><span>Show more</span></div>}
+        {((12 * currentPage) < NFTTotal) && isMounted && !isWhitelistOnly &&
+          <div className={styles.showMore}>
+            <span onClick={handelGetMoreList}>Show more</span>
+          </div>}
       </div>
     </div >
   )

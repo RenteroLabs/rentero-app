@@ -48,7 +48,7 @@ const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
       {trigger}
     </div>
     <Dialog open={visibile} className={styles.container} >
-      <DialogTitle className={styles.dialogTitle} sx={{ width: 'auto' }}>
+      <DialogTitle className={styles.gameModalTitle} sx={{ width: 'auto' }}>
         Choose Game
         <IconButton
           aria-label="close"

@@ -127,41 +127,35 @@
     .websiteBtn {
       width: 10.67rem;
       height: 3.33rem;
-      // padding: 0.67rem 1.67rem;
       margin-right: 0.33rem;
-      background: linear-gradient(
-        270deg,
-        rgba(183, 33, 255, 1),
-        rgba(90, 220, 254, 1)
-      );
-      border-radius: 1.6rem;
-      border-top-right-radius: 2rem;
+      background: url(../public/color_btn_irregular.svg);
+      border-radius: 1rem;
+      // border-top-right-radius: 2rem;
       font-size: 1.17rem;
       font-family: Poppins-SemiBold, Poppins;
       font-weight: 600;
       color: #ffffff;
-      // line-height: 2rem;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-
-      clip-path: polygon(
-        30% 0%,
-        92.5% 0%,
-        100% 40%,
-        100% 100%,
-        70% 100%,
-        0 100%,
-        0% 70%,
-        0 0
-      );
 
       &:hover {
         background: linear-gradient(
           270deg,
           rgba(183, 33, 255, 1),
           rgba(90, 220, 254, 1)
+        );
+        border-top-right-radius: 2rem;
+        clip-path: polygon(
+          30% 0%,
+          82% 0%,
+          100% 40%,
+          100% 100%,
+          70% 100%,
+          0 100%,
+          0% 70%,
+          0 0
         );
       }
     }
@@ -289,11 +283,6 @@
 }
 
 .showMore {
-  // border: 0.17rem solid linear-gradient(
-  //   270deg,
-  //   rgba(183, 33, 255, 1),
-  //   rgba(90, 220, 254, 1)
-  // );
   margin: 1.33rem auto 4rem;
   font-size: 1.17rem;
   font-family: Poppins-SemiBold, Poppins;
@@ -309,13 +298,38 @@
     line-height: 2rem;
     color: #ffffff;
     cursor: pointer;
-    border: 0.167rem solid #1a1a46;
+    background: url(../public/color_btn_irregular.svg);
     border-radius: 1rem;
   }
 }
 
 .sortList {
   display: flex;
+  align-items: center;
+
+  .whitelistForUser {
+    font-size: 1.33rem;
+    font-family: Poppins-Medium, Poppins;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 2rem;
+  }
+  .whitelistNum {
+    display: inline-block;
+    height: 2rem;
+    min-width: 2rem;
+    margin: auto 2.67rem auto 1rem;
+    text-align: center;
+    user-select: none;
+    background: #70eaab;
+    border-radius: 0.5rem;
+    padding: 0.17rem 0.5rem;
+    font-size: 1.17rem;
+    font-family: Poppins-SemiBold, Poppins;
+    font-weight: 600;
+    color: #305948;
+    line-height: 1.67rem;
+  }
 
   div {
     display: flex;
@@ -333,5 +347,44 @@
     & + div {
       margin-left: 2rem;
     }
+  }
+}
+
+.trialZone {
+  margin: 6.47rem auto;
+
+  .headerTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+
+    .titleText {
+      font-size: 2rem;
+      font-family: MonumentExtended-Black, MonumentExtended;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 3.33rem;
+      display: flex;
+      align-items: center;
+      img {
+        margin-left: 1rem;
+        width: 2.4rem;
+        height: 2.4rem;
+        background: url(../public/fire.png);
+      }
+    }
+    .moreLink {
+      font-size: 1.33rem;
+      font-family: Poppins-Medium, Poppins;
+      font-weight: 500;
+      color: #5cd7fe;
+      line-height: 2rem;
+    }
+  }
+  .trialNFTList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }

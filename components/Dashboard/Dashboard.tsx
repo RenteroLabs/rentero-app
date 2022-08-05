@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Card, Chip, CircularProgress, IconButton, InputBase, Pagination, Paper, Slide, SlideProps, Snackbar, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
+import { Alert, Box, Button, Card, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, InputBase, Pagination, Paper, Slide, SlideProps, Snackbar, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
 import styles from './index.module.scss'
 import classNames from "classnames/bind"
 import NotFound from '../../public/table_not_found.svg'
@@ -11,13 +11,72 @@ import WithdrawNFTModal from "./Modals/WithdrawNFT"
 import { useLocalStorageState, useRequest } from "ahooks"
 import { borrowerList, lenderList, overviewData } from "../../services/dashboard"
 import { OrderInfo } from "../../types/dashboard"
-import { web3GetNFTMetadata } from "../../services/web3NFT"
 import { Ropsten_721_AXE_NFT, ROPSTEN_ACCOUNT_ABI, ROPSTEN_ACCOUNT, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from "../../constants/contractABI"
 import { dateFormat, formatAddress } from "../../utils/format"
 import { useContract, useSigner } from "wagmi"
 import { LoadingButton } from "@mui/lab"
+import TakeOffNFTModal from "./Modals/TakeOffNFT"
+import LendConfig from "../LendNFT/SliptModeLendConfig"
+import CloseIcon from '@mui/icons-material/Close'
+import { ZERO_ADDRESS } from "../../constants"
 
 const cx = classNames.bind(styles)
+
+const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
+  const [showModal, setShowModal] = useState<boolean>(false)
+
+  let redeemButton
+  switch (item.status) {
+    case 'BCancel':
+    case 'LCancel':
+      redeemButton = (item.itemStatus === 'Renting' ?
+        <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>
+        : <WithdrawNFTModal
+          trigger={<span className={cx({ "returnButton": true, })} >Withdraw</span>}
+          nftUid={item.nftUid}
+        />)
+      break;
+    case 'Doing':
+    default:
+      redeemButton = <TakeOffNFTModal
+        trigger={<span className={cx({
+          "returnButton": true,
+          "returnButton_disable": item.status && item.status !== 'Doing'
+        })}>TakeOff</span>}
+        orderId={item.orderId}
+      />; break;
+
+  }
+
+  return <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box
+      className={`${styles.returnButton} ${item.status && styles.returnButton_disable}`}
+      onClick={() => {
+        if (!item.status) {
+          setShowModal(true)
+        }
+      }}>
+      Edit</Box>
+    {redeemButton}
+
+    <Dialog open={showModal} className={styles.container}>
+      <DialogTitle className={styles.dialogTitle}>
+        <Box className={styles.emptyBox}></Box>
+        Update Lend NFT Config
+        <IconButton
+          aria-label="close"
+          onClick={() => setShowModal(false)}
+          sx={{ color: (theme) => theme.palette.grey[500] }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent className={styles.dialogContent}>
+        <LendConfig />
+      </DialogContent>
+    </Dialog>
+  </Box>
+}
 
 export interface DashboardProps {
 
@@ -62,22 +121,16 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const { run: getLenderList, loading: lenderListLoading } = useRequest(lenderList, {
     manual: true,
     onSuccess: async ({ data }) => {
-      console.log(data)
-      setLendDataSource(data.pageContent)
-      setLendTotal(Math.ceil((data.totalRemain || 0) / 10))
+      setLendDataSource(data?.pageContent || [])
+      setLendTotal(Math.ceil((data?.totalRemain || 0) / 10))
 
-      // 获取 NFT metadata 数据
-      const metarequests = data.pageContent.map((item: any) => {
-        return web3GetNFTMetadata({
-          contractAddress: Ropsten_721_AXE_NFT || item.wrapNftAddress,
-          tokenId: item.nftUid,
-          tokenType: 'erc721'
-        })
-      })
-      const result = await Promise.all(metarequests)
       let newMetaList: Record<number, any> = {}
-      result.forEach((item: any, index: number) => {
-        newMetaList[parseInt(data.pageContent[index].skuId)] = item
+      data?.pageContent.forEach((item: OrderInfo, index: number) => {
+        try {
+          newMetaList[parseInt(data.pageContent[index].skuId)] = JSON.parse(item.metadata)
+        } catch (err: any) {
+          console.error(err.message)
+        }
       })
       setMetaData({ ...metadata, ...newMetaList })
     }
@@ -85,17 +138,25 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
 
   const { run: getBorrowerList, loading: borrowerListLoading } = useRequest(borrowerList, {
     manual: true,
-    onSuccess: ({ data }) => {
-      console.log(data)
+    onSuccess: async ({ data }) => {
       setBorrowerDataSource(data.pageContent)
       setBorrowerTotal(Math.ceil((data.totalRemain || 0) / 10))
+
+      let newMetaList: Record<number, any> = {}
+      data.pageContent.forEach((item: OrderInfo, index: number) => {
+        try {
+          newMetaList[parseInt(data.pageContent[index].skuId)] = JSON.parse(item.metadata)
+        } catch (err: any) {
+          console.error(err.message)
+        }
+      })
+      setMetaData({ ...metadata, ...newMetaList })
     }
   })
 
   const { run: getOverview } = useRequest(overviewData, {
     manual: true,
     onSuccess: ({ data }) => {
-      console.log(data)
       setOverview(data)
     }
   })
@@ -110,11 +171,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     getOverview(jwtToken)
   }, [])
 
-
   const columns = [
     {
       title: 'ID',
-      dataIndex: 'orderId'
+      dataIndex: 'skuId'
     }, {
       title: 'NFT',
       dataindex: 'nft',
@@ -122,13 +182,16 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       title: 'Total Earning',
       dataIndex: 'totalInComeValue'
     }, {
+      title: 'Type',
+      dataIndex: 'mode',
+    }, {
       title: 'Ratio',
       dataIndex: 'lenderEarnRatio',
     }, {
       title: 'Game Name',
       dataIndex: 'gameName',
     }, {
-      title: 'Time',
+      title: 'Order Time',
       dataIndex: 'orderTime',
     }, {
       title: 'Status',
@@ -147,19 +210,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     }
   }
 
-  const lendOperation = (item: OrderInfo) => {
-    switch (item.status) {
-      case 'Doing': return <WithdrawNFTModal
-        trigger={<span className={cx({ "returnButton": true, "returnButton_disable": item.status !== 'Doing' })}>TakeOff</span>}
-        orderId={item.orderId}
-      />;
-      case 'LCancel': return <span
-        className={cx({ "returnButton": true, })}
-        onClick={() => withdrawNFT(item.nftUid)}>Withdraw</span>;
-      default: return <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>
-    }
-  }
-
   // 提取收益
   const withdrawEarning = async () => {
     setWithdrawLoading(true)
@@ -174,6 +224,41 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   }
 
   // TODO: dashboard页在调用合约操作之前需判断当前所处网络
+
+  const lendingStatus = (item: OrderInfo) => {
+    if (tableType === 'RENT') {
+      switch (item.status) {
+        case 'Doing': return <span className={styles.rentingStatus}>Renting</span>
+        case "BCancel": return <span className={styles.returningStatus}>Returning</span>
+        case "LCancel": return <span className={styles.returningStatus}>Redeeming</span>
+        default: return <span>{item.status}</span>
+      }
+    }
+
+    if (item.itemStatus === "Active" && !item.status) {
+      return <span className={styles.listingStatus}>Listing</span>
+    }
+    if (item.itemStatus === 'Renting') {
+      switch (item.status) {
+        case 'Doing': return <span className={styles.lendingStatus}>Lending</span>
+        case 'BCancel':
+        case "LCancel":
+        case 'Cancel':
+          return <span className={styles.removingStatus}>Removing</span>
+      }
+    }
+    if (item.itemStatus === 'TakeDown') {
+      return <span className={styles.removedStatus}>Removed</span>
+    }
+  }
+
+  const showRentType = (mode: string) => {
+    switch (mode) {
+      case 'Dividend': return 'Slipt';
+      case 'FreeTrial': return 'Trial';
+      default: return '-';
+    }
+  }
 
   return <div>
     <Stack direction="row" className={styles.overviewBox}>
@@ -234,7 +319,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       </Box>
       <Paper component="form" className={styles.searchInput}>
         <IconButton>
-          <SearchIcon sx={{ color: '#777E90' }} />
+          <SearchIcon sx={{ color: '#777E90', width: '1.4rem', height: '1.4rem' }} />
         </IconButton>
         <InputBase
           sx={{ flex: 1 }}
@@ -254,21 +339,25 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         {
           !isLoading && (tableType === 'RENT' ? borrowerDataSource : lendDataSource).map((item, index) => {
             return <TableRow key={index}>
-              <TableCell>{item.orderId}</TableCell>
+              <TableCell>{item.skuId}</TableCell>
               <TableCell>
                 <Box className={styles.nftBoxCell}>
-                  <img src={metadata[item.skuId]?.media[0]?.gateway} />
+                  <Box className={styles.boxImage}>
+                    <img src={item.imageUrl} />
+                    {item.whiteAddress !== ZERO_ADDRESS && <span className={styles.whitelistIcon}></span>}
+                  </Box>
                   <Stack sx={{ margin: 'auto 1rem' }}>
-                    <Typography className={styles.nftCollectionName}>{metadata[item.skuId]?.title} &nbsp;#{metadata[item.skuId]?.id.tokenId}</Typography>
+                    <Typography className={styles.nftCollectionName}>{metadata[item.skuId]?.name} &nbsp;#{item.nftUid}</Typography>
                     <Typography className={styles.nftAddress}>{formatAddress(tableType === 'RENT' ? item.lenderAddress : item.borrowAddress, 5)}</Typography>
                   </Stack>
                 </Box>
               </TableCell>
-              <TableCell>{item.totalInComeValue}</TableCell>
+              <TableCell>{item.totalInComeValue || 0}</TableCell>
+              <TableCell>{showRentType(item.mode)}</TableCell>
               <TableCell>{item.lenderEarnRatio}%</TableCell>
-              <TableCell>AXE</TableCell>
-              <TableCell>{dateFormat('YYYY-mm-dd HH:MM:SS', new Date(item.orderTime * 1000))}</TableCell>
-              <TableCell>{item.status}</TableCell>
+              <TableCell>{item.gameName}</TableCell>
+              <TableCell>{item.orderTime ? dateFormat('YYYY-mm-dd HH:MM:SS', new Date(item.orderTime * 1000)) : '-'}</TableCell>
+              <TableCell>{lendingStatus(item)}</TableCell>
               <TableCell align="center">
                 {tableType === 'RENT' &&
                   (item.status === 'Doing' ?
@@ -277,8 +366,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                       orderId={item.orderId}
                     /> :
                     <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Return</span>)}
-                {tableType === 'LEND' && lendOperation(item)}
-
+                {tableType === 'LEND' && <LendOperation item={item} />}
               </TableCell>
             </TableRow>
           })

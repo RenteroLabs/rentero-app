@@ -1,4 +1,4 @@
-import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Grid, IconButton, Stack, Step, StepButton, StepContent, StepLabel, Stepper, Typography } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Grid, IconButton, InputBase, Stack, Step, StepButton, StepContent, StepLabel, Stepper, Tabs, Tab, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { chain, erc721ABI, useAccount, useContract, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from 'wagmi'
@@ -6,7 +6,6 @@ import { Ropsten_721_AXE_NFT, Ropsten_721_AXE_NFT_ABI, ROPSTEN_MARKET, ROPSTEN_M
 import NFTCard from '../IntegrationCard/NFTCard'
 import styles from './style.module.scss'
 import LoadingButton from '@mui/lab/LoadingButton';
-import SendIcon from '@mui/icons-material/Send';
 import PageviewIcon from '@mui/icons-material/Pageview';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -17,12 +16,23 @@ import DefaultButton from '../Buttons/DefaultButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SwitchNetwork from '../SwitchNetwork';
 import { ethers } from 'ethers';
+import SliptModeLendConfig from './SliptModeLendConfig';
+import { ZERO_ADDRESS } from '../../constants';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
+import TrialModeLendConfig from './TrialModeLendConfig';
 
 interface ChooseNFTModalProps {
   gameName: string
   gameNFTCollection: string
   visibile: boolean;
   setVisibile: (v: boolean) => any;
+}
+
+export interface UserLendConfigInfo {
+  borrowerRatio?: number,
+  securityMoney?: number,
+  whiteList?: string,
+  lendingDay?: number,
 }
 
 const formatNFTdata = (nftList: any[]) => {
@@ -60,7 +70,10 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [activeStep, setActiveStep] = useState<number>(0)
   const [stepComplete, setStepComplete] = useState<{ [k: number]: boolean }>({})
+  const [lendStep, setLendStep] = useState<number>(0)
+  const [userLendConfigInfo, setUserLendConfigInfo] = useState<UserLendConfigInfo>({})
 
+  const [lendType, setLendType] = useState<'SliptMode' | 'TrialMode' | 'RentMode'>('SliptMode')  // 出借类型
 
   const [approveTxHash, setApproveTxHash] = useState<string | undefined>()
   const { isLoading: approveLoading, isSuccess: approveSuccess } = useWaitForTransaction({
@@ -88,6 +101,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     onSuccess: () => {
       setStepComplete({ ...stepComplete, [activeStep]: true })
       setActiveStep(activeStep + 1)
+      setLendStep(lendStep + 1)
     },
     onSettled: () => setIsLoading(false)
   })
@@ -139,6 +153,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       setSelectedNFT('')
       setActiveStep(0)
       setStepComplete({})
+      setLendStep(0)
       if (isConnected) {
         queryWalletNFT()
       }
@@ -147,7 +162,10 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
   useEffect(() => {
     // 判断当前选中 NFT 之前是否已经被授权
-    if (isChooseNFT) return
+    if (isChooseNFT) {
+      setLendStep(0)
+      return
+    }
 
     (async () => {
       try {
@@ -156,9 +174,8 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
           setStepComplete({ ...stepComplete, [0]: true })
           setActiveStep(1)
         }
-        console.log(approvedList)
       } catch (err) {
-        console.log(err)
+        console.error(err)
       }
     })()
   }, [isChooseNFT, visibile])
@@ -198,8 +215,19 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     if (isLoading) return
     setIsLoading(true)
 
+    // 默认为试玩模式分成比例
+    let borrowerRatio = 0, lenderRatio = 100
+    if (lendType !== 'TrialMode') {
+      borrowerRatio = userLendConfigInfo.borrowerRatio || 25
+      lenderRatio = 100 - borrowerRatio
+    }
     try {
-      const { hash } = await contractMarket.createSkunInfo(parseInt(selectedNFT), Ropsten_WrapNFT, '0x0000000000000000000000000000000000000000', 80, 20)
+      const { hash } = await contractMarket.createSkunInfo(
+        parseInt(selectedNFT),
+        Ropsten_WrapNFT,
+        userLendConfigInfo.whiteList || ZERO_ADDRESS,
+        lenderRatio,
+        borrowerRatio)
       setListMarketTxHash(hash)
     } catch (err: any) {
       setErrorMessage(err.message)
@@ -241,14 +269,19 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   return <React.Fragment>
     {visibile && <Dialog open={visibile} className={styles.container} >
       <DialogTitle className={styles.dialogTitle} sx={{ width: 'auto' }}>
-        Choose NFT to deposit
+        <Box
+          component="span"
+          onClick={() => setIsChooseNFT(true)}
+          className={`${styles.titleBack} ${isChooseNFT && styles.hiddenTitleBack}`}
+        >
+          <ChevronLeftIcon />
+          Back
+        </Box>
+        {isChooseNFT ? 'Choose NFT to deposit' : `Current Lending NFT #${selectedNFT} to Market`}
         <IconButton
           aria-label="close"
           onClick={() => setVisibile(false)}
           sx={{
-            position: 'absolute',
-            right: 8,
-            top: "2rem",
             color: (theme) => theme.palette.grey[500],
           }}
         >
@@ -257,10 +290,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       </DialogTitle>
       <div className={styles.dialogContent}>
         {isChooseNFT && <Box maxWidth="95rem" minWidth="65rem" minHeight="36rem">
-          {/* <Button onClick={createOrder}>createOrder</Button> */}
-          {/* <Button onClick={setAccountAddress}>setAccountAddress</Button> */}
           {/* <Button onClick={setProtocolAddress}>setProtocolAddress</Button> */}
-          {/* <Button onClick={createSkunInfo}>createSkunInfo</Button>  */}
 
           {/*  TODO: 判断当前链环节，申请切换至正确链 */}
           <Grid
@@ -301,7 +331,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
         </Box>}
 
         {isChooseNFT && <Box>
-          {selectedNFT && <Typography className={styles.selectedMessage}>#{selectedNFT} have been selected</Typography>}
+          {/* {selectedNFT && <Typography className={styles.selectedMessage}>#{selectedNFT} have been selected</Typography>} */}
           <Stack direction="row" justifyContent="center" spacing="3.33rem" mb="1.33rem" mt="1.33rem">
             <Box className={styles.defaultButton} onClick={() => setVisibile(false)}>Back  Game</Box>
             <Box
@@ -316,115 +346,147 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
           showDialog={showSwitchNetworkDialog}
           closeDialog={() => setShowSwitchNetworkDialog(false)}
           callback={() => setIsChooseNFT(false)}
-          targetNetwork={4}
+          targetNetwork={3}
         />
 
         {
-          !isChooseNFT && <Box className={styles.lendStep} width="65rem" minHeight="36rem">
-            {!stepComplete[2] &&
-              <>
-                <Box className={styles.lendStepTitle}>
-                  <Box
-                    onClick={() => setIsChooseNFT(true)}
-                  >
-                    <ChevronLeftIcon />
-                    Back
-                  </Box>
-                  <Typography>Current Lending NFT #{selectedNFT} to Market</Typography>
-                </Box>
-                <Divider sx={{ mb: '2rem', mt: '2rem' }} />
-              </>}
+          !isChooseNFT &&
+          <Box className={styles.lendStep} width="75rem" minHeight="36rem">
+            {!stepComplete[2] && <Box className={styles.stepList}>
+              <Stepper activeStep={lendStep} alternativeLabel>
+                <Step key="1. Configure">
+                  <StepLabel>1. Configure</StepLabel>
+                </Step>
+                <Step key="2. List">
+                  <StepLabel>2. List</StepLabel>
+                </Step>
+              </Stepper>
+            </Box>}
+            {/* 出借第一步：出借信息配置 */}
+            {lendStep === 0 &&
+              <TabContext value={lendType}>
+                <TabList
+                  centered
+                  onChange={(_, val) => setLendType(val)}
+                  className={styles.lendTypeBox}
+                >
+                  <Tab label="Slipt Mode" value="SliptMode" />
+                  <Tab label="Trial Mode" value="TrialMode" />
+                  <Tab label="Rent Mode" value="RentMode" disabled />
+                </TabList>
 
-            {errorMessage && <Alert variant="outlined" severity="error">{errorMessage}</Alert>}
+                <TabPanel value='SliptMode' key={0}>
+                  <SliptModeLendConfig
+                    setNextStep={() => setLendStep(1)}
+                    setUserLendConfigInfo={setUserLendConfigInfo} />
+                </TabPanel>
 
-            {!stepComplete[2] && <Stepper
-              orientation="vertical"
-              activeStep={activeStep}
-              nonLinear
-            >
-              <Step key="Approve 721 NFT" completed={stepComplete[0]}>
-                <StepButton onClick={() => handleStepClick(0)}>
-                  <StepLabel >
-                    Approve Your Game ERC721 NFT
-                  </StepLabel>
-                </StepButton>
+                <TabPanel value='TrialMode' key={1}>
+                  <TrialModeLendConfig
+                    setNextStep={() => setLendStep(1)}
+                    setUserLendConfigInfo={setUserLendConfigInfo}
+                  />
+                </TabPanel>
 
-                <StepContent>
-                  <Box className={styles.stepContent}>
-                    {!stepComplete[0] &&
-                      <DefaultButton
-                        loading={isLoading}
-                        className={styles.stepButton}
-                        onClick={handleApproveErc721}>
-                        Approve
-                      </DefaultButton>
-                    }
-                    {approveLoading && <OpenInExplorer txHash={approveTxHash} />}
-                  </Box>
-                </StepContent>
-              </Step>
-              <Step key="Stake ERC721 NFT & Receive WrapNFT" completed={stepComplete[1]}>
-                <StepButton onClick={() => handleStepClick(1)}>
-                  <StepLabel >
-                    Stake ERC721 NFT & Receive Your WrapNFT
-                  </StepLabel>
-                </StepButton>
+                <TabPanel value='RentMode' key={2}></TabPanel>
+              </TabContext>}
 
-                <StepContent >
-                  <Box className={styles.stepContent}>
-                    {
-                      !stepComplete[1] ?
-                        <DefaultButton
-                          loading={isLoading}
-                          onClick={handleStakeNFT}
-                          className={styles.stepButton}
-                        >Stack</DefaultButton>
-                        : <>
-                        </>
-                    }
-                    {stakeLoading && <OpenInExplorer txHash={stakeTxHash} />}
-                  </Box>
-                </StepContent>
-              </Step>
+            {/* 出借第二步：合约交互 */}
+            <Box className={styles.lendStepTwoBox}>
+              {errorMessage && <Alert variant="outlined" severity="error">{errorMessage}</Alert>}
 
-              <Step key="ListToMarket" completed={stepComplete[2]}>
-                <StepButton onClick={() => handleStepClick(2)}>
-                  <StepLabel>
-                    List To Market
-                  </StepLabel>
-                </StepButton>
-                <StepContent >
-                  <Box className={styles.stepContent}>
-                    {
-                      !stepComplete[2] &&
-                      <DefaultButton
-                        loading={isLoading}
-                        onClick={handleListToMarket}
-                        className={styles.stepButton}
-                      >
-                        List
-                      </DefaultButton>
-                    }
-                    {listMarketLoading && <OpenInExplorer txHash={listMarketTxHash} />}
-                  </Box>
-                </StepContent>
-              </Step>
-            </Stepper>}
+              {/* 三步合约交互出租流程 */}
+              {!stepComplete[2] && lendStep === 1 &&
+                <Stepper
+                  orientation="vertical"
+                  activeStep={activeStep}
+                  nonLinear
+                >
+                  <Step key="Approve 721 NFT" completed={stepComplete[0]}>
+                    <StepButton onClick={() => handleStepClick(0)}>
+                      <StepLabel >
+                        Approve Your Game ERC721 NFT
+                      </StepLabel>
+                    </StepButton>
 
-            {stepComplete[2] &&
-              <Box sx={{ mt: '3rem' }} className={styles.lendSuccess}>
-                <img src='/success_smile.png' alt='success_smile' />
-                <Typography variant='h3' > Successful Lend Your NFT </Typography>
-                <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: '1rem', fontSize: '1.5rem' }}>
-                  Your Lend NFT Will List In Market In Minutes!
-                  <Link href="/">
-                    <Typography variant='overline' className={styles.linkStyle}>Go To Market</Typography>
-                  </Link>
-                </Typography>
-                <DefaultButton sx={{ marginTop: '2rem' }}
-                  onClick={() => setVisibile(false)}
-                >Finished</DefaultButton>
-              </Box>}
+                    <StepContent>
+                      <Box className={styles.stepContent}>
+                        {!stepComplete[0] &&
+                          <DefaultButton
+                            loading={isLoading}
+                            className={styles.stepButton}
+                            onClick={handleApproveErc721}>
+                            Approve
+                          </DefaultButton>
+                        }
+                        {approveLoading && <OpenInExplorer txHash={approveTxHash} />}
+                      </Box>
+                    </StepContent>
+                  </Step>
+                  <Step key="Stake ERC721 NFT & Receive reNFT" completed={stepComplete[1]}>
+                    <StepButton onClick={() => handleStepClick(1)}>
+                      <StepLabel >
+                        Stake ERC721 NFT & Receive Your WrapNFT
+                      </StepLabel>
+                    </StepButton>
+
+                    <StepContent >
+                      <Box className={styles.stepContent}>
+                        {
+                          !stepComplete[1] ?
+                            <DefaultButton
+                              loading={isLoading}
+                              onClick={handleStakeNFT}
+                              className={styles.stepButton}
+                            >Stack</DefaultButton>
+                            : <>
+                            </>
+                        }
+                        {stakeLoading && <OpenInExplorer txHash={stakeTxHash} />}
+                      </Box>
+                    </StepContent>
+                  </Step>
+
+                  <Step key="ListToMarket" completed={stepComplete[2]}>
+                    <StepButton onClick={() => handleStepClick(2)}>
+                      <StepLabel>
+                        List To Market
+                      </StepLabel>
+                    </StepButton>
+                    <StepContent >
+                      <Box className={styles.stepContent}>
+                        {
+                          !stepComplete[2] &&
+                          <DefaultButton
+                            loading={isLoading}
+                            onClick={handleListToMarket}
+                            className={styles.stepButton}
+                          >
+                            List
+                          </DefaultButton>
+                        }
+                        {listMarketLoading && <OpenInExplorer txHash={listMarketTxHash} />}
+                      </Box>
+                    </StepContent>
+                  </Step>
+                </Stepper>}
+
+              {/*   出租成功结果页 */}
+              {stepComplete[2] &&
+                <Box sx={{ mt: '6rem' }} className={styles.lendSuccess}>
+                  <img src='/success_smile.png' alt='success_smile' />
+                  <Typography variant='h3' > Successful Lend Your NFT </Typography>
+                  <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: '1rem', fontSize: '1.5rem' }}>
+                    Your Lend NFT Will List In Market In Minutes!
+                    <Link href="/">
+                      <Typography variant='overline' className={styles.linkStyle}>Go To Market</Typography>
+                    </Link>
+                  </Typography>
+                  <DefaultButton sx={{ marginTop: '2rem' }}
+                    onClick={() => setVisibile(false)}
+                  >Finished</DefaultButton>
+                </Box>}
+            </Box>
           </Box>
         }
       </div>

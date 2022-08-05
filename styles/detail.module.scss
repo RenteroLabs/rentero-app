@@ -107,13 +107,41 @@
   border-radius: 0.5rem;
   cursor: pointer;
   user-select: none;
+  border-top-right-radius: 2rem;
+  clip-path: polygon(
+    30% 0%,
+    95% 0%,
+    100% 40%,
+    100% 100%,
+    70% 100%,
+    0 100%,
+    0% 70%,
+    0 0
+  );
 }
 
 .rentedButton {
   @extend .rentButton;
   background: #777e90;
   color: rgba($color: #fff, $alpha: 0.7);
-  cursor: default;
+  cursor:not-allowed;
+}
+
+.rentTrialButton {
+  background: linear-gradient(270deg, #28ebf3 0%, #f26b39 100%);
+}
+
+.rentedTrialButton {
+  background: linear-gradient(270deg, #083059 0%, #311634 100%);
+}
+
+.whitelistButtonTip {
+  margin-top: 1rem;
+  font-size: 1.33rem;
+  font-family: Poppins-Regular, Poppins;
+  font-weight: 400;
+  color: #777e90;
+  line-height: 2rem;
 }
 
 .rentNFTinfo {
@@ -274,4 +302,31 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+}
+
+.tagList {
+  display: flex;
+  font-size: 1rem;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  line-height: 1.33rem;
+  span {
+    display: inline-block;
+  }
+  span + span {
+    margin-left: 0.67rem;
+  }
+  .rentedTag {
+    background: #ae34ff;
+    border-radius: 0.5rem;
+    padding: 0.17rem 0.67rem;
+    color: #ffffff;
+  }
+
+  .whitelistTag {
+    background: #70eaab;
+    border-radius: 0.5rem;
+    padding: 0.17rem 0.67rem;
+    color: #305948;
+  }
 }

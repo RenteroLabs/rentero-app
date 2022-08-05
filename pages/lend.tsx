@@ -1,9 +1,9 @@
-import React from "react";
-import type { NextPage } from 'next'
+import React, { useEffect, useState } from "react";
+import type { NextPage } from 'next';
 import Link from "next/link";
 import Container from "@mui/material/Container";
 import Box from '@mui/material/Box'
-import { Grid, Typography } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, Typography } from "@mui/material";
 import Image from "next/image";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import styles from '../styles/lend.module.scss'
@@ -14,13 +14,65 @@ import StepTwo from '../public/two_choose.png'
 import StepThree from '../public/three_pay.png'
 import LendNFTModal from "../components/LendNFT/ChooseGameModal";
 import Head from "next/head";
+import AppDialog from "../components/Dialog";
+import CloseIcon from '@mui/icons-material/Close';
+import { useRouter } from "next/router";
 
 const Lend: NextPage = () => {
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    const [_, guildIntro] = router.asPath.split('?')
+    if (guildIntro === 'forguild') {
+      setShowModal(true)
+    }
+  }, [])
+
   return <Container maxWidth={false} >
     <Head>
       <title>Lend Your NFT | Rentero</title>
       <meta name="description" content="Lend and rent your NFTs | Rentero Protocol" />
     </Head>
+    {/* For Guild Dialog Modal */}
+    <Dialog
+      open={showModal}
+      className={styles.container}
+    >
+      <DialogTitle className={styles.dialogTitle} sx={{ width: '46.67rem' }}>
+        What is &#34;For Guild&#34;?
+        <CloseIcon onClick={() => {
+          router.replace('/lend')
+          setShowModal(false)
+        }} />
+      </DialogTitle>
+      <DialogContent className={styles.dialogContent}>
+        <h4>Provide safe, intelligent and efficient rental services</h4>
+        <b>1. Asset security</b>
+        <br />
+        Separation of NFT ownership and use rights through contracts to fully guarantee asset arrangements
+        <br />
+        <br />
+        <b>2. Maximize revenue</b>
+        <br />
+        NFT asset allocation rules can be formulated to maximize the allocation of scholar and improve the efficiency of union gold
+        <br />
+        <br />
+        <b>3. Efficient management</b>
+        <br />
+        Provide complete dashboard indicators, automatic monitoring and settlement of revenue sharing
+      </DialogContent>
+      <DialogActions className={styles.dialogAction}>
+        <a href="https://discord.com/invite/rZWZ3XhRJv" target="_blank" rel="noreferrer" >
+          <Box onClick={() => {
+            router.replace('/lend')
+            setShowModal(false)
+          }}>
+            Contact the official for visit
+          </Box>
+        </a>
+      </DialogActions>
+    </Dialog>
     <Box textAlign="center" sx={{ minHeight: "41.33rem", overflow: 'hidden' }}>
       <Typography variant="h2" className={styles.title}>
         Both reliable and profitable<br />

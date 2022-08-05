@@ -1,13 +1,27 @@
 
 import { BaseURL } from '../constants'
+import qs from 'qs'
 
 export const getGameInfos = async () => {
   const data = await fetch(`${BaseURL}/home/game/list`, { mode: 'cors' })
   return data.json()
 }
 
-export const getMarketNFTList = async ({ pageIndex, pageSize }: any) => {
-  const data = await fetch(`${BaseURL}/market/list?pageIndex=${pageIndex}&pageSize=${pageSize}`)
+interface NFTListParams {
+  pageIndex: number,
+  pageSize?: number,
+  whiteAddress?: boolean
+  mode?: 'FreeTrial' | 'Dividend',
+  token?: any;
+}
+export const getMarketNFTList = async (params: NFTListParams) => {
+  const { token, ...restParams } = params
+  const headerToken = {
+    sessionToken: token
+  }
+  const data = await fetch(`${BaseURL}/market/list?${qs.stringify(restParams)}`, {
+    headers: token ? headerToken : {}
+  })
   return data.json()
 }
 
