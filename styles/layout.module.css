@@ -6,6 +6,7 @@
 }
 
 .container {
+  padding-top: 6rem;
   min-height: calc(100vh - 17.75rem);
   overflow: hidden;
 }

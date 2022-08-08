@@ -11,7 +11,7 @@ import { etherscanBlockExplorers, useAccount } from "wagmi";
 import { useCopyToClipboard, useIsMounted } from "../../hooks";
 import classNames from "classnames/bind";
 import RentNFTModal from "../../components/RentNFT/RentNFTModal";
-import { useEffect, useMemo, useState } from "react";
+import { PropsWithChildren, ReactElement, useEffect, useMemo, useState } from "react";
 import { useRequest } from "ahooks";
 import { getMarketNFTList, getNFTDetail } from "../../services/market";
 import { formatAddress } from "../../utils/format";
@@ -20,10 +20,26 @@ import Head from "next/head";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import LaunchIcon from '@mui/icons-material/Launch';
+import Layout2 from "../../components/layout2";
+import { NextPageWithLayout } from "../_app";
 
 const cx = classNames.bind(styles)
 
-const Detail: NextPage = () => {
+interface DetailCardBoxProps {
+  title: React.ReactElement
+}
+const DetailCardBox: React.FC<PropsWithChildren<DetailCardBoxProps>> = (props) => {
+  const { children, title } = props
+
+  return <Paper
+    className={styles.detailCardBox}
+  >
+    <Box className={styles.cardTitle}>{title}</Box>
+    <Box className={styles.cardContent}>{children}</Box>
+  </Paper>
+}
+
+const Detail: NextPageWithLayout = () => {
   const router = useRouter()
   const { isConnected, address } = useAccount()
   const isMounted = useIsMounted()
@@ -81,79 +97,53 @@ const Detail: NextPage = () => {
       </Breadcrumbs>
     </Box>
     <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
+      {/* left content */}
       <Box className={styles.leftBox}>
-        <Stack spacing="2rem">
+        <Stack spacing="1.67rem">
           <Paper className={styles.itemCover} >
             {(baseInfo.imageUrl) && <img src={baseInfo.imageUrl} />}
           </Paper>
-          {
-            baseInfo.mode === 'FreeTrial' ?
-              <Paper className={styles.rentDetail}>
-                <Typography>Trial Days:</Typography>
-                <Typography variant="h4" >{baseInfo.trialDays || 30} Days</Typography>
-              </Paper> :
-              <Paper className={styles.rentDetail}>
-                <Typography>DAILY EARNING:</Typography>
-                <Typography variant="h4" >{baseInfo.minGain} AXE</Typography>
-                <Typography>≈ 8.3 ~ 12.6 USD</Typography>
-                <Typography className={styles.earnRatio}>RATIO OF PLAYER EARNINGS:</Typography>
-                <Typography variant="h4" className={styles.earnRatioValue}>{baseInfo.borrowerEarnRatio}%</Typography>
-              </Paper>
-          }
 
-          {/* 已出租 */}
-          {baseInfo.status === 'Renting' && <Box
-            className={cx({
-              'rentButton': true,
-              'rentedButton': true,
-              'rentedTrialButton': baseInfo.mode === 'FreeTrial'
-            })}
-          >{baseInfo.mode === 'FreeTrial' ? 'Trialing' : 'Rented'}</Box>}
+          <DetailCardBox title={<Box>About {baseInfo.nftName}</Box>}>
+            NFT Collection introduction
+          </DetailCardBox>
 
-          {baseInfo.status !== 'Renting' && isMounted && !isConnected &&
-            <ConnectWallet trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />
-          }
-
-          {
-            baseInfo.status !== 'Renting' && isMounted && isConnected &&
-            ([ZERO_ADDRESS, address?.toLowerCase()].includes(baseInfo.whiteAddress) ?
-              <RentNFTModal
-                reloadInfo={() => { fetchNFTDetail({ skuId: router.query['skuId'] }) }}
-                skuId={router.query['skuId'] as string}
-                baseInfo={baseInfo}
-                trigger={<Box
-                  className={cx({
-                    'rentButton': true,
-                    'rentTrialButton': baseInfo.mode === 'FreeTrial'
-                  })}
-                >
-                  {baseInfo.mode === 'FreeTrial' ? 'Trial' : 'Rent'}
-                </Box>} /> :
+          <DetailCardBox
+            title={<Box>Details</Box>}
+          >
+            <Stack className={styles.detailList}>
               <Box>
-                <Box
-                  className={cx({
-                    'rentButton': true,
-                    'rentedButton': true,
-                  })}
-                >
-                  Rent
-                </Box>
-                {baseInfo.whiteAddress &&
-                  <Typography className={styles.whitelistButtonTip}>
-                    * This NFT is only for the whitelist user.
-                  </Typography>}
+                <Box>Contract Address</Box>
+                <a href={contractBlockExplore} target="_blank" rel="noreferrer">
+                  <Box className={styles.linkAddress}>
+                    {formatAddress(baseInfo.nftAddress, 4)}&nbsp;
+                    <LaunchIcon />
+                  </Box>
+                </a>
               </Box>
-            )
-          }
+              <Box>
+                <Box>Token ID</Box>
+                <Box className={styles.linkAddress}>{baseInfo.nftUid}</Box>
+              </Box>
+              <Box>
+                <Box>Token Standard</Box>
+                <Box>ERC-721</Box>
+              </Box>
+              <Box>
+                <Box>Blockchain</Box>
+                <Box>Ethereum</Box>
+              </Box>
+            </Stack>
+          </DetailCardBox>
         </Stack>
       </Box>
 
-      <Box className={styles.rightBox} sx={{ marginLeft: '5.33rem', width: '60.83rem' }}>
-        <Stack spacing="2rem">
+      {/* right content */}
+      <Box className={styles.rightBox} >
+        <Stack spacing="1.67rem">
           <Paper className={styles.rentNFTinfo}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Avatar src="https://tva1.sinaimg.cn/large/e6c9d24egy1h3yrt5tycej20nw0kxdh5.jpg" variant="rounded" sx={{ width: '2.67rem', height: '2.67rem' }} />
                 <span className={styles.nftCollectionName}>{baseInfo.nftName}</span>
               </Box>
               <Box className={styles.tagList}>
@@ -197,35 +187,60 @@ const Detail: NextPage = () => {
               <Box sx={{ display: 'flex', alignItems: 'center' }}>Blockchain <span className={styles.deployedChainType}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem', mr: '0.67rem' }} /> ETH</span></Box>
             </Stack>
           </Paper>
-          <Paper className={styles.rentNFTabout}>
-            <Typography variant="h4">Detail</Typography>
-            <Stack className={styles.detailList}>
-              <Box>
-                <Box>Contract Address</Box>
-                <a href={contractBlockExplore} target="_blank" rel="noreferrer">
-                  <Box className={styles.linkAddress}>
-                    {formatAddress(baseInfo.nftAddress, 4)}&nbsp;
-                    <LaunchIcon />
-                  </Box>
-                </a>
-              </Box>
-              <Box>
-                <Box>Token ID</Box>
-                <Box className={styles.linkAddress}>{baseInfo.nftUid}</Box>
-              </Box>
-              <Box>
-                <Box>Token Standard</Box>
-                <Box>ERC-721</Box>
-              </Box>
-              <Box>
-                <Box>Blockchain</Box>
-                <Box>Ethereum</Box>
-              </Box>
+
+          <DetailCardBox
+            title={<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box>{baseInfo.mode === 'FreeTrial' ? 'Trial Period' : 'Rental Period'}</Box>
+              <Box>{baseInfo.mode === 'FreeTrial' ? '15' : '3-30'} Days</Box>
+            </Box>}
+          >
+            <Stack spacing="1.33rem" className={styles.rentInfoList}>
+              {
+                baseInfo.mode === 'Dividend' &&
+                <>
+                  <Box><Box>Ratio To Renter</Box><Box>{baseInfo.borrowerEarnRatio}</Box></Box>
+                  <Box><Box>Security Deposit</Box><Box>10</Box></Box>
+                </>
+              }
+              {/* 租金模式 */}
+              {
+                baseInfo.mode === 'Rent' && <Box><Box>Rent</Box><Box>10</Box></Box>
+              }
+              {baseInfo.status === 'Renting' &&
+                <Box className={styles.rentedButton}>
+                  {baseInfo.mode === 'FreeTrial' ? 'Trialed' : 'Rented'}
+                </Box>}
+              {
+                (baseInfo.status !== 'Renting' && isMounted && !isConnected) ?
+                  <ConnectWallet
+                    trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />
+                  :
+                  ([ZERO_ADDRESS, address?.toLowerCase()].includes(baseInfo.whiteAddress) ?
+                    <RentNFTModal
+                      reloadInfo={() => { fetchNFTDetail({ skuId: router.query['skuId'] }) }}
+                      skuId={router.query['skuId'] as string}
+                      baseInfo={baseInfo}
+                      trigger={<Box
+                        className={
+                          baseInfo.mode === 'FreeTrial' ?
+                            styles.rentTrialButton :
+                            styles.rentButton}>
+                        {baseInfo.mode === 'FreeTrial' ? 'Trial' : 'Rent'}
+                      </Box>} /> :
+                    <Box className={styles.rentedButton}>
+                      {baseInfo.mode === 'FreeTrial' ? 'Trial' : 'Rent'}
+                    </Box>
+                  )
+              }
             </Stack>
-          </Paper>
-          <Paper className={styles.rentNFTproperties}>
-            <Typography variant="h4">Properties</Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: "flex-start", mt: '1rem' }}>
+            {baseInfo.whiteAddress !== ZERO_ADDRESS &&
+              <Typography className={styles.whitelistButtonTip}>
+                * This NFT is only for the whitelist user.
+              </Typography>}
+          </DetailCardBox>
+
+          <DetailCardBox title={<Box>Status</Box>}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: "flex-start" }}>
               {
                 metadata?.attributes?.map(({ value, trait_type }: any, index: number) => {
                   return <Stack className={styles.nftAttrCard} key={index}>
@@ -235,7 +250,7 @@ const Detail: NextPage = () => {
                 })
               }
             </Box>
-          </Paper>
+          </DetailCardBox>
         </Stack>
       </Box>
     </Box>
@@ -253,6 +268,12 @@ const Detail: NextPage = () => {
       </Stack>
     </Box>
   </div>
+}
+
+Detail.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <Layout2>{page}</Layout2>
+  )
 }
 
 export default Detail

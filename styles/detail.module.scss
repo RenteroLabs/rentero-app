@@ -1,9 +1,11 @@
 .navBox {
+  margin: auto;
   height: 5.67rem;
+  padding: 0 calc(50vw - 47.33rem);
+
   background: rgba(255, 255, 255, 0);
   border-bottom: 0.08rem solid rgba($color: #fff, $alpha: 0.2);
   line-height: 5.67rem;
-  padding-left: 12.67rem;
 
   :global {
     .MuiBreadcrumbs-li {
@@ -28,9 +30,9 @@
 }
 
 .itemCover {
-  width: 28.5rem;
-  height: 28.5rem;
-  border-radius: 1.67rem;
+  width: 33.33rem;
+  height: 33.33rem;
+  border-radius: 1.85rem;
   background-color: transparent;
   overflow: hidden;
   position: relative;
@@ -56,79 +58,32 @@
   }
 }
 
-.rentDetail {
-  background: rgba($color: #fff, $alpha: 0.1);
-  border-radius: 1.67rem;
-  padding: 1.67rem 2rem;
-
-  font-size: 1.17rem;
-  font-family: Poppins-Medium, Poppins;
-  font-weight: 500;
-  color: #777e90;
-  line-height: 2rem;
-
-  p {
-    font-size: 1.17rem;
-    font-family: Poppins-Medium, Poppins;
-    font-weight: 500;
-    color: #777e90;
-    line-height: 2rem;
-  }
-  h4 {
-    font-size: 2.33rem;
-    font-family: Poppins-SemiBold, Poppins;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: 2.67rem;
-    margin: 1rem 0 0.33rem;
-  }
-  .earnRatio {
-    margin-top: 2rem;
-  }
-  .earnRatioValue {
-    font-size: 2.67rem;
-    font-family: Poppins-SemiBold, Poppins;
-    font-weight: bold;
-    color: #5bd9fe;
-    line-height: 3.33rem;
-    margin: 0;
-  }
-}
-
 .rentButton {
-  background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
-  width: 28.5rem;
-  padding: 1rem;
-  font-size: 1.5rem;
-  font-family: Agrandir-GrandHeavy, Agrandir;
-  font-weight: normal;
+  display: flex;
+  width: 100%;
+  justify-content: center !important;
+  height: 4.17rem;
+  font-size: 1.5rem !important;
+  font-family: Poppins-SemiBold, Poppins !important;
+  font-weight: 600 !important;
   color: #ffffff;
-  text-align: center;
-  border-radius: 0.5rem;
+  line-height: 2.17rem;
   cursor: pointer;
   user-select: none;
-  border-top-right-radius: 2rem;
-  clip-path: polygon(
-    30% 0%,
-    95% 0%,
-    100% 40%,
-    100% 100%,
-    70% 100%,
-    0 100%,
-    0% 70%,
-    0 0
-  );
+  background: linear-gradient(270deg, #b721ff 0%, #5adcfe 100%);
+  border-radius: 1rem;
 }
 
 .rentedButton {
   @extend .rentButton;
   background: #777e90;
-  color: rgba($color: #fff, $alpha: 0.7);
-  cursor:not-allowed;
+  color: #d6d7dc;
+  cursor: not-allowed;
 }
 
 .rentTrialButton {
-  background: linear-gradient(270deg, #28ebf3 0%, #f26b39 100%);
+  @extend .rentButton;
+  background: linear-gradient(92deg, #f36a38 0%, #c88661 48%, #26ecf5 100%);
 }
 
 .rentedTrialButton {
@@ -136,19 +91,35 @@
 }
 
 .whitelistButtonTip {
-  margin-top: 1rem;
-  font-size: 1.33rem;
+  margin-top: 0.5rem;
+  font-size: 1rem;
   font-family: Poppins-Regular, Poppins;
   font-weight: 400;
   color: #777e90;
-  line-height: 2rem;
+}
+
+.detailCardBox {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1.67rem;
+
+  .cardTitle {
+    padding: 1.67rem 2rem;
+    font-size: 1.67rem;
+    font-family: Poppins-SemiBold, Poppins;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 2.33rem;
+    border-bottom: 0.16rem solid rgba($color: #979797, $alpha: 0.08);
+  }
+  .cardContent {
+    padding: 1.67rem 2rem;
+  }
 }
 
 .rentNFTinfo {
-  padding: 1.67rem 2rem;
-  min-width: 60.83rem;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 1.67rem;
+  padding: 1.67rem 2rem;
   font-size: 1.33rem;
   font-family: Poppins-Medium, Poppins;
   font-weight: 500;
@@ -161,7 +132,6 @@
     font-weight: 500;
     color: #5bd9fe;
     line-height: 2rem;
-    margin-left: 0.67rem;
   }
 
   h2 {
@@ -201,45 +171,16 @@
   }
 }
 
-.rentNFTabout {
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 1.67rem;
-
-  h4 {
-    font-size: 2rem;
-    font-family: Poppins-SemiBold, Poppins;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: 2.67rem;
-  }
-
-  .detailList {
-    margin-top: 1rem;
-    & > div {
-      display: flex;
-      justify-content: space-between;
-      color: rgba($color: #fff, $alpha: 0.6);
-      font-size: 1.17rem;
-      font-family: Poppins-Medium, Poppins;
-      font-weight: 500;
-      color: #777e90;
-      line-height: 2.4rem;
-    }
-  }
-}
-
-.rentNFTproperties {
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 1.67rem;
-
-  h4 {
-    font-size: 2rem;
-    font-family: Poppins-SemiBold, Poppins;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: 2.67rem;
+.detailList {
+  & > div {
+    display: flex;
+    justify-content: space-between;
+    color: rgba($color: #fff, $alpha: 0.6);
+    font-size: 1.17rem;
+    font-family: Poppins-Medium, Poppins;
+    font-weight: 500;
+    color: #777e90;
+    line-height: 2.4rem;
   }
 }
 
@@ -328,5 +269,23 @@
     border-radius: 0.5rem;
     padding: 0.17rem 0.67rem;
     color: #305948;
+  }
+}
+
+.rightBox {
+  width: 58rem;
+  margin-left: 3.33rem;
+}
+
+.rentInfoList {
+  div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.33rem;
+    font-family: Poppins-Medium, Poppins;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 2rem;
   }
 }

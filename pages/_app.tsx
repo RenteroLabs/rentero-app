@@ -12,6 +12,8 @@ import { publicProvider } from 'wagmi/providers/public'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
 import { SUPPORT_CHAINS } from '../constants'
+import { NextPage } from 'next/types'
+import type { ReactElement, ReactNode } from 'react'
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
 const { chains, provider, webSocketProvider } = configureChains(SUPPORT_CHAINS, [
@@ -36,7 +38,18 @@ const client = createClient({
   webSocketProvider
 })
 
-function MyApp({ Component, pageProps }: AppProps) {
+export type NextPageWithLayout = NextPage & {
+  getLayout?: (page: ReactElement) => ReactNode
+}
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout
+}
+
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+
+  const getLayout = Component.getLayout
+
   return <ThemeProvider theme={AppTheme}>
     <StyledEngineProvider injectFirst>
       <Head>
@@ -44,9 +57,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <CssBaseline />
       <WagmiConfig client={client}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        {getLayout ?
+          getLayout(<Component {...pageProps} />) :
+          <Layout><Component {...pageProps} /></Layout>}
       </WagmiConfig>
     </StyledEngineProvider>
   </ThemeProvider>

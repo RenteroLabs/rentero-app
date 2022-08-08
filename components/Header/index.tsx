@@ -1,8 +1,6 @@
 // @ts-nocheck
 import styles from './index.module.scss'
-import Image from 'next/image'
 import Link from 'next/link'
-import Logo from '../../public/header_logo.svg'
 import ConnectWallet from '../ConnectWallet'
 import { useIsMounted } from '../../hooks'
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner, erc721ABI, useSignMessage, useSwitchNetwork } from 'wagmi'
@@ -10,11 +8,10 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
-import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList, Slide, Snackbar, Typography, Box, Button } from '@mui/material'
+import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, Slide, Snackbar, Typography, Box } from '@mui/material'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
-import { utils } from 'ethers'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
 import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT } from '../../constants/contractABI'
 import { UserLoginParams } from '../../types/service'
@@ -155,11 +152,11 @@ export default function Header() {
     </div>
     <nav className={styles.navList}>
       <Link href="/"  >
-        <a className={router.pathname === '/' || ['/detail'].some(item => item.indexOf(router.pathname) === 0) ? styles.activeNavItem : undefined}>Market</a></Link>
+        <a className={router.pathname === '/' || ['/detail'].some(item => router.pathname.indexOf(item) === 0) ? styles.activeNavItem : undefined}>Market</a></Link>
       <Link href="/lend">
         <a className={router.pathname === '/lend' ? styles.activeNavItem : undefined}>Lend NFTs</a>
       </Link>
-      <a className={styles.supportNav}>Support</a>
+      {/* <a className={styles.supportNav}>Support</a> */}
       <Snackbar
         open={showAlertMessage}
         message="WIP: Coming soon！"
@@ -172,16 +169,34 @@ export default function Header() {
     {/* <button onClick={updateURI}>updateURI</button> */}
     {/* <button onClick={mint721}>Click</button> */}
     {/* <button onClick={transfer721}>Transfer</button> */}
-    {(isMounted && isConnected) &&
-      <Chip
-        avatar={<Avatar alt={chain?.name} className={styles.networkIcon} src={CHAIN_ICON[chain?.id || 1]} />}
-        label={chain?.name || "Ethereum"}
-        className={styles.networkList}
-        ref={networkListAnchorRef}
-        onDelete={() => setNetworkListOpen(true)}
-        deleteIcon={<KeyboardArrowDownOutlinedIcon className={styles.downIcon} />}
-        onClick={() => setNetworkListOpen(true)}
-      />}
+    <Box sx={{ display: 'flex' }}>
+      {(isMounted && isConnected) &&
+        <Chip
+          avatar={<Avatar alt={chain?.name} className={styles.networkIcon} src={CHAIN_ICON[chain?.id || 1]} />}
+          label={chain?.name || "Ethereum"}
+          className={styles.networkList}
+          ref={networkListAnchorRef}
+          onDelete={() => setNetworkListOpen(true)}
+          deleteIcon={<KeyboardArrowDownOutlinedIcon className={styles.downIcon} />}
+          onClick={() => setNetworkListOpen(true)}
+        />}
+
+      {(isMounted && isConnected) ?
+        <Chip
+          avatar={<AccountBalanceWalletIcon />}
+          label={<div className={styles.addressOrEns}>
+            {ensName ? ensName : formatAddress(address, 4)}
+            <KeyboardArrowDownOutlinedIcon className={styles.downIcon} />
+          </div>}
+          className={styles.accountBox}
+          onClick={() => setOpenSetting(true)}
+          ref={anchorRef}
+        /> : <ConnectWallet
+          trigger={<span className={styles.connectButton}>Connect Wallet</span>}
+        />
+      }
+    </Box>
+
     <Menu
       anchorEl={networkListAnchorRef.current}
       open={networkListOpen}
@@ -210,20 +225,7 @@ export default function Header() {
       }
     </Menu>
 
-    {(isMounted && isConnected) ?
-      <Chip
-        avatar={<AccountBalanceWalletIcon />}
-        label={<div className={styles.addressOrEns}>
-          {ensName ? ensName : formatAddress(address, 4)}
-          <KeyboardArrowDownOutlinedIcon className={styles.downIcon} />
-        </div>}
-        className={styles.accountBox}
-        onClick={() => setOpenSetting(true)}
-        ref={anchorRef}
-      /> : <ConnectWallet
-        trigger={<span className={styles.connectButton}>Connect Wallet</span>}
-      />
-    }
+
     <ClickAwayListener onClickAway={handleClose}>
       <Menu
         open={openSetting}
