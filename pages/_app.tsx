@@ -14,6 +14,7 @@ import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
 import { SUPPORT_CHAINS } from '../constants'
 import { NextPage } from 'next/types'
 import type { ReactElement, ReactNode } from 'react'
+import Layout2 from '../components/layout2'
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
 const { chains, provider, webSocketProvider } = configureChains(SUPPORT_CHAINS, [
@@ -57,9 +58,11 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
       <CssBaseline />
       <WagmiConfig client={client}>
-        {getLayout ?
+        {/* {getLayout ?
           getLayout(<Component {...pageProps} />) :
-          <Layout><Component {...pageProps} /></Layout>}
+          <Layout><Component {...pageProps} /></Layout>} */}
+
+        <Layout2><Component {...pageProps} /></Layout2>
       </WagmiConfig>
     </StyledEngineProvider>
   </ThemeProvider>

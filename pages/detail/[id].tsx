@@ -84,7 +84,7 @@ const Detail: NextPageWithLayout = () => {
     }
   })
 
-  return <div>
+  return <Box>
     <Head>
       <title>NFT Detail | Rentero</title>
       <meta name="description" content="Lend and rent your NFTs | Rentero Protocol" />
@@ -96,7 +96,7 @@ const Detail: NextPageWithLayout = () => {
         <Typography >Detail</Typography>
       </Breadcrumbs>
     </Box>
-    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
+    <Box className={styles.mainContentBox}>
       {/* left content */}
       <Box className={styles.leftBox}>
         <Stack spacing="1.67rem">
@@ -158,7 +158,7 @@ const Detail: NextPageWithLayout = () => {
             <Typography variant="h2">{baseInfo.nftName} #{baseInfo.nftUid}</Typography>
             <Stack direction="row" spacing="4.83rem" className={styles.addressInfo}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography >Owned by</Typography>
+                <Typography >Owned</Typography>
                 <span className={styles.ownerAddress}>
                   {formatAddress(baseInfo.lenderAddress, 4)}
                 </span>
@@ -184,7 +184,7 @@ const Detail: NextPageWithLayout = () => {
                     </Tooltip>
                 }
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>Blockchain <span className={styles.deployedChainType}><Avatar alt='chain' src={CHAIN_ICON[1]} sx={{ width: '1.67rem', height: '1.67rem', mr: '0.67rem' }} /> ETH</span></Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>Renter -</Box>
             </Stack>
           </Paper>
 
@@ -253,21 +253,26 @@ const Detail: NextPageWithLayout = () => {
           </DetailCardBox>
         </Stack>
       </Box>
+
+      <Paper className={styles.itemCoverMobile} >
+        {(baseInfo.imageUrl) && <img src={baseInfo.imageUrl} />}
+      </Paper>
+
     </Box>
 
-    <Box maxWidth="94.66rem" margin="auto" marginTop="8.33rem">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.67rem' }} className={styles.moreNFTtitle}>
+    <Box className={styles.moreNFTCards} >
+      <Box className={styles.moreNFTtitle}>
         <Typography variant="h3">More NFTs</Typography>
         <Link href="/"><Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography></Link>
       </Box>
-      <Stack direction="row" spacing="2rem">
+      <Stack direction="row" className={styles.cardList} >
         {
           nftList.map((item: any, index: number) =>
             <NFTCard nftInfo={item} key={index} />)
         }
       </Stack>
     </Box>
-  </div>
+  </Box>
 }
 
 Detail.getLayout = function getLayout(page: ReactElement) {

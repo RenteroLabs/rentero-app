@@ -5,6 +5,9 @@ import React from 'react'
 import NFT_RENTED from '../../public/nft_rented.png'
 import { CHAIN_ICON, ZERO_ADDRESS } from '../../constants'
 import styles from './index.module.scss'
+import classNames from 'classnames/bind'
+
+const cx = classNames.bind(styles)
 
 interface NFTCardProps {
   nftInfo: Record<string, any>
@@ -14,13 +17,14 @@ interface NFTCardProps {
 const NFTCard: React.FC<NFTCardProps> = (props) => {
   const { nftInfo, mode = '@split' } = props
 
-
   const handleRentNow = (e: React.MouseEvent) => {
     e.stopPropagation()
   }
 
   return <Link href={`/detail/${nftInfo.nftUid}?skuId=${nftInfo.skuId}`}  >
-    <Box className={`${styles.card} ${mode === '@trial' && styles.cardTrialBackground}`}>
+    <Box
+      className={cx({ "card": true, "cardTrialBackground": mode === '@trial' })}
+    >
       <Box className={styles.nftImage}>
         {nftInfo.imageUrl &&
           <Image src={nftInfo.imageUrl} layout="fill" />}

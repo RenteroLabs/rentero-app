@@ -28,6 +28,11 @@
     line-height: 1.67rem;
   }
 }
+@media screen and (max-width: 1160px) {
+  .navBox {
+    padding: 0 1.5rem;
+  }
+}
 
 .itemCover {
   width: 33.33rem;
@@ -36,6 +41,7 @@
   background-color: transparent;
   overflow: hidden;
   position: relative;
+  margin: auto;
 
   img {
     width: 100%;
@@ -56,6 +62,11 @@
     line-height: 1.33rem;
     padding: 0.17rem 0.67rem;
   }
+}
+
+.itemCoverMobile {
+  @extend .itemCover;
+  display: none;
 }
 
 .rentButton {
@@ -185,6 +196,10 @@
 }
 
 .moreNFTtitle {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  margin-bottom: 2.67rem;
   h3 {
     font-size: 2rem;
     font-family: MonumentExtended-Black, MonumentExtended;
@@ -277,6 +292,22 @@
   margin-left: 3.33rem;
 }
 
+@media screen and (max-width: 1160px) {
+  .rightBox {
+    width: 40rem;
+    margin-left: 1.67rem;
+  }
+  .itemCover {
+    width: 25rem;
+    height: 25rem;
+    text-align: center;
+  }
+  .moreNFTtitle {
+    margin-right: 1rem;
+    margin-left: 1rem;
+  }
+}
+
 .rentInfoList {
   div {
     display: flex;
@@ -287,5 +318,58 @@
     font-weight: 500;
     color: #ffffff;
     line-height: 2rem;
+  }
+}
+
+.mainContentBox {
+  display: flex;
+  justify-content: center;
+  margin-top: 4rem;
+}
+
+.moreNFTCards {
+  width: 94.66rem;
+  margin: auto;
+  margin: 8.33rem auto 0rem;
+}
+
+@media screen and (max-width: 1160px) {
+  .moreNFTCards {
+    width: 100%;
+    margin-top: 6rem;
+    .cardList {
+      overflow-x: scroll;
+      margin: auto 1rem;
+    }
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .mainContentBox {
+    width: 600px;
+    margin: 2rem auto;
+    flex-flow: column-reverse;
+  }
+  .itemCover {
+    display: none;
+  }
+  .itemCoverMobile {
+    display: block;
+  }
+  .rightBox {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 1.67rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .mainContentBox {
+    width: 100%;
+    padding: 0 1rem;
+  }
+  .itemCover {
+    width: 75%;
+    height: 75%;
   }
 }

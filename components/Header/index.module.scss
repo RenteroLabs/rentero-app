@@ -8,16 +8,10 @@
   justify-content: space-between;
 
   position: fixed;
-  z-index: 10000;
+  z-index: 1500;
   background-color: #000032;
 
   border-bottom: 0.08rem solid rgba(255, 255, 255, 0.2);
-}
-
-@media screen and (max-width: 1160px) {
-  .header {
-    padding: 1.5rem;
-  }
 }
 
 .menuText {
@@ -148,5 +142,67 @@
   }
   .currentNetwork {
     background: #55ab68;
+  }
+}
+
+.drawerMenuIcon {
+  display: none;
+  margin-left: 1rem;
+  font-weight: bolder;
+}
+
+.drawerBox {
+  margin-top: 6rem;
+  width: 30rem;
+  padding: 1.5rem 0;
+  .drawerMenuList {
+    div {
+      height: 4rem;
+      padding: 0 3rem;
+      display: flex;
+      align-items: center;
+
+      font-size: 1.33rem;
+      font-family: Poppins-SemiBold, Poppins;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 2rem;
+
+      user-select: none;
+
+      svg {
+        margin-right: 1rem;
+      }
+
+      &:hover {
+        background-color: #1a1a47;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 1160px) {
+  .header {
+    padding: 1.5rem;
+  }
+  .navList {
+    display: none;
+  }
+  .drawerMenuIcon {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .drawerBox {
+    width: 100vw;
+  }
+  .networkList {
+    display: none;
+  }
+  .accountBox {
+    display: none;
   }
 }

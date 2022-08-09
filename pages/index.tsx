@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { ReactElement, useEffect, useMemo, useRef, useState } from 'react'
 import Head from 'next/head'
 import type { NextPage } from 'next'
 import ScheduleIcon from '@material-ui/icons/Schedule';
@@ -15,6 +15,7 @@ import { dateFormat } from '../utils/format'
 import { useIsMounted } from '../hooks'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
 import Link from 'next/link';
+import Layout2 from '../components/layout2';
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
   const isMounted = useIsMounted()
@@ -332,4 +333,10 @@ export async function getStaticProps() {
   }
 }
 
+
+Home.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <Layout2>{page}</Layout2>
+  )
+}
 export default Home

@@ -8,7 +8,7 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
-import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, Slide, Snackbar, Typography, Box } from '@mui/material'
+import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, Slide, Snackbar, Typography, Box, IconButton, Drawer, Stack, useMediaQuery } from '@mui/material'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
@@ -18,6 +18,10 @@ import { UserLoginParams } from '../../types/service'
 import { userLogin } from '../../services/dashboard'
 import { useLocalStorageState } from 'ahooks'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import StoreIcon from '@mui/icons-material/Store';
+import MenuIcon from '@mui/icons-material/Menu';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function Header() {
   const router = useRouter()
@@ -26,6 +30,8 @@ export default function Header() {
     defaultValue: ''
   })
   const { address, isConnected } = useAccount()
+  const [showDrawer, setShowDrawer] = useState<boolean>(false)
+  const isMenuDrawer = useMediaQuery("(max-width: 1160px)")
 
   useEffect(() => {
     const [recordAddress] = jwtToken.split('*')
@@ -169,7 +175,7 @@ export default function Header() {
     {/* <button onClick={updateURI}>updateURI</button> */}
     {/* <button onClick={mint721}>Click</button> */}
     {/* <button onClick={transfer721}>Transfer</button> */}
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {(isMounted && isConnected) &&
         <Chip
           avatar={<Avatar alt={chain?.name} className={styles.networkIcon} src={CHAIN_ICON[chain?.id || 1]} />}
@@ -195,7 +201,34 @@ export default function Header() {
           trigger={<span className={styles.connectButton}>Connect Wallet</span>}
         />
       }
+      <Box
+        className={styles.drawerMenuIcon}
+        onClick={() => setShowDrawer(!showDrawer)}>
+        {
+          isMenuDrawer && showDrawer ?
+            <CloseIcon sx={{ fontSize: '2rem' }} />
+            : <MenuIcon sx={{ fontSize: '2rem' }} />
+        }
+      </Box>
     </Box>
+
+    {/* 抽屉弹窗 */}
+    <Drawer
+      anchor="right"
+      open={showDrawer}
+      onClose={() => setShowDrawer(false)}
+    >
+      <Box
+        className={styles.drawerBox}
+        onClick={() => setShowDrawer(!showDrawer)}
+        onKeyDown={() => setShowDrawer(!showDrawer)}
+      >
+        <Stack className={styles.drawerMenuList} spacing="1rem">
+          <Link href="/"><Box><StoreIcon />Market</Box></Link>
+          <Link href="/lend"><Box><SwapHorizIcon />Lend NFTs</Box></Link>
+        </Stack>
+      </Box>
+    </Drawer>
 
     <Menu
       anchorEl={networkListAnchorRef.current}
@@ -209,7 +242,7 @@ export default function Header() {
         vertical: 'top',
         horizontal: 'center',
       }}
-      sx={{ width: '200px' }}
+      sx={{ width: '200px', zIndex: 1600 }}
     >
       <MenuItem disabled>
         <Typography className={styles.networkListTitle}>Switch Network</Typography>
@@ -225,7 +258,6 @@ export default function Header() {
       }
     </Menu>
 
-
     <ClickAwayListener onClickAway={handleClose}>
       <Menu
         open={openSetting}
@@ -239,6 +271,7 @@ export default function Header() {
           vertical: 'top',
           horizontal: 'center',
         }}
+        sx={{ zIndex: 1600 }}
       >
         <MenuItem onClick={handleEnterDashboard}>
           <DashboardIcon />
