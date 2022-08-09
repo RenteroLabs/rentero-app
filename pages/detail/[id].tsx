@@ -89,13 +89,13 @@ const Detail: NextPageWithLayout = () => {
       <title>NFT Detail | Rentero</title>
       <meta name="description" content="Lend and rent your NFTs | Rentero Protocol" />
     </Head>
-    <Box className={styles.navBox}>
+    {/* <Box className={styles.navBox}>
       <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
         <Link href={"/"}>Home</Link>
         <Link href={"/"}>Market</Link>
         <Typography >Detail</Typography>
       </Breadcrumbs>
-    </Box>
+    </Box> */}
     <Box className={styles.mainContentBox}>
       {/* left content */}
       <Box className={styles.leftBox}>

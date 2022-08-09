@@ -355,11 +355,19 @@
   }
   .itemCoverMobile {
     display: block;
+    width: 100%;
+    height: 100%;
   }
   .rightBox {
     margin-left: 0;
     width: 100%;
     margin-top: 1.67rem;
+  }
+  .rentNFTinfo {
+    h2 {
+      font-size: 2rem;
+      line-height: 2rem;
+    }
   }
 }
 
@@ -369,7 +377,20 @@
     padding: 0 1rem;
   }
   .itemCover {
-    width: 75%;
-    height: 75%;
+    width: 100%;
+    height: 100%;
+  }
+  .cardList {
+    :global {
+      .nftCardBox {
+        width: calc(50vw - 1rem);
+        &:first {
+          height: calc(50vw - 1rem);
+        }
+        & div span {
+          height: calc(50vw - 1rem);
+        }
+      }
+    }
   }
 }
