@@ -334,9 +334,9 @@ export async function getStaticProps() {
 }
 
 
-Home.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <Layout2>{page}</Layout2>
-  )
-}
+// Home.getLayout = function getLayout(page: ReactElement) {
+//   return (
+//     <Layout2>{page}</Layout2>
+//   )
+// }
 export default Home

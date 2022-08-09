@@ -49,7 +49,7 @@ type AppPropsWithLayout = AppProps & {
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
-  const getLayout = Component.getLayout
+  // const getLayout = Component.getLayout
 
   return <ThemeProvider theme={AppTheme}>
     <StyledEngineProvider injectFirst>
