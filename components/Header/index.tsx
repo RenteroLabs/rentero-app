@@ -22,6 +22,7 @@ import StoreIcon from '@mui/icons-material/Store';
 import MenuIcon from '@mui/icons-material/Menu';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import CloseIcon from '@mui/icons-material/Close';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 export default function Header() {
   const router = useRouter()
@@ -217,6 +218,9 @@ export default function Header() {
       anchor="right"
       open={showDrawer}
       onClose={() => setShowDrawer(false)}
+      className={styles.drawer}
+      key="header_drawer"
+      ModalProps={{ keepMounted: true }}
     >
       <Box
         className={styles.drawerBox}
@@ -226,6 +230,15 @@ export default function Header() {
         <Stack className={styles.drawerMenuList} spacing="1rem">
           <Link href="/"><Box><StoreIcon />Market</Box></Link>
           <Link href="/lend"><Box><SwapHorizIcon />Lend NFTs</Box></Link>
+          {
+            isConnected
+              ? <Box onClick={handleLogout}><ExitToAppIcon /> Disconnect</Box>
+              : <ConnectWallet
+                trigger={<Box
+                  className={styles.connectButtonInner}
+                  closeCallback={() => setShowDrawer(false)}
+                >Connect Wallet</Box>} />
+          }
         </Stack>
       </Box>
     </Drawer>

@@ -91,6 +91,15 @@
   margin: 1.33rem auto;
 }
 
+.connectButtonInner {
+  width: 100%;
+  background: linear-gradient(270deg, #b721ff 0%, #21d4fd 100%);
+  border-radius: 1rem;
+  cursor: pointer;
+  // margin: 1rem 2rem !important;
+  justify-content: center;
+}
+
 .accountBox {
   margin: auto 0;
 
@@ -151,6 +160,15 @@
   font-weight: bolder;
 }
 
+.drawer {
+  :global {
+    .MuiPaper-root {
+      background-color: #272750;
+      background-image: none;
+    }
+  }
+}
+
 .drawerBox {
   margin-top: 6rem;
   width: 30rem;
@@ -158,7 +176,7 @@
   .drawerMenuList {
     div {
       height: 4rem;
-      padding: 0 3rem;
+      padding: 0 2rem;
       display: flex;
       align-items: center;
 
@@ -173,9 +191,13 @@
       svg {
         margin-right: 1rem;
       }
+    }
 
-      &:hover {
-        background-color: #1a1a47;
+    :global {
+      .MuiBox-root {
+        &:hover {
+          background-color: #1a1a46;
+        }
       }
     }
   }
@@ -206,6 +228,7 @@
     display: none;
   }
   .connectButton {
+    display: none;
     font-size: 1rem;
     padding: 0.5rem 1rem;
     margin-right: 1rem;
