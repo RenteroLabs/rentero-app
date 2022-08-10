@@ -471,8 +471,209 @@ export const ROPSTEN_MARKET = process.env.NEXT_PUBLIC_ENV === 'TEST' ? TEST_MARK
 
 export const ROPSTEN_MARKET_ABI = '[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"orderId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"enum IRentAccountSerivce.NftAccountStatus","name":"status","type":"uint8"}],"name":"NftAccountUpdate","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"orderId","type":"uint256"},{"indexed":false,"internalType":"enum MarketImpl.OrderStatus","name":"status","type":"uint8"}],"name":"OrderEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"skuInfoId","type":"uint256"},{"indexed":false,"internalType":"address","name":"nftAddress","type":"address"},{"indexed":false,"internalType":"enum MarketImpl.SkuStatus","name":"skuStatus","type":"uint8"}],"name":"SkuEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"userAddress","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"enum IRentAccountSerivce.AccountStatus","name":"accountStatus","type":"uint8"}],"name":"UpdateAccount","type":"event"},{"inputs":[],"name":"balanceOfToken","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"balanceOfTokenForAdmin","outputs":[{"components":[{"internalType":"address payable","name":"userAddress","type":"address"},{"internalType":"uint256","name":"amout","type":"uint256"}],"internalType":"struct IRentAccountSerivce.UserAccount","name":"userAccount","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"orderId","type":"uint256"}],"name":"cancelOrderBorrow","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"orderId","type":"uint256"}],"name":"cancelOrderForLender","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"skuInfoId","type":"uint256"}],"name":"createOrder","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"nftId","type":"uint256"},{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"address","name":"whiteAddress","type":"address"},{"internalType":"uint256","name":"ownDividendRate","type":"uint256"},{"internalType":"uint256","name":"borrowDividendRate","type":"uint256"}],"name":"createSkunInfo","outputs":[{"components":[{"internalType":"address","name":"lAddress","type":"address"},{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"nftId","type":"uint256"},{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"address","name":"whiteAddress","type":"address"},{"internalType":"uint256","name":"ownDividendRate","type":"uint256"},{"internalType":"uint256","name":"borrowDividendRate","type":"uint256"},{"internalType":"enum MarketImpl.SkuStatus","name":"skuStatus","type":"uint8"}],"internalType":"struct MarketImpl.SkuInfo","name":"returnSkuInfo","type":"tuple"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256[]","name":"orderIds","type":"uint256[]"}],"name":"doCancel","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"orderId","type":"uint256"}],"name":"getOrderInfo","outputs":[{"components":[{"internalType":"uint256","name":"orderId","type":"uint256"},{"internalType":"enum MarketImpl.OrderStatus","name":"status","type":"uint8"},{"internalType":"address","name":"lAddress","type":"address"},{"internalType":"address","name":"bAddress","type":"address"},{"internalType":"uint256","name":"skuInfoId","type":"uint256"},{"internalType":"uint256","name":"nftId","type":"uint256"},{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"uint256","name":"ownDividendRate","type":"uint256"},{"internalType":"uint256","name":"borrowDividendRate","type":"uint256"},{"internalType":"uint256","name":"createTime","type":"uint256"}],"internalType":"struct MarketImpl.OrderInfo","name":"orderInfo","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"currentSkuId","type":"uint256"}],"name":"getSkuInfo","outputs":[{"components":[{"internalType":"address","name":"lAddress","type":"address"},{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"nftId","type":"uint256"},{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"address","name":"whiteAddress","type":"address"},{"internalType":"uint256","name":"ownDividendRate","type":"uint256"},{"internalType":"uint256","name":"borrowDividendRate","type":"uint256"},{"internalType":"enum MarketImpl.SkuStatus","name":"skuStatus","type":"uint8"}],"internalType":"struct MarketImpl.SkuInfo","name":"returnSkuInfo","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"uint256","name":"nftId","type":"uint256"}],"name":"receiveToken","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"address","name":"protocolAddress","type":"address"}],"name":"setProtocolAddress","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"nftId","type":"uint256"}],"name":"takeDownSku","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"nftId","type":"uint256"}],"name":"takeUpSku","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawToken","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 
-
 export const ROPSTEN_ACCOUNT = '0xcf316cF68E6637f67B218c9a98812B225de25188'
 
 export const ROPSTEN_ACCOUNT_ABI = '[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"nftAddress","type":"address"},{"indexed":false,"internalType":"uint256","name":"nftId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"enum RentAccount.NftAccountStatus","name":"status","type":"uint8"}],"name":"NftAccountUpdate","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"userAddress","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"enum RentAccount.AccountStatus","name":"accountStatus","type":"uint8"}],"name":"UpdateAccount","type":"event"},{"inputs":[],"name":"balanceOfToken","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"balanceOfTokenForAdmin","outputs":[{"components":[{"internalType":"address payable","name":"userAddress","type":"address"},{"internalType":"uint256","name":"amout","type":"uint256"}],"internalType":"struct RentAccount.UserAccount","name":"userAccount","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"uint256","name":"nftId","type":"uint256"}],"name":"doDividend","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"nftAddress","type":"address"}],"name":"getBaseDividend","outputs":[{"components":[{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"uint256","name":"oDividendRate","type":"uint256"},{"internalType":"uint256","name":"bDividendRate","type":"uint256"},{"internalType":"uint256","name":"sDividendRate","type":"uint256"}],"internalType":"struct RentAccount.BaseDividend","name":"baseDividend","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"uint256","name":"nftId","type":"uint256"}],"name":"getDividendInfo","outputs":[{"components":[{"internalType":"uint256","name":"nftId","type":"uint256"},{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"address","name":"ownAddress","type":"address"},{"internalType":"address","name":"borrowAddress","type":"address"},{"internalType":"uint256","name":"oDividendRate","type":"uint256"},{"internalType":"uint256","name":"bDividendRate","type":"uint256"},{"internalType":"uint256","name":"sDividendRate","type":"uint256"}],"internalType":"struct RentAccount.DividendInfo","name":"dividendInfo","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"uint256","name":"nftId","type":"uint256"}],"name":"receiveToken","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"uint256","name":"ownDividendRate","type":"uint256"},{"internalType":"uint256","name":"borrowDividendRate","type":"uint256"},{"internalType":"uint256","name":"systemDividendRate","type":"uint256"}],"name":"setBaseDividend","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"nftAddress","type":"address"},{"internalType":"uint256","name":"nftId","type":"uint256"},{"internalType":"address","name":"oAddress","type":"address"},{"internalType":"address","name":"bAddress","type":"address"}],"name":"setDividendInfo","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawToken","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 
+
+
+// 新版合约逻辑
+
+/**
+ * 分期支付 Market 合约
+ */
+const DEV_INSTALLMENT_MARKET = ''
+const TEST_INSTALLMENT_MARKET = ''
+
+export const INSTALLMENT_MARKET = process.env.NEXT_PUBLIC_ENV === 'TEST' ? TEST_INSTALLMENT_MARKET : DEV_INSTALLMENT_MARKET
+
+export const INSTALLMENT_MARKET_ABI = [
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "abort",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "nftAddresses",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "tokenIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "installment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "erc20Address",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "whitelist",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rentPerDay",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "daysPerPeriod",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "minRentalPeriods",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "maxRentalPeriods",
+        "type": "uint8"
+      }
+    ],
+    "name": "lend",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "erc20Address",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "whitelist",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rentPerDay",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "daysPerPeriod",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "minRentalPeriods",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "maxRentalPeriods",
+        "type": "uint8"
+      }
+    ],
+    "name": "reLend",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "reclaim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "rentalDays",
+        "type": "uint16"
+      }
+    ],
+    "name": "rent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

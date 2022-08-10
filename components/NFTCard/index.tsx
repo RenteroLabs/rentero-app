@@ -1,4 +1,4 @@
-import { Avatar, Box, Collapse, Stack, Typography } from '@mui/material'
+import { Avatar, Box, Collapse, Stack, Typography, useMediaQuery } from '@mui/material'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -16,6 +16,8 @@ interface NFTCardProps {
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
   const { nftInfo, mode = '@split' } = props
+
+  const minMobileWidth = useMediaQuery("(max-width: 426px)")
 
   const handleRentNow = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -58,7 +60,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
         mode === '@trial' ? <Box className={styles.trialDayTag}>7 Days Trial</Box> :
           <>
             <Box className={styles.rentMode}>
-              <Box>Ratio To Renter</Box>
+              <Box>{!minMobileWidth && "Ratio To "}Renter</Box>
               <Box>30%</Box>
             </Box>
             <Box className={styles.rentInfo}>
@@ -67,11 +69,13 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
             </Box>
           </>
       }
-      {nftInfo.status === 'Active' && mode !== '@trial' &&
-        <Box className={styles.rentButton} onClick={handleRentNow} >
-          Rent
-        </Box>
-      }
+      <Box className={styles.rentButtonBox} >
+        {nftInfo.status === 'Active' && mode !== '@trial' &&
+          <Box className={styles.rentButton} onClick={handleRentNow} >
+            Rent
+          </Box>
+        }
+      </Box>
     </Box>
   </Link>
 }

@@ -257,7 +257,6 @@ const Detail: NextPageWithLayout = () => {
       <Paper className={styles.itemCoverMobile} >
         {(baseInfo.imageUrl) && <img src={baseInfo.imageUrl} />}
       </Paper>
-
     </Box>
 
     <Box className={styles.moreNFTCards} >
@@ -265,12 +264,14 @@ const Detail: NextPageWithLayout = () => {
         <Typography variant="h3">More NFTs</Typography>
         <Link href="/"><Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography></Link>
       </Box>
-      <Stack direction="row" className={styles.cardList} >
-        {
-          nftList.map((item: any, index: number) =>
-            <NFTCard nftInfo={item} key={index} />)
-        }
-      </Stack>
+      <Box sx={{ overflowX: 'scroll' }}>
+        <Stack direction="row" className={styles.cardList} >
+          {
+            nftList.map((item: any, index: number) =>
+              <NFTCard nftInfo={item} key={index} />)
+          }
+        </Stack>
+      </Box>
     </Box>
   </Box>
 }

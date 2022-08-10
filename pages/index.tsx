@@ -5,7 +5,7 @@ import ScheduleIcon from '@material-ui/icons/Schedule';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Checkbox, FormControlLabel, Menu, MenuItem, MenuList, Skeleton, ToggleButton, ToggleButtonGroup, Typography, useStepperContext } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Checkbox, FormControlLabel, Menu, MenuItem, MenuList, Skeleton, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useStepperContext } from '@mui/material'
 import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
 import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
@@ -21,6 +21,8 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const isMounted = useIsMounted()
   const [rawToken] = useLocalStorageState<string>('token')
   const [currentGame, setCurrentGame] = useState<string>("0")
+
+  const minMobileWidth = useMediaQuery("(max-width: 600px)")
 
   const chainTypeRef = useRef<HTMLElement>()
   const sortTypeRef = useRef<HTMLElement>()
@@ -219,7 +221,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.67rem' }}>
+        <Box className={styles.listTitleBox} sx={{  }}>
           <div className={styles.listTitle}>
             {NFTTotal} Items &nbsp;
             {/* <span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 12 })}><AutorenewIcon /></span> */}

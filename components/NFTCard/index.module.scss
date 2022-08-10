@@ -82,40 +82,6 @@
   }
 }
 
-@media screen and (max-width: 1160px) {
-  .nftImage {
-    width: 20rem;
-    height: 20rem;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  .card {
-    width: auto;
-    & + .card {
-      margin-left: 1rem;
-    }
-  }
-  .nftImage {
-    width: calc(50vw - 2rem);
-    height: 0px;
-    padding-bottom: 100%;
-  }
-
-  .imageCoverAttr {
-    display: none !important;
-    &:hover {
-      display: none !important;
-    }
-  }
-  .rentMode {
-    margin-top: 0.67rem !important;
-  }
-  .unlockTime {
-    width: 12rem !important;
-  }
-}
-
 .cardTitle,
 .baseCardLine {
   margin: 0 1.33rem;
@@ -229,6 +195,13 @@
 }
 
 .card {
+  .rentButtonBox {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 3.33rem;
+    overflow: hidden;
+  }
   .rentButton {
     display: none;
   }
@@ -267,5 +240,65 @@
   &:hover .imageCoverAttr {
     display: block;
     @extend .imageCover;
+  }
+}
+
+@media screen and (max-width: 1160px) {
+  .nftImage {
+    width: 20rem;
+    height: 20rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .card {
+    width: auto;
+    margin: auto;
+    margin-bottom: 1rem !important;
+    overflow: hidden;
+    & + .card {
+      margin-left: auto !important;
+    }
+
+    &:hover .rentButtonBox {
+      height: 3rem;
+    }
+
+    &:hover .rentButton {
+      height: 3rem !important;
+      line-height: 3rem !important;
+    }
+
+    &:nth-child(5n + 1) {
+      margin-left: auto;
+    }
+  }
+
+  .nftImage {
+    width: calc(50vw - 1.8rem);
+    height: 0px;
+    padding-bottom: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .imageCoverAttr {
+    display: none !important;
+    &:hover {
+      display: none !important;
+    }
+  }
+  .cardTitle {
+    margin: 0px 1rem;
+  }
+  .rentInfo {
+    margin: 0px 1rem;
+    margin-bottom: 1.33rem;
+  }
+  .rentMode {
+    // margin-top: 0.67rem !important;
+    margin: 0px 1rem;
+  }
+  .unlockTime {
+    width: 12rem !important;
   }
 }

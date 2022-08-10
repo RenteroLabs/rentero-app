@@ -88,7 +88,7 @@
   line-height: 1.67rem;
   display: block;
   padding: 0.83rem 1.67rem;
-  margin: 1.33rem 3.33rem;
+  margin: 1.33rem auto;
 }
 
 .accountBox {
@@ -204,5 +204,10 @@
   }
   .accountBox {
     display: none;
+  }
+  .connectButton {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
   }
 }

@@ -90,7 +90,8 @@
 }
 
 .contentBox {
-  width: calc(100vw - 20rem);
+  // width: calc(100vw - 20rem);
+  width: auto;
   min-height: calc(100vh - 6rem);
   padding: 2.67rem;
 }
@@ -251,6 +252,12 @@
   }
 }
 
+.listTitleBox {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2.67rem;
+}
+
 .listTitle {
   font-size: 2rem;
   font-family: MonumentExtended-Black, MonumentExtended;
@@ -376,5 +383,52 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
+  }
+}
+
+@media screen and (max-width: 1500px) {
+  .leftNav {
+    display: none;
+  }
+  .contentBox {
+    padding: 2.67rem 4rem;
+  }
+}
+
+@media screen and (max-width: 1160px) {
+  .contentBox {
+    padding: 2.67rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .contentBox {
+    padding: 1rem;
+  }
+  .listTitleBox {
+    margin-bottom: 1rem;
+    .listTitle {
+      font-size: 1.6rem;
+    }
+  }
+
+  .topCover {
+    margin-bottom: 3rem;
+  }
+  .trialZone {
+    margin: 2rem auto;
+    .headerTitle {
+      margin-bottom: 1rem;
+      // padding: 0 1rem;
+      .titleText {
+        font-size: 1.6rem;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 840px) {
+  .sortList {
+    display: none ;
   }
 }

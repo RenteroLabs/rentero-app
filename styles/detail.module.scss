@@ -380,16 +380,30 @@
     width: 100%;
     height: 100%;
   }
+  .moreNFTCards {
+    margin-top: 4rem;
+  }
+  .moreNFTtitle {
+    margin-bottom: 1rem;
+    h3 {
+      font-size: 1.6rem;
+    }
+  }
   .cardList {
+    width: calc(200vw - 2.6rem);
+    // overflow-x: scroll;
     :global {
       .nftCardBox {
-        width: calc(50vw - 1rem);
-        &:first {
-          height: calc(50vw - 1rem);
-        }
-        & div span {
-          height: calc(50vw - 1rem);
-        }
+        // width: calc(50vw - 1rem);
+        // &:first {
+        //   height: calc(50vw - 1rem);
+        // }
+        // & div span {
+        //   height: calc(50vw - 1rem);
+        // }
+        // & + .nftAttrCard {
+        //   margin-left: 1rem !important;
+        // }
       }
     }
   }
