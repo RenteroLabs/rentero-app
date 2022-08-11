@@ -45,8 +45,8 @@ const ConnectWallet: React.FC<ConnectWalletProps> = (props) => {
   }
 
   // current support metamask and walletconnect to login
-  return <Box>
-    <div onClick={() => { setVisibile(true) }}>
+  return <div>
+    <div className={styles.triggerBox} onClick={() => { setVisibile(true) }}>
       {trigger}
     </div>
     <Dialog open={visibile && !isMobileSize} className={styles.container} >
@@ -101,7 +101,7 @@ const ConnectWallet: React.FC<ConnectWalletProps> = (props) => {
         <Typography variant='h3'>Choose Wallet</Typography>
 
         {error &&
-          <Alert severity="error" sx={{ display: 'flex', alignItems: 'center' }}>
+          <Alert severity="error" variant="outlined" sx={{ display: 'flex', alignItems: 'center', mb: '2rem' }}>
             {error.message}
           </Alert>}
 
@@ -124,7 +124,7 @@ const ConnectWallet: React.FC<ConnectWalletProps> = (props) => {
         </Box>
       </Box>
     </Drawer>
-  </Box>
+  </div>
 }
 
 export default ConnectWallet

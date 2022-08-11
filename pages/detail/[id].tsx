@@ -213,7 +213,9 @@ const Detail: NextPageWithLayout = () => {
               {
                 (baseInfo.status !== 'Renting' && isMounted && !isConnected) ?
                   <ConnectWallet
-                    trigger={<Box className={styles.rentButton}>Connect Wallet</Box>} />
+                    trigger={<Box className={styles.rentButton}>Connect Wallet</Box>}
+                    closeCallback={() => { }}
+                  />
                   :
                   ([ZERO_ADDRESS, address?.toLowerCase()].includes(baseInfo.whiteAddress) ?
                     <RentNFTModal

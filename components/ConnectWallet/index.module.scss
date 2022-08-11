@@ -127,6 +127,11 @@
   }
 }
 
+.triggerBox {
+  width: 100%;
+  padding: 0 !important;
+}
+
 .drawer {
   :global {
     .MuiPaper-root {
@@ -137,5 +142,10 @@
 @media screen and (max-width: 600px) {
   .drawerWalletBox {
     width: 100vw;
+  }
+  .walletItem {
+    div {
+      padding: 1rem;
+    }
   }
 }

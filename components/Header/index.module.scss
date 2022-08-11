@@ -130,6 +130,16 @@
   line-height: 1.5;
 }
 
+.drawerNetworkList {
+  @extend .networkList;
+  padding: 1.5rem 1rem;
+  background-color: #1a1a46;
+  border-radius: 1rem;
+  &:hover {
+    background-color: #36365c;
+  }
+}
+
 .networkListTitle {
   font-size: 1rem;
 }
@@ -171,7 +181,7 @@
 
 .drawerBox {
   margin-top: 6rem;
-  width: 30rem;
+  width: 34rem;
   padding: 1.5rem 0;
   .drawerMenuList {
     div {
@@ -203,10 +213,45 @@
   }
 }
 
+.drawerHeader {
+  display: none;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba($color: gray, $alpha: 0.2);
+}
+
+.drawerAccountBox {
+  display: flex;
+  justify-content: flex-start;
+  padding: 1.5rem 1rem;
+  width: auto;
+  text-align: left;
+  background-color: #1a1a46;
+  border-radius: 1rem;
+
+  .addressOrEns {
+    display: flex;
+    align-items: center;
+    font-size: 1.17rem;
+    font-family: Poppins-Medium, Poppins;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 1.67rem;
+  }
+
+  &:hover {
+    background-color: #36365c;
+  }
+}
+
 @media screen and (max-width: 1160px) {
   .header {
     padding: 1.5rem;
   }
+}
+
+@media screen and (max-width: 900px) {
   .navList {
     display: none;
   }
@@ -215,22 +260,32 @@
     align-items: center;
     cursor: pointer;
   }
-}
-
-@media screen and (max-width: 600px) {
-  .drawerBox {
-    width: 100vw;
-  }
-  .networkList {
-    display: none;
-  }
-  .accountBox {
-    display: none;
-  }
   .connectButton {
     display: none;
     font-size: 1rem;
     padding: 0.5rem 1rem;
     margin-right: 1rem;
   }
+}
+
+@media screen and (max-width: 750px) {
+  .drawerHeader {
+    display: flex;
+  }
+  .networkList {
+    display: none;
+  }
+  .drawerNetworkList {
+    display: flex;
+  }
+  .accountBox {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .drawerBox {
+    width: 100vw;
+  }
+
 }

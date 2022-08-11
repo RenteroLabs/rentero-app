@@ -417,6 +417,7 @@
   }
   .trialZone {
     margin: 2rem auto;
+    width: 100%;
     .headerTitle {
       margin-bottom: 1rem;
       // padding: 0 1rem;
@@ -424,11 +425,21 @@
         font-size: 1.6rem;
       }
     }
+
+    .trialNFTListBox {
+      width: calc(100vw - 2rem);
+      overflow-x: scroll;
+      .trialNFTList {
+        display: flex;
+        justify-content: flex-start;
+        width: calc(200vw - 2.6rem);
+      }
+    }
   }
 }
 
 @media screen and (max-width: 840px) {
   .sortList {
-    display: none ;
+    display: none;
   }
 }

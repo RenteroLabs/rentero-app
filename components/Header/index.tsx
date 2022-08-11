@@ -9,7 +9,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
 import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, Slide, Snackbar, Typography, Box, IconButton, Drawer, Stack, useMediaQuery } from '@mui/material'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
@@ -32,7 +32,8 @@ export default function Header() {
   })
   const { address, isConnected } = useAccount()
   const [showDrawer, setShowDrawer] = useState<boolean>(false)
-  const isMenuDrawer = useMediaQuery("(max-width: 1160px)")
+  const isMenuDrawer = useMediaQuery("(max-width: 900px)")
+  const isOperateSize = useMediaQuery("(max-width: 750px)")
 
   useEffect(() => {
     const [recordAddress] = jwtToken.split('*')
@@ -216,7 +217,7 @@ export default function Header() {
     {/* 抽屉弹窗 */}
     <Drawer
       anchor="right"
-      open={showDrawer}
+      open={showDrawer && isMenuDrawer}
       onClose={() => setShowDrawer(false)}
       className={styles.drawer}
       key="header_drawer"
@@ -227,9 +228,33 @@ export default function Header() {
         onClick={() => setShowDrawer(!showDrawer)}
         onKeyDown={() => setShowDrawer(!showDrawer)}
       >
+        {isConnected && isOperateSize && <Box className={styles.drawerHeader}>
+          {(isMounted && isConnected) &&
+            <Chip
+              avatar={<Avatar alt={chain?.name} className={styles.networkIcon} src={CHAIN_ICON[chain?.id || 1]} />}
+              label={chain?.name || "Ethereum"}
+              className={styles.drawerNetworkList}
+              ref={networkListAnchorRef}
+              onDelete={() => setNetworkListOpen(true)}
+              deleteIcon={<KeyboardArrowDownOutlinedIcon className={styles.downIcon} />}
+              onClick={(e: React.MouseEvent) => {
+                setNetworkListOpen(true)
+                e.stopPropagation()
+              }}
+            />}
+          <Chip
+            className={styles.drawerAccountBox}
+            avatar={<AccountBalanceWalletIcon />}
+            label={<div className={styles.addressOrEns}>
+              {ensName ? ensName : formatAddress(address, 6)}
+            </div>}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          />
+        </Box>}
         <Stack className={styles.drawerMenuList} spacing="1rem">
           <Link href="/"><Box><StoreIcon />Market</Box></Link>
           <Link href="/lend"><Box><SwapHorizIcon />Lend NFTs</Box></Link>
+          {isConnected && <Link href="/dashboard"><Box><DashboardIcon /> Dashboard</Box></Link>}
           {
             isConnected
               ? <Box onClick={handleLogout}><ExitToAppIcon /> Disconnect</Box>
@@ -247,14 +272,8 @@ export default function Header() {
       anchorEl={networkListAnchorRef.current}
       open={networkListOpen}
       onClose={() => setNetworkListOpen(false)}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'center',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'center',
-      }}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'center' }}
       sx={{ width: '200px', zIndex: 1600 }}
     >
       <MenuItem disabled>

@@ -204,24 +204,26 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
               <Link href="/trial">See All&nbsp; &gt;</Link>
             </Typography>
           </Box>
-          <Box className={styles.trialNFTList}>
-            {isTrialLoading && <Box>
-              <Box className={styles.nftCardList}>
-                <SkeletonNFTCard />
-                <SkeletonNFTCard />
-                <SkeletonNFTCard />
-                <SkeletonNFTCard />
-              </Box>
-            </Box>}
-            {
-              trialZoneList.map((item, index) => {
-                return <NFTCard nftInfo={item} key={index} mode="@trial" />
-              })
-            }
+          <Box className={styles.trialNFTListBox}>
+            <Box className={styles.trialNFTList}>
+              {isTrialLoading && <Box>
+                <Box className={styles.nftCardList}>
+                  <SkeletonNFTCard />
+                  <SkeletonNFTCard />
+                  <SkeletonNFTCard />
+                  <SkeletonNFTCard />
+                </Box>
+              </Box>}
+              {
+                trialZoneList.map((item, index) => {
+                  return <NFTCard nftInfo={item} key={index} mode="@trial" />
+                })
+              }
+            </Box>
           </Box>
         </Box>
 
-        <Box className={styles.listTitleBox} sx={{  }}>
+        <Box className={styles.listTitleBox} sx={{}}>
           <div className={styles.listTitle}>
             {NFTTotal} Items &nbsp;
             {/* <span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 12 })}><AutorenewIcon /></span> */}
