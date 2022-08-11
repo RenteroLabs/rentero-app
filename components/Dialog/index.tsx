@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
 import React, { ReactNode, useEffect, useState } from 'react'
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -23,9 +23,9 @@ const AppDialog: React.FC<AppDialogProps> = (props) => {
   }, [hiddenDialog])
 
   return <React.Fragment>
-    <div onClick={() => { setVisibile(true) }}>
+    <Box sx={{ width: '100%' }} onClick={() => { setVisibile(true) }}>
       {trigger}
-    </div>
+    </Box>
     <Dialog open={visibile} className={styles.container} key={title} >
       <DialogTitle className={styles.dialogTitle} sx={{ width: width || 'auto' }}>
         {title}
@@ -47,8 +47,6 @@ const AppDialog: React.FC<AppDialogProps> = (props) => {
       </div>
     </Dialog>
   </React.Fragment >
-
-
 }
 
 export default AppDialog
