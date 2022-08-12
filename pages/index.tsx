@@ -194,7 +194,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </section>
 
-        <Box className={styles.trialZone}>
+        {/* <Box className={styles.trialZone}>
           <Box className={styles.headerTitle}>
             <Typography className={styles.titleText}>
               Trial Zone
@@ -221,9 +221,9 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
               }
             </Box>
           </Box>
-        </Box>
+        </Box> */}
 
-        <Box className={styles.listTitleBox} sx={{}}>
+        <Box className={styles.listTitleBox} >
           <div className={styles.listTitle}>
             {NFTTotal} Items &nbsp;
             {/* <span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 12 })}><AutorenewIcon /></span> */}

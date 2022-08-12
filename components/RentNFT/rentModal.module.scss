@@ -49,6 +49,7 @@
     }
   }
   .dialogContent {
+    width: 46.67rem;
     border-radius: 0rem 0rem 1.67rem 1.67rem;
     background-color: #1a1a46;
     overflow: hidden;
@@ -96,7 +97,7 @@
           height: 4rem;
           background-color: transparent;
           flex-grow: 1;
-          
+
           input {
             height: 4rem;
             background-color: transparent;
@@ -111,7 +112,6 @@
             &:focus {
               border: none !important;
               outline: none !important;
-
             }
           }
         }
@@ -139,4 +139,19 @@
       }
     }
   }
+}
+
+.baseButton {
+  width: 100%;
+  text-align: center;
+}
+
+.disableButton {
+  background: #777e90 !important;
+  cursor: not-allowed !important;
+  font-size: 1.33rem !important;
+  font-family: Poppins-SemiBold, Poppins !important;
+  font-weight: 600 !important;
+  color: #d6d7dc !important;
+  line-height: 2rem !important;
 }

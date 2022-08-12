@@ -482,7 +482,7 @@ export const ROPSTEN_ACCOUNT_ABI = '[{"anonymous":false,"inputs":[{"indexed":fal
 /**
  * 分期支付 Market 合约
  */
-const DEV_INSTALLMENT_MARKET = ''
+const DEV_INSTALLMENT_MARKET = '0x2f4c75EbB3F14453Da1101d777BAb85Fe91fDBdE'
 const TEST_INSTALLMENT_MARKET = ''
 
 export const INSTALLMENT_MARKET = process.env.NEXT_PUBLIC_ENV === 'TEST' ? TEST_INSTALLMENT_MARKET : DEV_INSTALLMENT_MARKET

@@ -19,7 +19,6 @@ import SliptModeLendConfig from './SliptModeLendConfig';
 import { SUPPORT_TOKENS, ZERO_ADDRESS } from '../../constants';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import TrialModeLendConfig from './TrialModeLendConfig';
-import InstallmentLendConfig from './InstallmentLendConfig';
 
 interface ChooseNFTModalProps {
   gameName: string
@@ -66,6 +65,8 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const [NFTList, setNFTList] = useState<any[]>([])
 
   const [isChooseNFT, setIsChooseNFT] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState<string>('')
   const [activeStep, setActiveStep] = useState<number>(0)
   const [stepComplete, setStepComplete] = useState<{ [k: number]: boolean }>({})
   const [lendStep, setLendStep] = useState<number>(0)
@@ -73,7 +74,36 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
   const [lendType, setLendType] = useState<'SliptMode' | 'TrialMode' | 'RentMode'>('SliptMode')  // 出借类型
 
+  const [approveTxHash, setApproveTxHash] = useState<string | undefined>()
+  const { isLoading: approveLoading, isSuccess: approveSuccess } = useWaitForTransaction({
+    hash: approveTxHash,
+    onSuccess: () => {
+      setStepComplete({ ...stepComplete, [activeStep]: true })
+      setActiveStep(activeStep + 1)
+    },
+    onSettled: () => setIsLoading(false)
+  })
 
+  const [stakeTxHash, setStakeTxHash] = useState<string | undefined>()
+  const { isLoading: stakeLoading } = useWaitForTransaction({
+    hash: stakeTxHash,
+    onSuccess: () => {
+      setStepComplete({ ...stepComplete, [activeStep]: true })
+      setActiveStep(activeStep + 1)
+    },
+    onSettled: () => setIsLoading(false)
+  })
+
+  const [listMarketTxHash, setListMarketTxHash] = useState<string | undefined>()
+  const { isLoading: listMarketLoading } = useWaitForTransaction({
+    hash: listMarketTxHash,
+    onSuccess: () => {
+      setStepComplete({ ...stepComplete, [activeStep]: true })
+      setActiveStep(activeStep + 1)
+      setLendStep(lendStep + 1)
+    },
+    onSettled: () => setIsLoading(false)
+  })
 
   const contract721 = useContract({
     addressOrName: gameNFTCollection,
@@ -81,7 +111,38 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
+  const contractWrap = useContract({
+    addressOrName: Ropsten_WrapNFT,
+    contractInterface: Ropsten_WrapNFT_ABI,
+    signerOrProvider: signer
+  })
 
+  const contractMarket = useContract({
+    addressOrName: ROPSTEN_MARKET,
+    contractInterface: ROPSTEN_MARKET_ABI,
+    signerOrProvider: signer
+  })
+
+  // 授权 ERC20 token 合约
+  const contractERC20 = useContract({
+    addressOrName: SUPPORT_TOKENS['weth'],
+    contractInterface: erc20ABI,
+    signerOrProvider: signer
+  })
+
+  // 授权 ERC721 NFT 合约
+  const contractERC721 = useContract({
+    addressOrName: '0x80b4a4Da97d676Ee139badA2bF757B7f5AFD0644',
+    contractInterface: erc721ABI,
+    signerOrProvider: signer
+  })
+
+  // 新版 Rentero Market 合约
+  const RenteroMarket = useContract({
+    addressOrName: INSTALLMENT_MARKET,
+    contractInterface: INSTALLMENT_MARKET_ABI,
+    signerOrProvider: signer
+  })
 
   // 查询用户钱包地址所拥有的当前游戏 NFT 信息
   const queryWalletNFT = async () => {
@@ -140,7 +201,112 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   }, [isChooseNFT, visibile])
 
 
+  // 授权 ERC20 token 转账权限
+  const handleApproveERC20 = async () => {
+    setErrorMessage('')
+    if (isLoading) return
+    setIsLoading(true)
 
+    try {
+      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, ethers.utils.parseEther('3'))
+      // 等待交易被打包上链
+      setApproveTxHash(hash)
+    } catch (err: any) {
+      setErrorMessage(err?.message)
+      setIsLoading(false)
+    }
+  }
+
+  // 出借 NFT
+  const handleLendNFT = async () => {
+    setErrorMessage('')
+    if (isLoading) return
+    setIsLoading(true)
+
+    try {
+      const { hash } = await RenteroMarket.lend(
+        "0x80b4a4Da97d676Ee139badA2bF757B7f5AFD0644",
+        parseInt(selectedNFT),
+        SUPPORT_TOKENS['weth'],
+        ZERO_ADDRESS,
+        ethers.utils.parseEther('1'),
+        ethers.utils.parseEther('2'),
+        1,
+        3,
+        90
+      )
+      // 等待交易被打包上链
+      setApproveTxHash(hash)
+    } catch (err: any) {
+      setErrorMessage(err?.message)
+      setIsLoading(false)
+    }
+  }
+
+  // 授权指定 ERC721 NFT
+  const handleApproveErc721 = async () => {
+    setErrorMessage('')
+    if (isLoading) return
+    setIsLoading(true)
+
+    try {
+      const { hash } = await contractERC721.approve(INSTALLMENT_MARKET, parseInt(selectedNFT))
+      // const { hash } = await contractERC721.setApprovalForAll(INSTALLMENT_MARKET, true)
+
+      // 等待交易被打包上链
+      setApproveTxHash(hash)
+    } catch (err: any) {
+      setErrorMessage(err?.message)
+      setIsLoading(false)
+    }
+  }
+
+  const handleRentNFT = async () => {
+    await RenteroMarket.rent(
+      '0x80b4a4Da97d676Ee139badA2bF757B7f5AFD0644',
+      1,
+      4
+    )
+  }
+
+  const handleStakeNFT = async () => {
+    setErrorMessage('')
+    if (isLoading) return
+    setIsLoading(true)
+
+    try {
+      const { hash } = await contractWrap.stake(parseInt(selectedNFT))
+      setStakeTxHash(hash)
+    } catch (err: any) {
+      setErrorMessage(err.message)
+      setIsLoading(false)
+    }
+  }
+
+  const handleListToMarket = async () => {
+    setErrorMessage('')
+    if (isLoading) return
+    setIsLoading(true)
+
+    // 默认为试玩模式分成比例
+    let borrowerRatio = 0, lenderRatio = 100
+    if (lendType !== 'TrialMode') {
+      borrowerRatio = userLendConfigInfo.borrowerRatio || 25
+      lenderRatio = 100 - borrowerRatio
+    }
+    try {
+      const { hash } = await contractMarket.createSkunInfo(
+        parseInt(selectedNFT),
+        Ropsten_WrapNFT,
+        userLendConfigInfo.whiteList || ZERO_ADDRESS,
+        lenderRatio,
+        borrowerRatio)
+      setListMarketTxHash(hash)
+    } catch (err: any) {
+      setErrorMessage(err.message)
+      setIsLoading(false)
+    }
+  }
 
   // 当前用户没有 Axe NFT 时，可以 mint NFT 进行体验
   const mint721WhenEmpty = async () => {
@@ -156,6 +322,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     }
   }
 
+  const handleStepClick = (index: number) => { }
 
   const handleConfirmChoose = () => {
     if (!selectedNFT) return
@@ -178,7 +345,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
           <ChevronLeftIcon />
           Back
         </Box>
-        {isChooseNFT ? 'Choose NFT to deposit' : `Lending #${selectedNFT}`}
+        {isChooseNFT ? 'Choose NFT to deposit' : `Current Lending NFT #${selectedNFT} to Market`}
         <IconButton
           aria-label="close"
           onClick={() => setVisibile(false)}
@@ -250,12 +417,14 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
         {
           !isChooseNFT &&
-          <Box className={styles.lendStep} minHeight="36rem">
+          <Box className={styles.lendStep} width="75rem" minHeight="36rem">
 
-            <Button onClick={() => handleApproveErc721()}>Approve ERC721 token</Button>
+            <Button onClick={() => handleApproveErc721()}>Approve ERC20 token</Button>
             <Button onClick={() => handleLendNFT()}>Lend NFT</Button>
+            <Button onClick={() => handleApproveERC20()}>Approve ERC 20 </Button>
+            <Button onClick={() => handleRentNFT()}>Rent NFT</Button>
             {/* 出借第一步：出借信息配置 */}
-            {/* {lendStep === 0 &&
+            {lendStep === 0 &&
               <TabContext value={lendType}>
                 <TabList
                   centered
@@ -281,17 +450,14 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                 </TabPanel>
 
                 <TabPanel value='RentMode' key={2}></TabPanel>
-              </TabContext>} */}
-
-            {lendStep === 0 && <InstallmentLendConfig
-              setUserLendConfigInfo={setUserLendConfigInfo} />}
+              </TabContext>}
 
             {/* 出借第二步：合约交互 */}
             <Box className={styles.lendStepTwoBox}>
-            
+              {errorMessage && <Alert variant="outlined" severity="error">{errorMessage}</Alert>}
 
               {/* 三步合约交互出租流程 */}
-              {/* {!stepComplete[2] && lendStep === 1 &&
+              {!stepComplete[2] && lendStep === 1 &&
                 <Stepper
                   orientation="vertical"
                   activeStep={activeStep}
@@ -364,7 +530,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                       </Box>
                     </StepContent>
                   </Step>
-                </Stepper>} */}
+                </Stepper>}
 
               {/*   出租成功结果页 */}
               {stepComplete[2] &&

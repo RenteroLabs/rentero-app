@@ -34,3 +34,12 @@ export const BaseURL = process.env.NEXT_PUBLIC_ENV === 'TEST' ? TEST_BASEAPI : D
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000'
 
 export const DEFAULT_LEND_TRIAL_MODEL_DAYS = 30
+
+export const MAX_RENTABLE_DAYS = 2 ** 16 - 1 // 65535
+export const MIN_RENTABLE_DAYS = 1
+
+const Token1 = '0x1a007DBEF79C0786D75C5D27F851F37990D7c1D0'
+
+export const SUPPORT_TOKENS = {
+  'weth': Token1
+}

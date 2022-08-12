@@ -1,16 +1,21 @@
 import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography, Alert, Dialog, DialogTitle, IconButton } from '@mui/material'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DoneIcon from '@mui/icons-material/Done';
 import AppDialog from '../Dialog'
 import styles from './rentModal.module.scss'
 import { erc20ABI, etherscanBlockExplorers, useAccount, useContract, useNetwork, useSigner, useWaitForTransaction } from 'wagmi';
-import { Ropsten_721_AXE_NFT, ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../constants/contractABI';
+import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI, Ropsten_721_AXE_NFT, ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../constants/contractABI';
 import { LoadingButton } from '@mui/lab';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIcon from '@mui/icons-material/Close';
 import DefaultButton from '../Buttons/DefaultButton';
 import InputNumber from 'rc-input-number'
+import { MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS } from '../../constants';
+import { ethers, BigNumber, utils } from 'ethers';
+import classNames from "classnames/bind"
+
+const cx = classNames.bind(styles)
 
 interface RentNFTModalProps {
   trigger: React.ReactElement,
@@ -32,34 +37,70 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   const { data: signer } = useSigner()
 
   const [rentDay, setRentDay] = useState<number>()
+  const [isApproved, setIsApproved] = useState<boolean>(false)
+  const [alreadyApproved, setAlreadyApproved] = useState<boolean>(false)
+
+
+  const [approveTxHash, setApproveTxHash] = useState<string | undefined>()
+  const { } = useWaitForTransaction({
+    hash: approveTxHash,
+    onSuccess: () => {
+      setIsApproved(true)
+    },
+    onSettled: () => setButtonLoading(false)
+  })
+
+  const [rentTxHash, setRentTxHash] = useState<string | undefined>()
+  const { } = useWaitForTransaction({
+    hash: rentTxHash,
+    onSuccess: () => { },
+    onSettled: () => setButtonLoading(false)
+  })
 
   const blockscanUrl = useMemo(() => {
     return `${chain?.blockExplorers?.default.url}/tx/${txHash}`
   }, [txHash, chain])
 
+
   const contractMarket = useContract({
-    addressOrName: ROPSTEN_MARKET,
-    contractInterface: ROPSTEN_MARKET_ABI,
+    addressOrName: INSTALLMENT_MARKET,
+    contractInterface: INSTALLMENT_MARKET_ABI,
     signerOrProvider: signer
   })
 
-  const { isLoading } = useWaitForTransaction({
-    hash: txHash,
-    onSuccess: () => {
-      setIsRented(true)
-    }
+  // 授权 ERC20 token 合约
+  const contractERC20 = useContract({
+    addressOrName: SUPPORT_TOKENS['weth'],
+    contractInterface: erc20ABI,
+    signerOrProvider: signer
   })
 
-  // 用户授权转账保证金以租赁NFT
-  // const handleApproveToStake = async () => {
-  //   try {
-  //     await contract.transferFrom(account?.address, Ropsten_721_AXE_NFT, 0)
-  //   } catch (err) {
-  //     console.log(err)
-  //   }
-  // }
+  useEffect(() => {
+    (async () => {
+      const data = await contractERC20.allowance(address, INSTALLMENT_MARKET)
+      const approvedToken = BigNumber.from(data)
+      const neeedToken = utils.parseEther('3')
+      if (approvedToken.gte(neeedToken)) {
+        setAlreadyApproved(true)
+      }
+      console.log(data, alreadyApproved)
+    })();
+  }, [])
 
-  const handleCreateOrder = async () => {
+  const handleApproveERC20 = async () => {
+    setTxError('')
+
+    setButtonLoading(true)
+    try {
+      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, ethers.utils.parseEther('1'))
+      setTxHash(hash)
+      setApproveTxHash(hash)
+    } catch (err: any) {
+      setTxError(err.message)
+    }
+  }
+
+  const handleRentNFT = async () => {
     setTxError('')
     // 用户不能租借自己出租的 NFT
     if (baseInfo.lenderAddress === address?.toLowerCase()) {
@@ -69,68 +110,16 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
 
     setButtonLoading(true)
     try {
-      const { hash } = await contractMarket.createOrder(skuId)
+      const { hash } = await contractMarket.rent('0x80b4a4Da97d676Ee139badA2bF757B7f5AFD0644', 1, rentDay)
       setTxHash(hash)
+      setRentTxHash(hash)
     } catch (err: any) {
       setTxError(err.message)
     }
-    setButtonLoading(false)
   }
 
   return <Box>
     <Box sx={{ width: '100%' }} onClick={() => setVisibile(true)}>{trigger}</Box>
-    {/* <AppDialog
-      trigger={trigger}
-      title="Rent NFT"
-      hiddenDialog={visibile}
-    >
-      <Box className={styles.rentModal}>
-        <Box>
-          <Typography sx={{ fontSize: '1.6rem' }}>
-            Security Money: <span style={{}}>1</span> USDT
-          </Typography>
-          <Stack sx={{ mt: '1rem', opacity: '0.6', lineHeight: '1.5rem' }}>
-            <Box sx={{ lineHeight: '1.5rem', marginBottom: '0.5rem' }}>Tips:</Box>
-            <Box>1. The security deposit is used to ensure that the lessor receives the minimum benefit during each rental cycle</Box>
-            <Box>2. If the borrower&#39;s average return per cycle is less than the deposit amount, it will be paid to the lessor</Box>
-          </Stack>
-        </Box>
-        {txError && <Alert variant="outlined" severity="error" sx={{ mt: '2rem' }}>
-          {txError}
-        </Alert>}
-        <Box sx={{ mt: '2rem', textAlign: 'center', color: 'white' }}  >
-          {!isLoading && !isRented && <LoadingButton
-            loading={buttonLoading}
-            variant="contained"
-            onClick={handleCreateOrder}
-          >
-            Approve To Rent
-          </LoadingButton>}
-          {isLoading &&
-            <Box className={styles.txProcessing}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src='/block-loading.svg' />
-                The transaction is waiting for being packaged...
-              </Box>
-              <a href={blockscanUrl} target="_blank" rel="noreferrer">
-                <Typography sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '0.5rem' }}>
-                  See detail in blockscan&nbsp;<OpenInNewIcon />
-                </Typography>
-              </a>
-            </Box>}
-          {isRented &&
-            <Button variant="text" color="success" sx={{ fontWeight: 'bolder' }}
-              onClick={() => {
-                reloadInfo()
-                setVisibile(true)
-              }}
-            >
-              🎉&nbsp; Rented
-            </Button>}
-        </Box>
-      </Box>
-    </AppDialog > */}
-
     <Dialog
       open={visibile}
       className={styles.container}
@@ -160,18 +149,18 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
           <Box>
             <Box className={styles.rentDayBox}>
               <InputNumber
-                min={3}
-                max={300}
+                min={MIN_RENTABLE_DAYS}
+                max={MAX_RENTABLE_DAYS}
                 value={rentDay}
                 onChange={(val: number) => {
-                  if (!val || val > 300 || val < 3) {
+                  if (!val || val > MAX_RENTABLE_DAYS || val < MIN_RENTABLE_DAYS) {
                     return
                   }
                   setRentDay(val)
                 }}
                 className={styles.rentDayInput}
                 formatter={(val: any) => {
-                  if (!val || val > 300 || val < 3) {
+                  if (!val || val > MAX_RENTABLE_DAYS || val < MIN_RENTABLE_DAYS) {
                     return ''
                   }
                   return val
@@ -205,9 +194,31 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
           </Box>
         </Stack>
 
+        {txError && <Alert variant="outlined" severity="error" sx={{ mb: '2rem' }}>{txError}</Alert>}
+
         <Stack direction="row" spacing="2rem">
-          <DefaultButton >Approve</DefaultButton>
-          <DefaultButton>Rent</DefaultButton>
+          {!alreadyApproved && <DefaultButton
+            className={cx({ 'baseButton': true, 'disableButton': isApproved })}
+            loading={buttonLoading && !isApproved}
+            onClick={() => {
+              handleApproveERC20()
+            }}
+
+          >
+            {
+              isApproved ? 'Approved' : 'Approve'
+            }
+          </DefaultButton>}
+          <DefaultButton
+            className={cx({ 'baseButton': true, 'disableButton': !isApproved && !alreadyApproved })}
+            onClick={async () => {
+              if (isApproved) {
+                handleRentNFT()
+              }
+            }}
+          >
+            Rent
+          </DefaultButton>
         </Stack>
       </Box>
     </Dialog>

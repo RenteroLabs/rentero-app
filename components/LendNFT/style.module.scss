@@ -62,6 +62,7 @@
 
 .lendStep {
   // padding: 2.67rem;
+  padding: 1rem;
 
   span {
     font-size: 1.33rem;
@@ -191,18 +192,6 @@
   align-items: center;
   margin: auto;
   justify-content: center;
-}
-
-.stepList {
-  height: 10.67rem;
-  width: 100%;
-  background: #141436;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  & > div {
-    width: 40rem;
-  }
 }
 
 .stepConfig {
@@ -767,6 +756,25 @@
       .customRatio {
         width: 14.67rem;
       }
+    }
+  }
+}
+
+.installmentBox {
+  .buttonAsset {
+    .baseContractButton {
+      width: 100%;
+      text-align: center;
+    }
+
+    .disableButton {
+      background: #777e90 !important;
+      cursor: not-allowed !important;
+      font-size: 1.33rem !important;
+      font-family: Poppins-SemiBold, Poppins !important;
+      font-weight: 600 !important;
+      color: #d6d7dc !important;
+      line-height: 2rem !important;
     }
   }
 }
