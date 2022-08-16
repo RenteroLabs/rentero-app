@@ -11,7 +11,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIcon from '@mui/icons-material/Close';
 import DefaultButton from '../Buttons/DefaultButton';
 import InputNumber from 'rc-input-number'
-import { MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS } from '../../constants';
+import { MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS, TOKEN_LIST } from '../../constants';
 import { ethers, BigNumber, utils } from 'ethers';
 import classNames from "classnames/bind"
 
@@ -70,7 +70,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
 
   // 授权 ERC20 token 合约
   const contractERC20 = useContract({
-    addressOrName: SUPPORT_TOKENS['weth'],
+    addressOrName: TOKEN_LIST['WETH'].address,
     contractInterface: erc20ABI,
     signerOrProvider: signer
   })

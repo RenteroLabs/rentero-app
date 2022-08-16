@@ -16,7 +16,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SwitchNetwork from '../SwitchNetwork';
 import { ethers } from 'ethers';
 import SliptModeLendConfig from './SliptModeLendConfig';
-import { SUPPORT_TOKENS, ZERO_ADDRESS } from '../../constants';
+import { SUPPORT_TOKENS, TOKEN_LIST, ZERO_ADDRESS } from '../../constants';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import TrialModeLendConfig from './TrialModeLendConfig';
 
@@ -125,7 +125,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
   // 授权 ERC20 token 合约
   const contractERC20 = useContract({
-    addressOrName: SUPPORT_TOKENS['weth'],
+    // addressOrName: SUPPORT_TOKENS[1],
     contractInterface: erc20ABI,
     signerOrProvider: signer
   })
@@ -227,7 +227,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       const { hash } = await RenteroMarket.lend(
         "0x80b4a4Da97d676Ee139badA2bF757B7f5AFD0644",
         parseInt(selectedNFT),
-        SUPPORT_TOKENS['weth'],
+        TOKEN_LIST['WETH'].address,
         ZERO_ADDRESS,
         ethers.utils.parseEther('1'),
         ethers.utils.parseEther('2'),

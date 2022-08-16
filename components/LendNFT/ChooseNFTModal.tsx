@@ -81,14 +81,12 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
-
-
   // 查询用户钱包地址所拥有的当前游戏 NFT 信息
   const queryWalletNFT = async () => {
     setIsRequestingNFT(true)
     const nft = await web3GetNFTS({
       owner: address || '',
-      contractAddresses: [gameNFTCollection, '0x80b4a4Da97d676Ee139badA2bF757B7f5AFD0644']
+      contractAddresses: [gameNFTCollection]
     })
     setNFTList(formatNFTdata(nft.ownedNfts))
     setIsRequestingNFT(false)
@@ -252,8 +250,6 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
           !isChooseNFT &&
           <Box className={styles.lendStep} minHeight="36rem">
 
-            <Button onClick={() => handleApproveErc721()}>Approve ERC721 token</Button>
-            <Button onClick={() => handleLendNFT()}>Lend NFT</Button>
             {/* 出借第一步：出借信息配置 */}
             {/* {lendStep === 0 &&
               <TabContext value={lendType}>
@@ -284,11 +280,12 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
               </TabContext>} */}
 
             {lendStep === 0 && <InstallmentLendConfig
+              nftInfo={{ nftId: selectedNFT, nftAddress: gameNFTCollection }}
               setUserLendConfigInfo={setUserLendConfigInfo} />}
 
             {/* 出借第二步：合约交互 */}
             <Box className={styles.lendStepTwoBox}>
-            
+
 
               {/* 三步合约交互出租流程 */}
               {/* {!stepComplete[2] && lendStep === 1 &&

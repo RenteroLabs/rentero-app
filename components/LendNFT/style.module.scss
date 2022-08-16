@@ -62,7 +62,7 @@
 
 .lendStep {
   // padding: 2.67rem;
-  padding: 1rem;
+  // padding: 1rem;
 
   span {
     font-size: 1.33rem;
@@ -555,6 +555,7 @@
         line-height: 2rem;
       }
     }
+
     .lendingTime {
       width: 41.67rem;
       display: flex;
@@ -761,7 +762,205 @@
 }
 
 .installmentBox {
+  .lendForm {
+    padding: 2rem 3.33rem;
+    max-height: 42rem;
+    overflow-y: scroll;
+
+    .lendFormItem {
+      & + .lendFormItem {
+        margin-top: 2rem;
+      }
+      p {
+        font-size: 1.17rem;
+        font-family: Poppins-Regular, Poppins;
+        font-weight: 400;
+        color: #ffffff;
+        line-height: 1.67rem;
+        margin-bottom: 0.67rem;
+      }
+
+      & > div {
+        height: 3.33rem;
+      }
+    }
+
+    .formValueBox {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: rgba($color: white, $alpha: 0.1);
+      border-radius: 1rem;
+      font-size: 1.33rem;
+      font-family: Poppins-Medium, Poppins;
+      font-weight: 500;
+      color: #ffffff;
+      line-height: 3.33rem;
+      padding: 0rem 1.33rem;
+      text-align: left;
+      p {
+        margin-bottom: 0;
+      }
+      input {
+        font-size: 1.33rem;
+        font-family: Poppins-Medium, Poppins;
+        font-weight: 500;
+        color: #ffffff;
+        line-height: 3.33rem;
+        background-color: transparent;
+        border: none;
+        outline: none;
+      }
+    }
+
+    .durationValueBox {
+      @extend .formValueBox;
+      p {
+        margin-right: 1rem;
+      }
+      input {
+        text-align: right;
+        width: 13.5rem;
+      }
+    }
+
+    .lendFormItemBox {
+      @extend .lendFormItem;
+      & > div {
+        @extend .formValueBox;
+      }
+      .errorFormat {
+        display: flex;
+        align-items: center;
+        text-align: left;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+        font-family: Poppins-Regular, Poppins;
+        font-weight: 400;
+        color: rgb(205, 78, 78);
+        line-height: 1.67rem;
+      }
+    }
+
+    .serviceFee {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      p {
+        font-size: 1.33rem;
+        font-family: Poppins-Regular, Poppins;
+        font-weight: 400;
+        color: #777e90;
+        line-height: 2rem;
+      }
+      h5 {
+        font-size: 1.33rem;
+        font-family: Poppins-Medium, Poppins;
+        font-weight: 500;
+        color: #ffffff;
+        line-height: 2rem;
+      }
+    }
+
+    .billingCycle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      p {
+        line-height: 1.33rem;
+        margin-bottom: 0;
+        margin-left: 1rem;
+        font-size: 1.33rem;
+        font-family: Poppins-Medium, Poppins;
+        font-weight: 500;
+        color: #ffffff;
+      }
+    }
+    .rentDailyPrice {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 40rem;
+
+      .rentFormValueBox {
+        @extend .formValueBox;
+        flex-grow: 1;
+        input {
+          width: 24rem;
+        }
+      }
+
+      .payCoinType {
+        width: 11.5rem;
+        height: 3.33rem;
+
+        & > div {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          font-size: 1.33rem;
+          font-family: Poppins-Medium, Poppins;
+          font-weight: 500;
+          color: #ffffff;
+          line-height: 2rem;
+          overflow: visible;
+        }
+        fieldset {
+          border: none;
+        }
+        img {
+          width: 1.67rem;
+          height: 1.67rem;
+          margin-right: 1rem;
+        }
+      }
+    }
+    .renetDeposit {
+      margin-top: 2rem;
+      p {
+        font-size: 1.17rem;
+        font-family: Poppins-Regular, Poppins;
+        font-weight: 400;
+        color: #ffffff;
+        line-height: 1.67rem;
+        margin-bottom: 1.33rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      div {
+        max-width: 40rem;
+        border-radius: 1rem;
+        background-color: rgba(#ffb90a, 0.08);
+        font-size: 1.17rem;
+        font-family: Poppins-Regular, Poppins;
+        font-weight: 400;
+        color: #ffb90a;
+        line-height: 1.67rem;
+        padding: 1rem;
+      }
+    }
+    .moreOptions {
+      text-align: right;
+      margin-top: 1.33rem;
+      font-size: 1.33rem;
+      font-family: Poppins-Regular, Poppins;
+      font-weight: 500;
+      color: #5adcfe;
+      line-height: 2rem;
+      span {
+        width: auto;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+    }
+  }
+
   .buttonAsset {
+    border-top: 1px solid rgba(white, 0.15);
+    padding: 1.67rem 3.33rem 2rem;
     .baseContractButton {
       width: 100%;
       text-align: center;
@@ -776,5 +975,22 @@
       color: #d6d7dc !important;
       line-height: 2rem !important;
     }
+  }
+}
+
+.coinTypeItem {
+  width: 11.5rem;
+  font-size: 1.33rem;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 2rem;
+  & + .coinTypeItem {
+    margin-top: 1rem;
+  }
+  img {
+    width: 1.67rem;
+    height: 1.67rem;
+    margin-right: 1rem;
   }
 }
