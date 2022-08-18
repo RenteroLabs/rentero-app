@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Checkbox, FormControlLabel, Menu, MenuItem, MenuList, Skeleton, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useStepperContext } from '@mui/material'
+import { useQuery, gql, useLazyQuery } from '@apollo/client'
 import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
 import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
@@ -16,6 +17,8 @@ import { useIsMounted } from '../hooks'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
 import Link from 'next/link';
 import Layout2 from '../components/layout2';
+import { GET_LEASES } from '../constants/documentNode';
+import { LeaseItem } from '../types';
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
   const isMounted = useIsMounted()
@@ -32,8 +35,10 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [selectedSortBy, setSelectedSortBy] = useState<number>(0)
 
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(20)
+  const [leasesList, setLeasesList] = useState<LeaseItem[]>([])
   const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
-  const [trialZoneList, setTrialZoneList] = useState<Record<string, any>[]>([])
+  // const [trialZoneList, setTrialZoneList] = useState<Record<string, any>[]>([])
   const [NFTTotal, setNFTTotal] = useState<number>(0)
 
   const [isWhitelistOnly, setIsWhitelistOnly] = useState<boolean>(false)
@@ -45,31 +50,43 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   }, [currentGame, gamesInfo])
 
   // market list
-  const { run: fetchNFTList, loading } = useRequest(getMarketNFTList, {
-    manual: true,
-    onSuccess: async ({ data }) => {
-      const { totalRemain, pageContent = [] } = data || {}
-      setNFTList([...NFTList, ...pageContent])
-      setNFTTotal(totalRemain)
-    }
-  })
+  // const { run: fetchNFTList, loading } = useRequest(getMarketNFTList, {
+  //   manual: true,
+  //   onSuccess: async ({ data }) => {
+  //     const { totalRemain, pageContent = [] } = data || {}
+  //     setNFTList([...NFTList, ...pageContent])
+  //     setNFTTotal(totalRemain)
+  //   }
+  // })
 
   // 白名单 NFT 数据
-  const { run: fetchWhitelistNFT } = useRequest(getMarketNFTList, {
-    manual: true,
-    onSuccess: ({ data }) => {
-      const { totalRemain, pageContent } = data || {}
-      setWhitelistNums(totalRemain || 0)
-      setWhitelistLists(pageContent || [])
-    }
-  })
+  // const { run: fetchWhitelistNFT } = useRequest(getMarketNFTList, {
+  //   manual: true,
+  //   onSuccess: ({ data }) => {
+  //     const { totalRemain, pageContent } = data || {}
+  //     setWhitelistNums(totalRemain || 0)
+  //     setWhitelistLists(pageContent || [])
+  //   }
+  // })
 
   // 试玩 NFT 数据
-  const { run: fetchTrialList, loading: isTrialLoading } = useRequest(getMarketNFTList, {
-    manual: true,
-    onSuccess: ({ data }) => {
-      const { pageContent = [] } = data || {}
-      setTrialZoneList([...pageContent.splice(0, 4)])
+  // const { run: fetchTrialList, loading: isTrialLoading } = useRequest(getMarketNFTList, {
+  //   manual: true,
+  //   onSuccess: ({ data }) => {
+  //     const { pageContent = [] } = data || {}
+  //     setTrialZoneList([...pageContent.splice(0, 4)])
+  //   }
+  // })
+
+  const [getLeasesList, { loading: isLeasesLoading }] = useLazyQuery(GET_LEASES, {
+    variables: {
+      pageSize: pageSize,
+      skip: (currentPage - 1) * pageSize
+    },
+    onCompleted(data) {
+      console.log(data)
+
+      setLeasesList(currentPage === 1 ? data.leases : [...leasesList, ...data.leases])
     }
   })
 
@@ -79,13 +96,16 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   }, [rawToken])
 
   useEffect(() => {
-    fetchNFTList({ pageIndex: 1, pageSize: 12 });
-    fetchWhitelistNFT({ pageIndex: 1, token: jwtToken, whiteAddress: true });
-    fetchTrialList({ pageIndex: 1, pageSize: 4, mode: 'FreeTrial' });
-  }, [])
+    getLeasesList()
+
+    // fetchNFTList({ pageIndex: 1, pageSize: 12 });
+    // fetchWhitelistNFT({ pageIndex: 1, token: jwtToken, whiteAddress: true });
+    // fetchTrialList({ pageIndex: 1, pageSize: 4, mode: 'FreeTrial' });
+  }, [currentPage])
 
   const handelGetMoreList = async () => {
-    fetchNFTList({ pageIndex: currentPage + 1, pageSize: 12 })
+    // fetchNFTList({ pageIndex: currentPage + 1, pageSize: 12 })
+
     setCurrentPage(currentPage + 1)
   }
 
@@ -98,7 +118,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
       setIsWhitelistOnly(false)
       setCurrentPage(1)
       setNFTList([])
-      fetchNFTList({ pageIndex: 1, pageSize: 12 });
+      // fetchNFTList({ pageIndex: 1, pageSize: 12 });
     }
   }
 
@@ -229,7 +249,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             {/* <span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 12 })}><AutorenewIcon /></span> */}
           </div>
           <Box className={styles.sortList}>
-            {whitelistNums > 0 && <FormControlLabel
+            {/* {whitelistNums > 0 && <FormControlLabel
               control={<Checkbox
                 disableRipple
                 onChange={handleCheckWhitelist}
@@ -244,7 +264,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
                 </Box>
                 <Box component="span" className={styles.whitelistNum}>{whitelistNums}</Box>
               </>}
-            />}
+            />} */}
             <Box
               ref={chainTypeRef}
               onClick={() => setChainTypeShow(true)}
@@ -296,14 +316,14 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
 
         <div className={styles.nftCardList}>
           {
-            NFTList.map((item, index) => {
+            leasesList?.map((item, index) => {
               return <NFTCard nftInfo={item} key={index} />
             })
           }
         </div>
 
         {/* 骨架图 */}
-        {loading && <Box>
+        {isLeasesLoading && <Box>
           <Box className={styles.nftCardList}>
             <SkeletonNFTCard />
             <SkeletonNFTCard />
@@ -318,7 +338,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </Box>}
 
-        {((12 * currentPage) < NFTTotal) && isMounted && !isWhitelistOnly &&
+        {isMounted && !isWhitelistOnly &&
           <div className={styles.showMore}>
             <span onClick={handelGetMoreList}>Show more</span>
           </div>}

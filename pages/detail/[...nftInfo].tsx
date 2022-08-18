@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { NextPage } from "next/types";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { useQuery, gql, useLazyQuery } from '@apollo/client'
 import styles from '../../styles/detail.module.scss'
 import NFTCard from "../../components/NFTCard";
 import ConnectWallet from "../../components/ConnectWallet";
@@ -15,13 +16,17 @@ import { PropsWithChildren, ReactElement, useEffect, useMemo, useState } from "r
 import { useRequest } from "ahooks";
 import { getMarketNFTList, getNFTDetail } from "../../services/market";
 import { formatAddress } from "../../utils/format";
-import { CHAIN_ICON, CHAIN_NAME, ZERO_ADDRESS } from "../../constants";
+import { ADDRESS_TOKEN_MAP, CHAIN_ICON, CHAIN_NAME, ZERO_ADDRESS } from "../../constants";
 import Head from "next/head";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import LaunchIcon from '@mui/icons-material/Launch';
 import Layout2 from "../../components/layout2";
 import { NextPageWithLayout } from "../_app";
+import { Ropsten_721_AXE_NFT } from "../../constants/contractABI";
+import { GET_LEASES, GET_LEASE_INFO } from "../../constants/documentNode";
+import { LeaseItem } from "../../types";
+import { BigNumber, utils } from "ethers";
 
 const cx = classNames.bind(styles)
 
@@ -41,26 +46,52 @@ const DetailCardBox: React.FC<PropsWithChildren<DetailCardBoxProps>> = (props) =
 
 const Detail: NextPageWithLayout = () => {
   const router = useRouter()
+  const [, nftAddress, tokenId] = router.query.nftInfo as string[] || []
+
   const { isConnected, address } = useAccount()
   const isMounted = useIsMounted()
 
   const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
   const [metadata, setMetadata] = useState<Record<string, any>>({})
   const [nftList, setNFTList] = useState<Record<string, any>[]>([])
+  const [rentInfo, setRentInfo] = useState<LeaseItem>()
 
   const [_, copyAddress] = useCopyToClipboard()
   const [isCopyed, setIsCopyed] = useState<boolean>(false)
+  const [isRenterCopyed, setRenterCopyed] = useState<boolean>(false)
 
-  const { id } = router.query
 
   const contractBlockExplore = useMemo(() => {
     return `${etherscanBlockExplorers[CHAIN_NAME[3 | baseInfo.chainId]]?.url}/address/${baseInfo.nftAddress}`
   }, [baseInfo])
 
+
+  const [getLeaseInfo, { loading }] = useLazyQuery(GET_LEASE_INFO, {
+    variables: { id: [nftAddress, tokenId].join('-') },
+    onCompleted(data) {
+      setRentInfo(data.lease)
+    },
+  })
+
+  const [getLeasesList, { loading: isLeasesLoading }] = useLazyQuery(GET_LEASES, {
+    variables: {
+      pageSize: 5,
+      skip: 0
+    },
+    onCompleted(data) {
+      setNFTList(data.leases.filter((item: any) => item.tokenId != tokenId).splice(0, 4))
+    }
+  })
+  // const tokenInfo = useMemo(() => {
+  //   if (rentInfo) {
+  //     return ADDRESS_TOKEN_MAP[rentInfo.erc20Address]
+  //   }
+  // }, [rentInfo])
+
   useEffect(() => {
-    fetchNFTDetail({ skuId: router.query['skuId'] });
-    fetchNFTList({ pageIndex: 1, pageSize: 5 });
-  }, [id])
+    getLeaseInfo()
+    getLeasesList()
+  }, [])
 
   const { run: fetchNFTDetail } = useRequest(getNFTDetail, {
     manual: true,
@@ -74,15 +105,15 @@ const Detail: NextPageWithLayout = () => {
     }
   })
 
-  // 获取相关推荐 NFT
-  const { run: fetchNFTList } = useRequest(getMarketNFTList, {
-    manual: true,
-    onSuccess: async ({ data }) => {
-      const { pageContent } = data
-      const moreNFTs = pageContent.filter((item: any) => item.nftUid != id).splice(0, 4)
-      setNFTList(moreNFTs)
-    }
-  })
+  // // 获取相关推荐 NFT
+  // const { run: fetchNFTList } = useRequest(getMarketNFTList, {
+  //   manual: true,
+  //   onSuccess: async ({ data }) => {
+  //     const { pageContent } = data
+  //     const moreNFTs = pageContent.filter((item: any) => item.nftUid != tokenId).splice(0, 4)
+  //     setNFTList(moreNFTs)
+  //   }
+  // })
 
   return <Box>
     <Head>
@@ -116,14 +147,14 @@ const Detail: NextPageWithLayout = () => {
                 <Box>Contract Address</Box>
                 <a href={contractBlockExplore} target="_blank" rel="noreferrer">
                   <Box className={styles.linkAddress}>
-                    {formatAddress(baseInfo.nftAddress, 4)}&nbsp;
+                    {formatAddress(rentInfo?.nftAddress, 4)}&nbsp;
                     <LaunchIcon />
                   </Box>
                 </a>
               </Box>
               <Box>
                 <Box>Token ID</Box>
-                <Box className={styles.linkAddress}>{baseInfo.nftUid}</Box>
+                <Box className={styles.linkAddress}>{rentInfo?.tokenId}</Box>
               </Box>
               <Box>
                 <Box>Token Standard</Box>
@@ -147,20 +178,20 @@ const Detail: NextPageWithLayout = () => {
                 <span className={styles.nftCollectionName}>{baseInfo.nftName}</span>
               </Box>
               <Box className={styles.tagList}>
-                {baseInfo.status === 'Renting' &&
+                {rentInfo?.status === 'renting' &&
                   <Box component="span" className={styles.rentedTag}>Rented</Box>}
                 {
-                  baseInfo.whiteAddress && baseInfo.whiteAddress != ZERO_ADDRESS &&
+                  rentInfo?.whitelist && rentInfo.whitelist != ZERO_ADDRESS &&
                   <Box component="span" className={styles.whitelistTag} >Whitelist</Box>
                 }
               </Box>
             </Box>
-            <Typography variant="h2">{baseInfo.nftName} #{baseInfo.nftUid}</Typography>
+            <Typography variant="h2">{baseInfo.nftName} #{rentInfo?.tokenId}</Typography>
             <Stack direction="row" spacing="4.83rem" className={styles.addressInfo}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography >Owned</Typography>
                 <span className={styles.ownerAddress}>
-                  {formatAddress(baseInfo.lenderAddress, 4)}
+                  {formatAddress(rentInfo?.lender, 4)}
                 </span>
                 {
                   isCopyed ?
@@ -184,43 +215,97 @@ const Detail: NextPageWithLayout = () => {
                     </Tooltip>
                 }
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>Renter -</Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography>Renter</Typography>
+                {
+                  rentInfo?.renter ?
+                    <>
+                      <span className={styles.ownerAddress}>
+                        {formatAddress(rentInfo?.renter, 4)}
+                      </span>
+                      {
+                        isRenterCopyed ?
+                          <Tooltip title="Copyed">
+                            <Fade in={true}>
+                              <IconButton size="small"><CheckIcon color="success" fontSize="small" /></IconButton>
+                            </Fade>
+                          </Tooltip> :
+                          <Tooltip title="Copy Address To Clipboard">
+                            <Fade in={true}>
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  copyAddress(rentInfo?.renter)
+                                  setRenterCopyed(true)
+                                  setTimeout(() => setRenterCopyed(false), 2500)
+                                }}>
+                                <ContentCopyIcon fontSize="small" sx={{ opacity: '0.8' }} />
+                              </IconButton>
+                            </Fade>
+                          </Tooltip>
+                      }
+                    </>
+                    : <Box sx={{ marginLeft: '1rem' }}>-</Box>
+                }
+              </Box>
             </Stack>
           </Paper>
 
           <DetailCardBox
             title={<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Box>{baseInfo.mode === 'FreeTrial' ? 'Trial Period' : 'Rental Period'}</Box>
-              <Box>{baseInfo.mode === 'FreeTrial' ? '15' : '3-30'} Days</Box>
+              <Box>{baseInfo.mode === 'FreeTrial' ? '15' : `${rentInfo?.minRentalPeriods}-${rentInfo?.maxRentalPeriods}`} Days</Box>
             </Box>}
           >
             <Stack spacing="1.33rem" className={styles.rentInfoList}>
-              {
+              {/* {
                 baseInfo.mode === 'Dividend' &&
                 <>
                   <Box><Box>Ratio To Renter</Box><Box>{baseInfo.borrowerEarnRatio}</Box></Box>
                   <Box><Box>Security Deposit</Box><Box>10</Box></Box>
                 </>
-              }
+              } */}
               {/* 租金模式 */}
-              {
-                baseInfo.mode === 'Rent' && <Box><Box>Rent</Box><Box>10</Box></Box>
-              }
-              {baseInfo.status === 'Renting' &&
+              {/* {
+                baseInfo.mode === 'Rent' && 
+              } */}
+              <Box>
+                <Box>Deposit</Box>
+                <Box>
+                  {
+                    rentInfo ? <>
+                      <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+                      {utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)}
+                    </> : '-'
+                  }
+                </Box>
+              </Box>
+              <Box>
+                <Box>Rent</Box>
+                <Box>
+                  {
+                    rentInfo ? <>
+                      <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+                      {utils.formatUnits(BigNumber.from(rentInfo?.rentPerDay), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)}/Day
+                    </> : '-'
+                  }
+                </Box>
+              </Box>
+              {rentInfo?.status === 'renting' &&
                 <Box className={styles.rentedButton}>
                   {baseInfo.mode === 'FreeTrial' ? 'Trialed' : 'Rented'}
                 </Box>}
               {
-                (baseInfo.status !== 'Renting' && isMounted && !isConnected) ?
+                (rentInfo?.status !== 'renting' && isMounted && !isConnected) ?
                   <ConnectWallet
                     trigger={<Box className={styles.rentButton}>Connect Wallet</Box>}
                     closeCallback={() => { }}
                   />
                   :
-                  ([ZERO_ADDRESS, address?.toLowerCase()].includes(baseInfo.whiteAddress) ?
+                  ([ZERO_ADDRESS, address?.toLowerCase()].includes(rentInfo?.whitelist) ?
                     <RentNFTModal
                       reloadInfo={() => { fetchNFTDetail({ skuId: router.query['skuId'] }) }}
-                      skuId={router.query['skuId'] as string}
+                      skuId={tokenId}
                       baseInfo={baseInfo}
                       trigger={<Box
                         className={
@@ -235,7 +320,7 @@ const Detail: NextPageWithLayout = () => {
                   )
               }
             </Stack>
-            {baseInfo.whiteAddress !== ZERO_ADDRESS &&
+            {rentInfo?.whitelist !== ZERO_ADDRESS &&
               <Typography className={styles.whitelistButtonTip}>
                 * This NFT is only for the whitelist user.
               </Typography>}

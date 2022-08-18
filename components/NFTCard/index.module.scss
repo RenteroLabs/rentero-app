@@ -121,6 +121,11 @@
 .rentInfo {
   @extend .baseCardLine;
   margin-bottom: 1.33rem;
+  img {
+    width: 1.67rem;
+    height: 1.67rem;
+    margin-right: 0.67rem;
+  }
   div {
     font-size: 1.17rem;
     font-family: Poppins-Medium, Poppins;
@@ -293,6 +298,11 @@
   .rentInfo {
     margin: 0px 1rem;
     margin-bottom: 1.33rem;
+    img {
+      width: 1.2rem;
+      height: 1.2rem;
+      margin-right: 0.4rem;
+    }
   }
   .rentMode {
     // margin-top: 0.67rem !important;

@@ -83,7 +83,6 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
       if (approvedToken.gte(neeedToken)) {
         setAlreadyApproved(true)
       }
-      console.log(data, alreadyApproved)
     })();
   }, [])
 
@@ -151,6 +150,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
               <InputNumber
                 min={MIN_RENTABLE_DAYS}
                 max={MAX_RENTABLE_DAYS}
+                placeholder={`Min ${1} - Max ${30} Days`}
                 value={rentDay}
                 onChange={(val: number) => {
                   if (!val || val > MAX_RENTABLE_DAYS || val < MIN_RENTABLE_DAYS) {

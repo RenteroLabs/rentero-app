@@ -11,10 +11,11 @@ import { infuraProvider } from 'wagmi/providers/infura'
 import { publicProvider } from 'wagmi/providers/public'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
-import { SUPPORT_CHAINS } from '../constants'
+import { ROPSTEN_THEGRAPH, SUPPORT_CHAINS } from '../constants'
 import { NextPage } from 'next/types'
 import type { ReactElement, ReactNode } from 'react'
 import Layout2 from '../components/layout2'
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
 const { chains, provider, webSocketProvider } = configureChains(SUPPORT_CHAINS, [
@@ -39,6 +40,11 @@ const client = createClient({
   webSocketProvider
 })
 
+const graphql = new ApolloClient({
+  uri: ROPSTEN_THEGRAPH,
+  cache: new InMemoryCache()
+})
+
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode
 }
@@ -58,11 +64,12 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
       <CssBaseline />
       <WagmiConfig client={client}>
-        {/* {getLayout ?
+        <ApolloProvider client={graphql}>
+          {/* {getLayout ?
           getLayout(<Component {...pageProps} />) :
           <Layout><Component {...pageProps} /></Layout>} */}
-
-        <Layout2><Component {...pageProps} /></Layout2>
+          <Layout2><Component {...pageProps} /></Layout2>
+        </ApolloProvider>
       </WagmiConfig>
     </StyledEngineProvider>
   </ThemeProvider>
