@@ -134,7 +134,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
 
     setButtonLoading(true)
     try {
-      const { hash } = await contractMarket.rent(rentInfo.nftAddress, rentInfo.tokenId, rentDay)
+      const { hash } = await contractMarket.rent(rentInfo?.nftAddress, rentInfo?.tokenId, rentDay)
       setTxHash(hash)
       setRentTxHash(hash)
     } catch (err: any) {

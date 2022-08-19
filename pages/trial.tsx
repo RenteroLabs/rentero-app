@@ -47,9 +47,9 @@ const TrialMode: NextPage = () => {
 
     <Box className={styles.nftCardList}>
       {
-        nftList.map((item, index) => {
-          return <NFTCard nftInfo={item} key={index} mode="@trial" />
-        })
+        // nftList.map((item, index) => {
+        //   // return <NFTCard nftInfo={item} key={index} mode="@trial" />
+        // })
       }
     </Box>
 

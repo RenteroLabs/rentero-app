@@ -160,9 +160,9 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
           >
             {
               SUPPORT_TOKENS[1].map(item =>
-                <MenuItem value={item?.name} className={styles.coinTypeItem} key={item.address}>
-                  <img src={item?.logo} alt={`${item.name}_LOGO`} />
-                  {item.name}
+                <MenuItem value={item?.name} className={styles.coinTypeItem} key={item?.address}>
+                  <img src={item?.logo} alt={`${item?.name}_LOGO`} />
+                  {item?.name}
                 </MenuItem>)
             }
           </Select>

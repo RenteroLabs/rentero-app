@@ -280,8 +280,8 @@ const Detail: NextPageWithLayout = () => {
                   />
                   :
                   ([ZERO_ADDRESS, address?.toLowerCase()].includes(rentInfo?.whitelist) ?
-                    <RentNFTModal
-                      reloadInfo={() => { fetchNFTDetail({ skuId: router.query['skuId'] }) }}
+                    rentInfo && <RentNFTModal
+                      reloadInfo={() => { }}
                       rentInfo={rentInfo}
                       trigger={<Box
                         className={
