@@ -11,7 +11,7 @@ import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
 import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
 import { useLocalStorageState, useRequest } from 'ahooks'
-import { getGameInfos, getMarketNFTList } from '../services/market'
+import { getGameInfos, getMarketNFTList, getNFTInfo } from '../services/market'
 import { dateFormat } from '../utils/format'
 import { useIsMounted } from '../hooks'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
@@ -49,34 +49,6 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     return gamesInfo[parseInt(currentGame)] || {}
   }, [currentGame, gamesInfo])
 
-  // market list
-  // const { run: fetchNFTList, loading } = useRequest(getMarketNFTList, {
-  //   manual: true,
-  //   onSuccess: async ({ data }) => {
-  //     const { totalRemain, pageContent = [] } = data || {}
-  //     setNFTList([...NFTList, ...pageContent])
-  //     setNFTTotal(totalRemain)
-  //   }
-  // })
-
-  // 白名单 NFT 数据
-  // const { run: fetchWhitelistNFT } = useRequest(getMarketNFTList, {
-  //   manual: true,
-  //   onSuccess: ({ data }) => {
-  //     const { totalRemain, pageContent } = data || {}
-  //     setWhitelistNums(totalRemain || 0)
-  //     setWhitelistLists(pageContent || [])
-  //   }
-  // })
-
-  // 试玩 NFT 数据
-  // const { run: fetchTrialList, loading: isTrialLoading } = useRequest(getMarketNFTList, {
-  //   manual: true,
-  //   onSuccess: ({ data }) => {
-  //     const { pageContent = [] } = data || {}
-  //     setTrialZoneList([...pageContent.splice(0, 4)])
-  //   }
-  // })
 
   const [getLeasesList, { loading: isLeasesLoading }] = useLazyQuery(GET_LEASES, {
     variables: {
@@ -84,28 +56,15 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
       skip: (currentPage - 1) * pageSize
     },
     onCompleted(data) {
-      console.log(data)
-
       setLeasesList(currentPage === 1 ? data.leases : [...leasesList, ...data.leases])
     }
   })
 
-  const jwtToken = useMemo(() => {
-    if (!rawToken) return ''
-    return rawToken.split('*')[1]
-  }, [rawToken])
-
   useEffect(() => {
     getLeasesList()
-
-    // fetchNFTList({ pageIndex: 1, pageSize: 12 });
-    // fetchWhitelistNFT({ pageIndex: 1, token: jwtToken, whiteAddress: true });
-    // fetchTrialList({ pageIndex: 1, pageSize: 4, mode: 'FreeTrial' });
   }, [currentPage])
 
   const handelGetMoreList = async () => {
-    // fetchNFTList({ pageIndex: currentPage + 1, pageSize: 12 })
-
     setCurrentPage(currentPage + 1)
   }
 

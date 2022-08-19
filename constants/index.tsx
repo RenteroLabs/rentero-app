@@ -98,3 +98,9 @@ export const ADDRESS_TOKEN_MAP: Record<string, TokenInfo> = {
 export const DEPOSIT_DAYS = 1
 
 export const ROPSTEN_THEGRAPH = 'https://api.thegraph.com/subgraphs/name/john-rentero/rentero-market'
+
+
+export const NFT_COLLECTIONS: Record<string, string> = {
+  "0x26aa590dd520cec0f6638f59ebd4e93f9287448b": "Axe Game",
+  "0x80b4a4da97d676ee139bada2bf757b7f5afd0644": "Fork Azuik"
+}

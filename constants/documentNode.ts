@@ -9,8 +9,8 @@ export const GET_LEASES = gql`
         expires
         id
         lender
-        maxRentalPeriods
-        minRentalPeriods
+        maxRentalDays
+        minRentalDays
         nftAddress
         rentPerDay
         renter
@@ -30,8 +30,8 @@ export const GET_LEASE_INFO = gql`
       expires
       id
       lender
-      maxRentalPeriods
-      minRentalPeriods
+      minRentalDays
+      maxRentalDays
       nftAddress
       rentPerDay
       renter

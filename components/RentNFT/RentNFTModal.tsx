@@ -11,21 +11,21 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIcon from '@mui/icons-material/Close';
 import DefaultButton from '../Buttons/DefaultButton';
 import InputNumber from 'rc-input-number'
-import { MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS, TOKEN_LIST } from '../../constants';
+import { ADDRESS_TOKEN_MAP, MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS, TOKEN_LIST } from '../../constants';
 import { ethers, BigNumber, utils } from 'ethers';
 import classNames from "classnames/bind"
+import { LeaseItem } from '../../types';
 
 const cx = classNames.bind(styles)
 
 interface RentNFTModalProps {
   trigger: React.ReactElement,
-  skuId: number | string,
-  baseInfo: Record<string, any>,
+  rentInfo: LeaseItem,
   reloadInfo: () => any;
 }
 
 const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
-  const { trigger, skuId, baseInfo, reloadInfo } = props
+  const { trigger, rentInfo, reloadInfo } = props
   const [visibile, setVisibile] = useState<boolean>(false)
 
   const [txHash, setTxHash] = useState<string | undefined>()
@@ -86,34 +86,60 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
     })();
   }, [])
 
+  const [
+    dailyPrice,
+    totalPay,
+    deposit,
+    firstPay,
+    firstTotalPay
+  ]: any[] = useMemo(() => {
+    if (!rentInfo) return []
+    const dailyPrice = utils.formatUnits(BigNumber.from(rentInfo?.rentPerDay), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)
+    const deposit = utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)
+
+    const totalPay = rentDay ? rentDay * parseFloat(dailyPrice) : 0
+    const firstPay = parseFloat(dailyPrice) * parseInt(rentInfo?.daysPerPeriod)
+    const firstTotalPay = parseFloat(deposit) + firstPay
+
+    return [
+      dailyPrice,
+      totalPay,
+      deposit,
+      firstPay,
+      firstTotalPay
+    ]
+  }, [rentDay, rentInfo])
+
   const handleApproveERC20 = async () => {
     setTxError('')
 
     setButtonLoading(true)
     try {
-      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, ethers.utils.parseEther('1'))
+      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, ethers.constants.MaxUint256)
       setTxHash(hash)
       setApproveTxHash(hash)
     } catch (err: any) {
       setTxError(err.message)
+      setButtonLoading(false)
     }
   }
 
   const handleRentNFT = async () => {
     setTxError('')
     // 用户不能租借自己出租的 NFT
-    if (baseInfo.lenderAddress === address?.toLowerCase()) {
+    if (rentInfo?.lender === address?.toLowerCase()) {
       setTxError('Users cannot rent NFTs they own')
       return
     }
 
     setButtonLoading(true)
     try {
-      const { hash } = await contractMarket.rent('0x80b4a4Da97d676Ee139badA2bF757B7f5AFD0644', 1, rentDay)
+      const { hash } = await contractMarket.rent(rentInfo.nftAddress, rentInfo.tokenId, rentDay)
       setTxHash(hash)
       setRentTxHash(hash)
     } catch (err: any) {
       setTxError(err.message)
+      setButtonLoading(false)
     }
   }
 
@@ -125,7 +151,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
       onClose={() => setVisibile(false)}
     >
       <DialogTitle className={styles.dialogTitle} >
-        <Typography>Renting #{baseInfo.nftId}</Typography>
+        <Typography>Renting #{rentInfo?.tokenId}</Typography>
         <IconButton
           aria-label="close"
           onClick={() => setVisibile(false)}
@@ -142,28 +168,22 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
       <Box className={styles.dialogContent}>
         <Stack className={styles.payBox}>
           <Box>
-            <Typography>Duration</Typography>
-            <Typography>min-max Days</Typography>
-          </Box>
-          <Box>
             <Box className={styles.rentDayBox}>
               <InputNumber
-                min={MIN_RENTABLE_DAYS}
-                max={MAX_RENTABLE_DAYS}
-                placeholder={`Min ${1} - Max ${30} Days`}
+                min={parseInt(rentInfo?.minRentalDays)}
+                max={parseInt(rentInfo?.maxRentalDays)}
+                placeholder={`Min ${rentInfo?.minRentalDays} - Max ${rentInfo?.maxRentalDays} Days`}
                 value={rentDay}
                 onChange={(val: number) => {
-                  if (!val || val > MAX_RENTABLE_DAYS || val < MIN_RENTABLE_DAYS) {
+                  if (!val || val > parseInt(rentInfo?.maxRentalDays) || val < parseInt(rentInfo?.minRentalDays)) {
                     return
                   }
                   setRentDay(val)
                 }}
                 className={styles.rentDayInput}
                 formatter={(val: any) => {
-                  if (!val || val > MAX_RENTABLE_DAYS || val < MIN_RENTABLE_DAYS) {
-                    return ''
-                  }
-                  return val
+                  if (!val) return ''
+                  return parseInt(val) as unknown as string
                 }}
               />
               <Box className={styles.rentDayType}>Days</Box>
@@ -171,26 +191,41 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
           </Box>
           <Box>
             <Typography variant="h5">Daily Price</Typography>
-            <Typography>USDT 100</Typography>
+            <Typography className={styles.payListItemP}>
+              <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+              {dailyPrice}
+            </Typography>
           </Box>
           <Box>
             <Typography variant="h5">Total Amount</Typography>
-            <Typography>0</Typography>
+            <Typography className={styles.payListItemP}>
+              <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+              {totalPay}
+            </Typography>
           </Box>
         </Stack>
 
         <Stack className={styles.totalBox}>
           <Box>
             <Typography variant='h3'>Pay Now</Typography>
-            <Typography>0</Typography>
+            <Typography className={styles.payListItemP}>
+              <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+              {rentInfo && firstTotalPay}
+            </Typography>
           </Box>
           <Box>
             <Typography variant="h5">Deposit</Typography>
-            <Typography>0</Typography>
+            <Typography className={styles.payListItemP}>
+              <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+              {rentInfo && deposit}
+            </Typography>
           </Box>
           <Box>
-            <Typography variant="h5">Rent/Day</Typography>
-            <Typography>0</Typography>
+            <Typography variant="h5">Pay daily (First Payment)</Typography>
+            <Typography className={styles.payListItemP}>
+              <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+              {rentInfo && firstPay}
+            </Typography>
           </Box>
         </Stack>
 
@@ -203,7 +238,6 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
             onClick={() => {
               handleApproveERC20()
             }}
-
           >
             {
               isApproved ? 'Approved' : 'Approve'

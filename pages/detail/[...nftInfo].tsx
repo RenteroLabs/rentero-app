@@ -1,8 +1,6 @@
-import { Avatar, Box, Breadcrumbs, Fade, IconButton, Paper, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Breadcrumbs, Fade, IconButton, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { NextPage } from "next/types";
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useQuery, gql, useLazyQuery } from '@apollo/client'
 import styles from '../../styles/detail.module.scss'
@@ -14,16 +12,15 @@ import classNames from "classnames/bind";
 import RentNFTModal from "../../components/RentNFT/RentNFTModal";
 import { PropsWithChildren, ReactElement, useEffect, useMemo, useState } from "react";
 import { useRequest } from "ahooks";
-import { getMarketNFTList, getNFTDetail } from "../../services/market";
+import { getNFTInfo } from "../../services/market";
 import { formatAddress } from "../../utils/format";
-import { ADDRESS_TOKEN_MAP, CHAIN_ICON, CHAIN_NAME, ZERO_ADDRESS } from "../../constants";
+import { ADDRESS_TOKEN_MAP, CHAIN_ICON, CHAIN_NAME, NFT_COLLECTIONS, ZERO_ADDRESS } from "../../constants";
 import Head from "next/head";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import LaunchIcon from '@mui/icons-material/Launch';
 import Layout2 from "../../components/layout2";
 import { NextPageWithLayout } from "../_app";
-import { Ropsten_721_AXE_NFT } from "../../constants/contractABI";
 import { GET_LEASES, GET_LEASE_INFO } from "../../constants/documentNode";
 import { LeaseItem } from "../../types";
 import { BigNumber, utils } from "ethers";
@@ -35,7 +32,6 @@ interface DetailCardBoxProps {
 }
 const DetailCardBox: React.FC<PropsWithChildren<DetailCardBoxProps>> = (props) => {
   const { children, title } = props
-
   return <Paper
     className={styles.detailCardBox}
   >
@@ -52,19 +48,17 @@ const Detail: NextPageWithLayout = () => {
   const isMounted = useIsMounted()
 
   const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
-  const [metadata, setMetadata] = useState<Record<string, any>>({})
   const [nftList, setNFTList] = useState<Record<string, any>[]>([])
   const [rentInfo, setRentInfo] = useState<LeaseItem>()
+  const [metaInfo, setMetaInfo] = useState<Record<string, any>>({})
 
   const [_, copyAddress] = useCopyToClipboard()
   const [isCopyed, setIsCopyed] = useState<boolean>(false)
   const [isRenterCopyed, setRenterCopyed] = useState<boolean>(false)
 
-
   const contractBlockExplore = useMemo(() => {
-    return `${etherscanBlockExplorers[CHAIN_NAME[3 | baseInfo.chainId]]?.url}/address/${baseInfo.nftAddress}`
-  }, [baseInfo])
-
+    return `${etherscanBlockExplorers[CHAIN_NAME[3]]?.url}/address/${nftAddress}`
+  }, [nftAddress])
 
   const [getLeaseInfo, { loading }] = useLazyQuery(GET_LEASE_INFO, {
     variables: { id: [nftAddress, tokenId].join('-') },
@@ -73,47 +67,24 @@ const Detail: NextPageWithLayout = () => {
     },
   })
 
-  const [getLeasesList, { loading: isLeasesLoading }] = useLazyQuery(GET_LEASES, {
-    variables: {
-      pageSize: 5,
-      skip: 0
-    },
+  useQuery(GET_LEASES, {
+    variables: { pageSize: 5, skip: 0 },
     onCompleted(data) {
       setNFTList(data.leases.filter((item: any) => item.tokenId != tokenId).splice(0, 4))
     }
   })
-  // const tokenInfo = useMemo(() => {
-  //   if (rentInfo) {
-  //     return ADDRESS_TOKEN_MAP[rentInfo.erc20Address]
-  //   }
-  // }, [rentInfo])
+
+  const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
+    manual: true,
+    onSuccess: ({ data }) => { setMetaInfo(data) }
+  })
 
   useEffect(() => {
     getLeaseInfo()
-    getLeasesList()
-  }, [])
-
-  const { run: fetchNFTDetail } = useRequest(getNFTDetail, {
-    manual: true,
-    onSuccess: ({ data }) => {
-      setBaseInfo(data)
-      try {
-        setMetadata(JSON.parse(data.metadata))
-      } catch (err) {
-        console.error(err)
-      }
+    if (nftAddress && tokenId) {
+      fetchNFTInfo({ tokenId: parseInt(tokenId), contractAddress: nftAddress })
     }
-  })
-
-  // // 获取相关推荐 NFT
-  // const { run: fetchNFTList } = useRequest(getMarketNFTList, {
-  //   manual: true,
-  //   onSuccess: async ({ data }) => {
-  //     const { pageContent } = data
-  //     const moreNFTs = pageContent.filter((item: any) => item.nftUid != tokenId).splice(0, 4)
-  //     setNFTList(moreNFTs)
-  //   }
-  // })
+  }, [nftAddress, tokenId])
 
   return <Box>
     <Head>
@@ -132,11 +103,17 @@ const Detail: NextPageWithLayout = () => {
       <Box className={styles.leftBox}>
         <Stack spacing="1.67rem">
           <Paper className={styles.itemCover} >
-            {(baseInfo.imageUrl) && <img src={baseInfo.imageUrl} />}
+            {(metaInfo?.imageUrl) && <img src={metaInfo?.imageUrl} />}
           </Paper>
 
-          <DetailCardBox title={<Box>About {baseInfo.nftName}</Box>}>
-            NFT Collection introduction
+          <DetailCardBox title={<Box>About {NFT_COLLECTIONS[nftAddress]}</Box>}>
+            <Box className={styles.nftDesc}>
+              {
+                metaInfo?.metadata && (JSON.parse(metaInfo.metadata).description)
+              }
+              {metaInfo?.metadata && <a href={JSON.parse(metaInfo.metadata).external_link}>{JSON.parse(metaInfo.metadata).external_link}</a>}
+            </Box>
+
           </DetailCardBox>
 
           <DetailCardBox
@@ -147,14 +124,14 @@ const Detail: NextPageWithLayout = () => {
                 <Box>Contract Address</Box>
                 <a href={contractBlockExplore} target="_blank" rel="noreferrer">
                   <Box className={styles.linkAddress}>
-                    {formatAddress(rentInfo?.nftAddress, 4)}&nbsp;
+                    {formatAddress(nftAddress, 4)}&nbsp;
                     <LaunchIcon />
                   </Box>
                 </a>
               </Box>
               <Box>
                 <Box>Token ID</Box>
-                <Box className={styles.linkAddress}>{rentInfo?.tokenId}</Box>
+                <Box className={styles.linkAddress}>{tokenId}</Box>
               </Box>
               <Box>
                 <Box>Token Standard</Box>
@@ -175,7 +152,7 @@ const Detail: NextPageWithLayout = () => {
           <Paper className={styles.rentNFTinfo}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <span className={styles.nftCollectionName}>{baseInfo.nftName}</span>
+                <span className={styles.nftCollectionName}>{NFT_COLLECTIONS[nftAddress]}</span>
               </Box>
               <Box className={styles.tagList}>
                 {rentInfo?.status === 'renting' &&
@@ -186,7 +163,7 @@ const Detail: NextPageWithLayout = () => {
                 }
               </Box>
             </Box>
-            <Typography variant="h2">{baseInfo.nftName} #{rentInfo?.tokenId}</Typography>
+            <Typography variant="h2">{NFT_COLLECTIONS[nftAddress]} #{rentInfo?.tokenId}</Typography>
             <Stack direction="row" spacing="4.83rem" className={styles.addressInfo}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography >Owned</Typography>
@@ -205,7 +182,7 @@ const Detail: NextPageWithLayout = () => {
                         <IconButton
                           size="small"
                           onClick={() => {
-                            copyAddress(baseInfo.lenderAddress)
+                            copyAddress(rentInfo?.lender as string)
                             setIsCopyed(true)
                             setTimeout(() => setIsCopyed(false), 2500)
                           }}>
@@ -254,7 +231,7 @@ const Detail: NextPageWithLayout = () => {
           <DetailCardBox
             title={<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Box>{baseInfo.mode === 'FreeTrial' ? 'Trial Period' : 'Rental Period'}</Box>
-              <Box>{baseInfo.mode === 'FreeTrial' ? '15' : `${rentInfo?.minRentalPeriods}-${rentInfo?.maxRentalPeriods}`} Days</Box>
+              <Box>{rentInfo ? `${rentInfo?.minRentalDays}-${rentInfo?.maxRentalDays}Days` : '-'}</Box>
             </Box>}
           >
             <Stack spacing="1.33rem" className={styles.rentInfoList}>
@@ -305,8 +282,7 @@ const Detail: NextPageWithLayout = () => {
                   ([ZERO_ADDRESS, address?.toLowerCase()].includes(rentInfo?.whitelist) ?
                     <RentNFTModal
                       reloadInfo={() => { fetchNFTDetail({ skuId: router.query['skuId'] }) }}
-                      skuId={tokenId}
-                      baseInfo={baseInfo}
+                      rentInfo={rentInfo}
                       trigger={<Box
                         className={
                           baseInfo.mode === 'FreeTrial' ?
@@ -327,22 +303,22 @@ const Detail: NextPageWithLayout = () => {
           </DetailCardBox>
 
           <DetailCardBox title={<Box>Status</Box>}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: "flex-start" }}>
+            <Typography className={styles.cardSubtitle}>Attributes</Typography>
+            <Stack className={styles.statusAttrList} spacing="1.33rem">
               {
-                metadata?.attributes?.map(({ value, trait_type }: any, index: number) => {
-                  return <Stack className={styles.nftAttrCard} key={index}>
-                    <Box>{trait_type}</Box>
-                    <Box className={styles.attrValue}>{value}</Box>
-                  </Stack>
-                })
-              }
-            </Box>
+                metaInfo?.metadata &&
+                JSON.parse(metaInfo?.metadata).attributes.map(({ value, trait_type }: any, index: number) => <Box key={index}>
+                  <Box>{trait_type}:</Box>
+                  <Box className={styles.attrValue}>{value}</Box>
+                </Box>
+                )}
+            </Stack>
           </DetailCardBox>
         </Stack>
       </Box>
 
       <Paper className={styles.itemCoverMobile} >
-        {(baseInfo.imageUrl) && <img src={baseInfo.imageUrl} />}
+        {(metaInfo?.imageUrl) && <img src={metaInfo?.imageUrl} />}
       </Paper>
     </Box>
 

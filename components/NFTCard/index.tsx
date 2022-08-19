@@ -1,13 +1,15 @@
 import { Avatar, Box, Collapse, Stack, Typography, useMediaQuery } from '@mui/material'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import NFT_RENTED from '../../public/nft_rented.png'
-import { ADDRESS_TOKEN_MAP, CHAIN_ICON, ZERO_ADDRESS } from '../../constants'
+import { ADDRESS_TOKEN_MAP, CHAIN_ICON, NFT_COLLECTIONS, ZERO_ADDRESS } from '../../constants'
 import styles from './index.module.scss'
 import classNames from 'classnames/bind'
 import { LeaseItem } from '../../types'
 import { BigNumber, utils } from 'ethers'
+import { getNFTInfo } from '../../services/market'
+import { useRequest } from 'ahooks'
 
 const cx = classNames.bind(styles)
 
@@ -18,7 +20,18 @@ interface NFTCardProps {
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
   const { nftInfo, mode = '@lease' } = props
+  const [metaInfo, setMetaInfo] = useState<Record<string, any>>({})
   const minMobileWidth = useMediaQuery("(max-width: 426px)")
+
+  const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
+    manual: true,
+    onSuccess: ({ data }) => { setMetaInfo(data) }
+  })
+
+  useEffect(() => {
+    fetchNFTInfo({ tokenId: parseInt(nftInfo.tokenId), contractAddress: nftInfo.nftAddress })
+  }, [])
+
 
   const handleRentNow = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -30,8 +43,8 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
       className={cx({ "card": true, "cardTrialBackground": mode === '@trial' })}
     >
       <Box className={styles.nftImage}>
-        {nftInfo.imageUrl &&
-          <Image src={nftInfo.imageUrl} layout="fill" />}
+        {metaInfo?.imageUrl &&
+          <Image src={metaInfo?.imageUrl} layout="fill" />}
         {nftInfo.status === 'renting' &&
           <Box className={styles.imageCover}>
             <Stack direction="column" className={styles.lockCoverInfo}>
@@ -55,7 +68,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
         </Box>
       </Box>
       <Box className={styles.cardTitle}>
-        <Box className={styles.nftName}>{nftInfo.nftName}</Box>
+        <Box className={styles.nftName}>{NFT_COLLECTIONS[nftInfo.nftAddress]}</Box>
         <Box className={styles.nftNumber}>#{nftInfo.tokenId}</Box>
       </Box>
       {
@@ -65,7 +78,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
               {
                 mode === '@lease' ? <>
                   <Box>{!minMobileWidth && "Rental "}Period</Box>
-                  <Box>{nftInfo.minRentalPeriods}-{nftInfo.maxRentalPeriods} Days</Box>
+                  <Box>{nftInfo.minRentalDays}-{nftInfo.maxRentalDays} Days</Box>
                 </> : <>
                   <Box>{!minMobileWidth && "Ratio To "}Renter</Box>
                   <Box>30%</Box>

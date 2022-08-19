@@ -80,7 +80,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
     if (isErrorFormatAddress) return false
     if (!lendDailyPrice) return
     return true
-  }, [isErrorFormatAddress])
+  }, [isErrorFormatAddress, lendDailyPrice])
 
   useEffect(() => {
     (async () => {
@@ -93,6 +93,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
 
   // 出借 NFT
   const handleLendNFT = async () => {
+    console.log(isLoading, isApproved, alreadyApproved, isReady)
     if (isLoading || (!isApproved && !alreadyApproved) || !isReady) return
     setErrorMessage('')
     setIsLoading(true)

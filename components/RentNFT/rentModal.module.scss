@@ -84,7 +84,7 @@
           margin-top: 1.33rem;
         }
       }
-
+      
       .rentDayBox {
         height: 4rem;
         width: 100%;
@@ -136,6 +136,16 @@
         & + div {
           margin-top: 1.33rem;
         }
+      }
+    }
+
+    .payListItemP {
+      display: inline-flex;
+      align-items: center;
+      img {
+        width: 1.67rem;
+        height: 1.67rem;
+        margin-right: 0.67rem;
       }
     }
   }

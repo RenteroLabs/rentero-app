@@ -16,8 +16,8 @@ export interface LeaseItem {
   expires: string;
   id: string;
   lender: string;
-  maxRentalPeriods: string;
-  minRentalPeriods: string;
+  minRentalDays: string;
+  maxRentalDays: string;
   nftAddress: string;
   rentPerDay: string;
   renter: string;
