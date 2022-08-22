@@ -70,21 +70,28 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
 
   // 授权 ERC20 token 合约
   const contractERC20 = useContract({
-    addressOrName: TOKEN_LIST['WETH'].address,
+    addressOrName: rentInfo.erc20Address,
     contractInterface: erc20ABI,
     signerOrProvider: signer
   })
 
   useEffect(() => {
     (async () => {
-      const data = await contractERC20.allowance(address, INSTALLMENT_MARKET)
-      const approvedToken = BigNumber.from(data)
-      const neeedToken = utils.parseEther('3')
-      if (approvedToken.gte(neeedToken)) {
-        setAlreadyApproved(true)
+      if (address && rentInfo) {
+        // TODO: 调用 allowance 方法前需处于正确网络中, 不然执行该合约调用会报错
+
+        // 判断是否已经 approveForAll ERC20 token
+        const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET)
+        // 已授权的金额是否大于最大可支付金额 （此次定价授权金额是否会对其他订单的授权金额产生影响）
+
+        // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
+        const compareAmount = ethers.constants.MaxInt256
+        if (ethers.BigNumber.from(approveToken).gte(compareAmount)) {
+          setAlreadyApproved(true)
+        }
       }
     })();
-  }, [])
+  }, [rentInfo])
 
   const [
     dailyPrice,

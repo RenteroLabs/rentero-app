@@ -11,14 +11,19 @@ import WithdrawNFTModal from "./Modals/WithdrawNFT"
 import { useLocalStorageState, useRequest } from "ahooks"
 import { borrowerList, lenderList, overviewData } from "../../services/dashboard"
 import { OrderInfo } from "../../types/dashboard"
-import { Ropsten_721_AXE_NFT, ROPSTEN_ACCOUNT_ABI, ROPSTEN_ACCOUNT, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from "../../constants/contractABI"
+import { ROPSTEN_ACCOUNT_ABI, ROPSTEN_ACCOUNT, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from "../../constants/contractABI"
 import { dateFormat, formatAddress } from "../../utils/format"
-import { useContract, useSigner } from "wagmi"
+import { useAccount, useContract, useSigner } from "wagmi"
 import { LoadingButton } from "@mui/lab"
 import TakeOffNFTModal from "./Modals/TakeOffNFT"
 import LendConfig from "../LendNFT/SliptModeLendConfig"
 import CloseIcon from '@mui/icons-material/Close'
-import { ZERO_ADDRESS } from "../../constants"
+import { ADDRESS_TOKEN_MAP, ZERO_ADDRESS } from "../../constants"
+import { GET_MY_LENDING, GET_MY_RENTING } from "../../constants/documentNode"
+import { useQuery } from "@apollo/client"
+import { LeaseItem } from "../../types"
+import { getNFTInfo } from "../../services/market"
+import { BigNumber, ethers } from "ethers"
 
 const cx = classNames.bind(styles)
 
@@ -78,14 +83,13 @@ const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
   </Box>
 }
 
-export interface DashboardProps {
-
-}
+export interface DashboardProps { }
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
   const { } = props
   const isMounted = useIsMounted()
   const { data: signer } = useSigner()
+  const { address } = useAccount()
   const [rawToken] = useLocalStorageState<string>('token')
   const [tableType, setTableType] = useState<"RENT" | "LEND">('RENT')
 
@@ -93,13 +97,124 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const [lendTotal, setLendTotal] = useState<number>(0)
   const [borrowerDataSource, setBorrowerDataSource] = useState<OrderInfo[]>([])
   const [borrowerTotal, setBorrowerTotal] = useState<number>(0)
-  const [overview, setOverview] = useState<Record<string, any>>({})
+  const [rentingList, setRentingList] = useState<LeaseItem[]>([])
+  const [lendingList, setLendingList] = useState<LeaseItem[]>([])
+  const [metaList, setMetaList] = useState<Record<string, any>>({})
 
-  const [metadata, setMetaData] = useState<Record<number, any>>({})
+  const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
+    manual: true,
+    onSuccess: ({ data }) => {
+      console.log(data)
+      setMetaList({
+        ...metaList,
+        [`${data.contractAddress.toLowerCase()}-${data.tokenId}`]: data
+      })
+    }
+  })
 
-  const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>()
-  const [showSnackbar, setShowSnackbar] = useState<boolean>(false)
+  const { loading: rentLoading } = useQuery(GET_MY_RENTING, {
+    variables: { renter: address },
+    onCompleted(data) {
+      data = {
+        "leases": [
+          {
+            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-11",
+            "minRentalDays": "5",
+            "lender": "0xbeaa278db721b34e61721c1f8edab25c069bae8d",
+            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
+            "maxRentalDays": "30",
+            "status": "lending",
+            "rentPerDay": "1000000",
+            "renter": null,
+            "whitelist": "0x0000000000000000000000000000000000000000",
+            "tokenId": "11",
+            "expires": null,
+            "erc20Address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+            "deposit": "1000000",
+            "daysPerPeriod": 5,
+          },
+          {
+            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-14",
+            "minRentalDays": "1",
+            "lender": "0x431b4ca18e269fc7e1f5af49b9f4e2af683f6207",
+            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
+            "maxRentalDays": "100",
+            "status": "renting",
+            "rentPerDay": "10000000000000000",
+            "renter": "0xbeaa278db721b34e61721c1f8edab25c069bae8d",
+            "whitelist": "0x0000000000000000000000000000000000000000",
+            "tokenId": "14",
+            "expires": "1661168964",
+            "erc20Address": "0x1a007dbef79c0786d75c5d27f851f37990d7c1d0",
+            "deposit": "10000000000000000",
+            "daysPerPeriod": 3,
+          },
+          {
+            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-16",
+            "minRentalDays": "1",
+            "lender": "0x576687d59d191a9b20110fb3e126dbf27d8e42e0",
+            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
+            "maxRentalDays": "90",
+            "status": "lending",
+            "rentPerDay": "1000000000000000",
+            "renter": null,
+            "whitelist": "0x0000000000000000000000000000000000000000",
+            "tokenId": "16",
+            "expires": null,
+            "erc20Address": "0x1a007dbef79c0786d75c5d27f851f37990d7c1d0",
+            "deposit": "1000000000000000",
+            "daysPerPeriod": 3,
+          },
+          {
+            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-17",
+            "minRentalDays": "1",
+            "lender": "0x576687d59d191a9b20110fb3e126dbf27d8e42e0",
+            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
+            "maxRentalDays": "120",
+            "status": "lending",
+            "rentPerDay": "120000",
+            "renter": null,
+            "whitelist": "0x0000000000000000000000000000000000000000",
+            "tokenId": "17",
+            "expires": null,
+            "erc20Address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+            "deposit": "120000",
+            "daysPerPeriod": 3,
+          },
+          {
+            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-18",
+            "minRentalDays": "1",
+            "lender": "0x431b4ca18e269fc7e1f5af49b9f4e2af683f6207",
+            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
+            "maxRentalDays": "100",
+            "status": "renting",
+            "rentPerDay": "20000000000000000",
+            "renter": "0x576687d59d191a9b20110fb3e126dbf27d8e42e0",
+            "whitelist": "0x0000000000000000000000000000000000000000",
+            "tokenId": "18",
+            "expires": "1661079528",
+            "erc20Address": "0x1a007dbef79c0786d75c5d27f851f37990d7c1d0",
+            "deposit": "20000000000000000",
+            "daysPerPeriod": 10,
+          },
+        ]
+      }
+      setRentingList(data.leases)
+      data?.leases?.forEach((item: { tokenId: any; nftAddress: any }) => {
+        fetchNFTInfo({ tokenId: item.tokenId, contractAddress: item.nftAddress })
+      })
+    }
+  })
+
+  const { loading: lendLoading } = useQuery(GET_MY_LENDING, {
+    variables: { lender: address },
+    onCompleted(data) {
+      setLendingList(data.leases)
+      data?.leases?.forEach((item: { tokenId: any; nftAddress: any }) => {
+        fetchNFTInfo({ tokenId: item.tokenId, contractAddress: item.nftAddress })
+      })
+    }
+  })
 
   const jwtToken = useMemo(() => {
     if (!rawToken) return ''
@@ -118,84 +233,25 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     signerOrProvider: signer
   })
 
-  const { run: getLenderList, loading: lenderListLoading } = useRequest(lenderList, {
-    manual: true,
-    onSuccess: async ({ data }) => {
-      setLendDataSource(data?.pageContent || [])
-      setLendTotal(Math.ceil((data?.totalRemain || 0) / 10))
-
-      let newMetaList: Record<number, any> = {}
-      data?.pageContent.forEach((item: OrderInfo, index: number) => {
-        try {
-          newMetaList[parseInt(data.pageContent[index].skuId)] = JSON.parse(item.metadata)
-        } catch (err: any) {
-          console.error(err.message)
-        }
-      })
-      setMetaData({ ...metadata, ...newMetaList })
-    }
-  })
-
-  const { run: getBorrowerList, loading: borrowerListLoading } = useRequest(borrowerList, {
-    manual: true,
-    onSuccess: async ({ data }) => {
-      setBorrowerDataSource(data.pageContent)
-      setBorrowerTotal(Math.ceil((data.totalRemain || 0) / 10))
-
-      let newMetaList: Record<number, any> = {}
-      data.pageContent.forEach((item: OrderInfo, index: number) => {
-        try {
-          newMetaList[parseInt(data.pageContent[index].skuId)] = JSON.parse(item.metadata)
-        } catch (err: any) {
-          console.error(err.message)
-        }
-      })
-      setMetaData({ ...metadata, ...newMetaList })
-    }
-  })
-
-  const { run: getOverview } = useRequest(overviewData, {
-    manual: true,
-    onSuccess: ({ data }) => {
-      setOverview(data)
-    }
-  })
 
   const isLoading = useMemo(() => {
-    return lenderListLoading || borrowerListLoading
-  }, [lenderListLoading, borrowerListLoading])
-
-  useEffect(() => {
-    getLenderList({ token: jwtToken, pageIndex: 1 })
-    getBorrowerList({ token: jwtToken, pageIndex: 1 })
-    getOverview(jwtToken)
-  }, [])
+    return lendLoading || rentLoading
+  }, [rentLoading, lendLoading])
 
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'skuId'
-    }, {
       title: 'NFT',
       dataindex: 'nft',
     }, {
-      title: 'Total Earning',
-      dataIndex: 'totalInComeValue'
+      title: 'Daily Price',
     }, {
-      title: 'Type',
-      dataIndex: 'mode',
+      title: "Pay period"
     }, {
-      title: 'Ratio',
-      dataIndex: 'lenderEarnRatio',
+      title: 'Deposit',
+      dataIndex: 'deposit',
     }, {
-      title: 'Game Name',
-      dataIndex: 'gameName',
-    }, {
-      title: 'Order Time',
+      title: 'Expire time',
       dataIndex: 'orderTime',
-    }, {
-      title: 'Status',
-      dataIndex: 'status'
     }, {
       title: 'Manage'
     }
@@ -210,18 +266,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     }
   }
 
-  // 提取收益
-  const withdrawEarning = async () => {
-    setWithdrawLoading(true)
-    setErrorMessage(undefined)
-    try {
-      await contractAccount.withdrawToken(0)
-    } catch (err: any) {
-      setErrorMessage(err.message)
-      setShowSnackbar(true)
-    }
-    setWithdrawLoading(false)
-  }
 
   // TODO: dashboard页在调用合约操作之前需判断当前所处网络
 
@@ -252,54 +296,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     }
   }
 
-  const showRentType = (mode: string) => {
-    switch (mode) {
-      case 'Dividend': return 'Slipt';
-      case 'FreeTrial': return 'Trial';
-      default: return '-';
-    }
-  }
-
-  return <div>
-    <Stack direction="row" className={styles.overviewBox}>
-      <Card variant="outlined">
-        <Box>Rent Count </Box>
-        <Box>{overview?.borrowCount}</Box>
-      </Card>
-      <Card variant="outlined">
-        <Box>Lend Count</Box>
-        <Box>{overview.lendCount}</Box>
-      </Card>
-      <Card variant="outlined">
-        <Box>Total Deposit</Box>
-        <Box>{'0' || overview.totalDeposit}</Box>
-      </Card>
-      <Card variant="outlined">
-        <Box>Total Income </Box>
-        <Box>{overview.borrowInCome + overview.lendInCome}</Box>
-        <LoadingButton
-          loading={withdrawLoading}
-          variant="outlined"
-          color="success"
-          size="small"
-          onClick={withdrawEarning}
-        >Withdraw</LoadingButton>
-      </Card>
-      <Snackbar
-        open={showSnackbar}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        autoHideDuration={7000}
-        TransitionComponent={(props: SlideProps) => <Slide {...props} direction="up" />}
-        onClose={() => setShowSnackbar(false)}>
-        <Alert severity="error" sx={{ width: '100%' }}>
-          {errorMessage}
-        </Alert>
-      </Snackbar>
-    </Stack>
-
+  return <Box>
     <Box className={styles.tableSearch}>
       <Box className={styles.toggleBtnGroup}>
         <div onClick={() => setTableType('RENT')}>
@@ -337,35 +334,55 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       </TableHead>
       <TableBody className={styles.tableBody}>
         {
-          !isLoading && (tableType === 'RENT' ? borrowerDataSource : lendDataSource).map((item, index) => {
+          !isLoading && (tableType === 'RENT' ? rentingList : lendingList).map((item, index) => {
             return <TableRow key={index}>
-              <TableCell>{item.skuId}</TableCell>
               <TableCell>
                 <Box className={styles.nftBoxCell}>
                   <Box className={styles.boxImage}>
-                    <img src={item.imageUrl} />
-                    {item.whiteAddress !== ZERO_ADDRESS && <span className={styles.whitelistIcon}></span>}
+                    <img src={metaList[[item.nftAddress, item.tokenId].join('-')]?.imageUrl} />
+                    {item.whitelist !== ZERO_ADDRESS && <span className={styles.whitelistIcon}></span>}
                   </Box>
                   <Stack sx={{ margin: 'auto 1rem' }}>
-                    <Typography className={styles.nftCollectionName}>{metadata[item.skuId]?.name} &nbsp;#{item.nftUid}</Typography>
-                    <Typography className={styles.nftAddress}>{formatAddress(tableType === 'RENT' ? item.lenderAddress : item.borrowAddress, 5)}</Typography>
+                    <Typography className={styles.nftCollectionName}>
+                      {
+                        console.log(metaList[[item.nftAddress, item.tokenId].join('-')])
+                      }
+                      {
+                        metaList[[item.nftAddress, item.tokenId].join('-')] && JSON.parse(metaList[[item.nftAddress, item.tokenId].join('-')]?.metadata).name
+                      }
+                      &nbsp;#{item.tokenId}
+                    </Typography>
+                    <Typography className={styles.nftAddress}>
+                      {formatAddress(tableType === 'RENT' ? item.lender : item.renter, 5)}
+                    </Typography>
                   </Stack>
                 </Box>
               </TableCell>
-              <TableCell>{item.totalInComeValue || 0}</TableCell>
-              <TableCell>{showRentType(item.mode)}</TableCell>
-              <TableCell>{item.lenderEarnRatio}%</TableCell>
-              <TableCell>{item.gameName}</TableCell>
-              <TableCell>{item.orderTime ? dateFormat('YYYY-mm-dd HH:MM:SS', new Date(item.orderTime * 1000)) : '-'}</TableCell>
-              <TableCell>{lendingStatus(item)}</TableCell>
+              <TableCell >
+                <Box className={styles.payCoinCol}>
+                  <img src={ADDRESS_TOKEN_MAP[item?.erc20Address]?.logo} />
+                  {ethers.utils.formatUnits(BigNumber.from(item?.deposit), ADDRESS_TOKEN_MAP[item?.erc20Address]?.decimal)}
+                </Box>
+              </TableCell>
+              <TableCell>
+                {item?.daysPerPeriod}
+              </TableCell>
+              <TableCell >
+                <Box className={styles.payCoinCol}>
+                  <img src={ADDRESS_TOKEN_MAP[item?.erc20Address]?.logo} />
+                  {ethers.utils.formatUnits(BigNumber.from(item?.rentPerDay), ADDRESS_TOKEN_MAP[item?.erc20Address]?.decimal)}
+                </Box>
+              </TableCell>
+              <TableCell>
+                {dateFormat('YYYY-mm-dd', new Date(parseInt(item?.expires) * 1000))}
+              </TableCell>
+
               <TableCell align="center">
                 {tableType === 'RENT' &&
-                  (item.status === 'Doing' ?
-                    <ReturnNFTModal
-                      trigger={<span className={cx({ "returnButton": true, "returnButton_disable": item.status !== 'Doing' })}>Return</span>}
-                      orderId={item.orderId}
-                    /> :
-                    <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Return</span>)}
+                  <ReturnNFTModal
+                    trigger={<span className={cx({ "returnButton": true })}>Return</span>}
+                    orderId={item.tokenId}
+                  />}
                 {tableType === 'LEND' && <LendOperation item={item} />}
               </TableCell>
             </TableRow>
@@ -401,14 +418,13 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       className={styles.pagination}
       count={tableType === 'LEND' ? lendTotal : borrowerTotal}
       onChange={(_, currentPage: number) => {
-        console.log(currentPage)
         if (tableType === 'LEND') {
-          getLenderList({ token: jwtToken, pageIndex: currentPage })
+          // getLenderList({ token: jwtToken, pageIndex: currentPage })
         } else if (tableType === 'RENT') {
-          getBorrowerList({ token: jwtToken, pageIndex: currentPage })
+          // getBorrowerList({ token: jwtToken, pageIndex: currentPage })
         }
       }} />
-  </div>
+  </Box>
 }
 
 export default Dashboard

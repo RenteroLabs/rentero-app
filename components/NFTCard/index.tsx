@@ -1,11 +1,12 @@
-import { Avatar, Box, Collapse, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Box, Stack, Typography, useMediaQuery } from '@mui/material'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import NFT_RENTED from '../../public/nft_rented.png'
-import { ADDRESS_TOKEN_MAP, CHAIN_ICON, NFT_COLLECTIONS, ZERO_ADDRESS } from '../../constants'
+import { ADDRESS_TOKEN_MAP, AVAILABEL_DATE_FORMAT, NFT_COLLECTIONS, ZERO_ADDRESS } from '../../constants'
 import styles from './index.module.scss'
 import classNames from 'classnames/bind'
+import { dateFormat } from "../../utils/format"
 import { LeaseItem } from '../../types'
 import { BigNumber, utils } from 'ethers'
 import { getNFTInfo } from '../../services/market'
@@ -21,11 +22,21 @@ interface NFTCardProps {
 const NFTCard: React.FC<NFTCardProps> = (props) => {
   const { nftInfo, mode = '@lease' } = props
   const [metaInfo, setMetaInfo] = useState<Record<string, any>>({})
+  const [attrList, setAttrList] = useState<Record<string, any>[]>([])
   const minMobileWidth = useMediaQuery("(max-width: 426px)")
 
   const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
     manual: true,
-    onSuccess: ({ data }) => { setMetaInfo(data) }
+    onSuccess: ({ data }) => { 
+      setMetaInfo(data) 
+      let attrs 
+      try {
+        attrs = JSON.parse(data.metadata)?.attributes
+      } catch (err) {
+        console.error(err)
+      }
+      setAttrList(attrs)
+    }
   })
 
   useEffect(() => {
@@ -50,13 +61,18 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
             <Stack direction="column" className={styles.lockCoverInfo}>
               <Image src={NFT_RENTED} alt="NFT RENTED" className={styles.lockIcon} />
               <Typography>Rented</Typography>
-              <Box className={styles.unlockTime}>10-12-2022 Available</Box>
+              <Box className={styles.unlockTime}>{dateFormat("mm-dd-YYYY", new Date(parseInt(nftInfo.expires) * 1000))} Available</Box>
             </Stack>
           </Box>}
         {nftInfo.status === 'lending' &&
           <Box className={styles.imageCoverAttr}>
             <Stack direction="column" className={styles.attrList}>
-              <Box>Attr1: Fire</Box>
+              {
+                attrList.map((item, index) => <Box key={index} className={styles.attrItem}>
+                  <span>{item.trait_type}:</span>
+                  <span className={styles.attrItemValue}>{item.value}</span>
+                </Box>)
+              }
             </Stack>
           </Box>
         }

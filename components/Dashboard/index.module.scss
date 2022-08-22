@@ -348,3 +348,13 @@
     background-color: #f3ae43;
   }
 }
+
+.payCoinCol {
+  display: inline-flex;
+  align-items: center;
+  img {
+    margin-right: 0.67rem;
+    width: 1.67rem;
+    height: 1.67rem;
+  }
+}

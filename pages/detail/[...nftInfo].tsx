@@ -98,7 +98,7 @@ const Detail: NextPageWithLayout = () => {
         <Typography >Detail</Typography>
       </Breadcrumbs>
     </Box> */}
-    <Box className={styles.mainContentBox}>
+    {isMounted && <Box className={styles.mainContentBox}>
       {/* left content */}
       <Box className={styles.leftBox}>
         <Stack spacing="1.67rem">
@@ -273,7 +273,8 @@ const Detail: NextPageWithLayout = () => {
                   {baseInfo.mode === 'FreeTrial' ? 'Trialed' : 'Rented'}
                 </Box>}
               {
-                (rentInfo?.status !== 'renting' && isMounted && !isConnected) ?
+                rentInfo?.status === 'lending' &&
+                ((isMounted && !isConnected) ?
                   <ConnectWallet
                     trigger={<Box className={styles.rentButton}>Connect Wallet</Box>}
                     closeCallback={() => { }}
@@ -293,7 +294,7 @@ const Detail: NextPageWithLayout = () => {
                     <Box className={styles.rentedButton}>
                       {baseInfo.mode === 'FreeTrial' ? 'Trial' : 'Rent'}
                     </Box>
-                  )
+                  ))
               }
             </Stack>
             {rentInfo?.whitelist !== ZERO_ADDRESS &&
@@ -320,22 +321,22 @@ const Detail: NextPageWithLayout = () => {
       <Paper className={styles.itemCoverMobile} >
         {(metaInfo?.imageUrl) && <img src={metaInfo?.imageUrl} />}
       </Paper>
-    </Box>
+    </Box>}
 
-    <Box className={styles.moreNFTCards} >
+    {isMounted && <Box className={styles.moreNFTCards} >
       <Box className={styles.moreNFTtitle}>
         <Typography variant="h3">More NFTs</Typography>
         <Link href="/"><Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography></Link>
       </Box>
       <Box sx={{ overflowX: 'scroll' }}>
-        <Stack direction="row" className={styles.cardList} >
+        {nftList && isMounted && <Stack direction="row" className={styles.cardList} >
           {
             nftList.map((item: any, index: number) =>
               <NFTCard nftInfo={item} key={index} />)
           }
-        </Stack>
+        </Stack>}
       </Box>
-    </Box>
+    </Box>}
   </Box>
 }
 
