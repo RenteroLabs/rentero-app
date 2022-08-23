@@ -19,7 +19,7 @@ const DefaultButton: React.FC<PropsWithChildren<DefaultButtonProps>> = (props) =
     sx={sx}
   >
     {loading &&
-      <Box sx={{ display: 'flex', alignItems: 'center' }}><CircularProgress size={18} />&nbsp;&nbsp;Pending</Box>}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CircularProgress size={18} />&nbsp;&nbsp;Pending</Box>}
     {(children && !loading) ? children : btnText}
   </Box>
 }

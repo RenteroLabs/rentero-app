@@ -1,13 +1,8 @@
 import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography, Alert, Dialog, DialogTitle, IconButton } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import DoneIcon from '@mui/icons-material/Done';
-import AppDialog from '../Dialog'
 import styles from './rentModal.module.scss'
 import { erc20ABI, etherscanBlockExplorers, useAccount, useContract, useNetwork, useSigner, useWaitForTransaction } from 'wagmi';
 import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI, Ropsten_721_AXE_NFT, ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../constants/contractABI';
-import { LoadingButton } from '@mui/lab';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIcon from '@mui/icons-material/Close';
 import DefaultButton from '../Buttons/DefaultButton';
 import InputNumber from 'rc-input-number'
@@ -15,6 +10,7 @@ import { ADDRESS_TOKEN_MAP, MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS
 import { ethers, BigNumber, utils } from 'ethers';
 import classNames from "classnames/bind"
 import { LeaseItem } from '../../types';
+import TxLoadingDialog from '../TxLoadingDialog';
 
 const cx = classNames.bind(styles)
 
@@ -28,11 +24,8 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   const { trigger, rentInfo, reloadInfo } = props
   const [visibile, setVisibile] = useState<boolean>(false)
 
-  const [txHash, setTxHash] = useState<string | undefined>()
   const [txError, setTxError] = useState<string>('')
-  const { chain } = useNetwork()
   const [buttonLoading, setButtonLoading] = useState<boolean>(false)
-  const [isRented, setIsRented] = useState<boolean>(false)
   const { address } = useAccount()
   const { data: signer } = useSigner()
 
@@ -40,27 +33,36 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   const [isApproved, setIsApproved] = useState<boolean>(false)
   const [alreadyApproved, setAlreadyApproved] = useState<boolean>(false)
 
+  const [showTxDialog, setShowTxDialog] = useState<boolean>(false)
 
   const [approveTxHash, setApproveTxHash] = useState<string | undefined>()
   const { } = useWaitForTransaction({
     hash: approveTxHash,
     onSuccess: () => {
       setIsApproved(true)
+      setApproveTxHash('')
     },
-    onSettled: () => setButtonLoading(false)
+    onSettled: () => {
+      setButtonLoading(false)
+      setShowTxDialog(false)
+    }
   })
 
   const [rentTxHash, setRentTxHash] = useState<string | undefined>()
-  const { } = useWaitForTransaction({
+  useWaitForTransaction({
     hash: rentTxHash,
-    onSuccess: () => { },
-    onSettled: () => setButtonLoading(false)
+    onSuccess: () => {
+      setRentTxHash('')
+      // 关闭租借弹窗
+      setVisibile(false)
+      // 刷新页面数据
+      reloadInfo()
+    },
+    onSettled: () => {
+      setButtonLoading(false)
+      setShowTxDialog(false)
+    }
   })
-
-  const blockscanUrl = useMemo(() => {
-    return `${chain?.blockExplorers?.default.url}/tx/${txHash}`
-  }, [txHash, chain])
-
 
   const contractMarket = useContract({
     addressOrName: INSTALLMENT_MARKET,
@@ -123,7 +125,6 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
     setButtonLoading(true)
     try {
       const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, ethers.constants.MaxUint256)
-      setTxHash(hash)
       setApproveTxHash(hash)
     } catch (err: any) {
       setTxError(err.message)
@@ -132,6 +133,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   }
 
   const handleRentNFT = async () => {
+    console.log("22")
     setTxError('')
     // 用户不能租借自己出租的 NFT
     if (rentInfo?.lender === address?.toLowerCase()) {
@@ -140,13 +142,15 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
     }
 
     setButtonLoading(true)
+    setShowTxDialog(true)
+    console.log("tee")
     try {
       const { hash } = await contractMarket.rent(rentInfo?.nftAddress, rentInfo?.tokenId, rentDay)
-      setTxHash(hash)
       setRentTxHash(hash)
     } catch (err: any) {
       setTxError(err.message)
       setButtonLoading(false)
+      setShowTxDialog(false)
     }
   }
 
@@ -236,7 +240,13 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
           </Box>
         </Stack>
 
-        {txError && <Alert variant="outlined" severity="error" sx={{ mb: '2rem' }}>{txError}</Alert>}
+        {txError && <Alert
+          variant="outlined"
+          severity="error"
+          sx={{ mb: '2rem' }}
+          className="alertTxErrorMsg"
+          onClose={() => setTxError('')}
+        >{txError}</Alert>}
 
         <Stack direction="row" spacing="2rem">
           {!alreadyApproved && <DefaultButton
@@ -252,8 +262,9 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
           </DefaultButton>}
           <DefaultButton
             className={cx({ 'baseButton': true, 'disableButton': !isApproved && !alreadyApproved })}
-            onClick={async () => {
-              if (isApproved) {
+            loading={buttonLoading && (isApproved || alreadyApproved)}
+            onClick={() => {
+              if (isApproved || alreadyApproved) {
                 handleRentNFT()
               }
             }}
@@ -263,6 +274,8 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
         </Stack>
       </Box>
     </Dialog>
+
+    <TxLoadingDialog showTxDialog={showTxDialog} txHash={rentTxHash || approveTxHash || ''} />
   </Box>
 }
 

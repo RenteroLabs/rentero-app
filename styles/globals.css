@@ -28,3 +28,11 @@ a {
   font-family: Agrandir-GrandHeavy;
   src: url(../public/font/Agrandir-GrandHeavy.otf);
 }
+
+.alertTxErrorMsg {
+  width: 100%;
+  word-wrap: break-word;
+  word-break: break-all;
+  max-height: 25rem;
+  overflow-y: scroll;
+}

@@ -115,90 +115,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const { loading: rentLoading } = useQuery(GET_MY_RENTING, {
     variables: { renter: address },
     onCompleted(data) {
-      data = {
-        "leases": [
-          {
-            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-11",
-            "minRentalDays": "5",
-            "lender": "0xbeaa278db721b34e61721c1f8edab25c069bae8d",
-            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
-            "maxRentalDays": "30",
-            "status": "lending",
-            "rentPerDay": "1000000",
-            "renter": null,
-            "whitelist": "0x0000000000000000000000000000000000000000",
-            "tokenId": "11",
-            "expires": null,
-            "erc20Address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
-            "deposit": "1000000",
-            "daysPerPeriod": 5,
-          },
-          {
-            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-14",
-            "minRentalDays": "1",
-            "lender": "0x431b4ca18e269fc7e1f5af49b9f4e2af683f6207",
-            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
-            "maxRentalDays": "100",
-            "status": "renting",
-            "rentPerDay": "10000000000000000",
-            "renter": "0xbeaa278db721b34e61721c1f8edab25c069bae8d",
-            "whitelist": "0x0000000000000000000000000000000000000000",
-            "tokenId": "14",
-            "expires": "1661168964",
-            "erc20Address": "0x1a007dbef79c0786d75c5d27f851f37990d7c1d0",
-            "deposit": "10000000000000000",
-            "daysPerPeriod": 3,
-          },
-          {
-            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-16",
-            "minRentalDays": "1",
-            "lender": "0x576687d59d191a9b20110fb3e126dbf27d8e42e0",
-            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
-            "maxRentalDays": "90",
-            "status": "lending",
-            "rentPerDay": "1000000000000000",
-            "renter": null,
-            "whitelist": "0x0000000000000000000000000000000000000000",
-            "tokenId": "16",
-            "expires": null,
-            "erc20Address": "0x1a007dbef79c0786d75c5d27f851f37990d7c1d0",
-            "deposit": "1000000000000000",
-            "daysPerPeriod": 3,
-          },
-          {
-            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-17",
-            "minRentalDays": "1",
-            "lender": "0x576687d59d191a9b20110fb3e126dbf27d8e42e0",
-            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
-            "maxRentalDays": "120",
-            "status": "lending",
-            "rentPerDay": "120000",
-            "renter": null,
-            "whitelist": "0x0000000000000000000000000000000000000000",
-            "tokenId": "17",
-            "expires": null,
-            "erc20Address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
-            "deposit": "120000",
-            "daysPerPeriod": 3,
-          },
-          {
-            "id": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b-18",
-            "minRentalDays": "1",
-            "lender": "0x431b4ca18e269fc7e1f5af49b9f4e2af683f6207",
-            "nftAddress": "0x26aa590dd520cec0f6638f59ebd4e93f9287448b",
-            "maxRentalDays": "100",
-            "status": "renting",
-            "rentPerDay": "20000000000000000",
-            "renter": "0x576687d59d191a9b20110fb3e126dbf27d8e42e0",
-            "whitelist": "0x0000000000000000000000000000000000000000",
-            "tokenId": "18",
-            "expires": "1661079528",
-            "erc20Address": "0x1a007dbef79c0786d75c5d27f851f37990d7c1d0",
-            "deposit": "20000000000000000",
-            "daysPerPeriod": 10,
-          },
-        ]
-      }
       setRentingList(data.leases)
       data?.leases?.forEach((item: { tokenId: any; nftAddress: any }) => {
         fetchNFTInfo({ tokenId: item.tokenId, contractAddress: item.nftAddress })
@@ -215,11 +131,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       })
     }
   })
-
-  const jwtToken = useMemo(() => {
-    if (!rawToken) return ''
-    return rawToken.split('*')[1]
-  }, [rawToken])
 
   const contractWrap = useContract({
     addressOrName: Ropsten_WrapNFT,
@@ -381,9 +292,19 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 {tableType === 'RENT' &&
                   <ReturnNFTModal
                     trigger={<span className={cx({ "returnButton": true })}>Return</span>}
-                    orderId={item.tokenId}
+                    tokenId={item.tokenId}
+                    nftAddress={item.nftAddress}
+                    // TODO: 目前采用刷新页面方式更新最新数据，后续再优化
+                    reloadTable={() => window.location.reload()}
                   />}
-                {tableType === 'LEND' && <LendOperation item={item} />}
+                {/* {tableType === 'LEND' && <LendOperation item={item} />} */}
+                {tableType === 'LEND' &&
+                  <WithdrawNFTModal
+                    trigger={<span className={cx({ "returnButton": true, })} >Redeem</span>}
+                    rentInfo={item}
+                    // TODO:
+                    reloadTable={() => window.location.reload()}
+                  />}
               </TableCell>
             </TableRow>
           })

@@ -2,13 +2,12 @@ import { Box, Breadcrumbs, Fade, IconButton, Paper, Stack, Tooltip, Typography }
 import Link from "next/link";
 import { useRouter } from "next/router";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useQuery, gql, useLazyQuery } from '@apollo/client'
+import { useQuery, useLazyQuery } from '@apollo/client'
 import styles from '../../styles/detail.module.scss'
 import NFTCard from "../../components/NFTCard";
 import ConnectWallet from "../../components/ConnectWallet";
 import { etherscanBlockExplorers, useAccount } from "wagmi";
 import { useCopyToClipboard, useIsMounted } from "../../hooks";
-import classNames from "classnames/bind";
 import RentNFTModal from "../../components/RentNFT/RentNFTModal";
 import { PropsWithChildren, ReactElement, useEffect, useMemo, useState } from "react";
 import { useRequest } from "ahooks";
@@ -24,8 +23,6 @@ import { NextPageWithLayout } from "../_app";
 import { GET_LEASES, GET_LEASE_INFO } from "../../constants/documentNode";
 import { LeaseItem } from "../../types";
 import { BigNumber, utils } from "ethers";
-
-const cx = classNames.bind(styles)
 
 interface DetailCardBoxProps {
   title: React.ReactElement
@@ -60,7 +57,7 @@ const Detail: NextPageWithLayout = () => {
     return `${etherscanBlockExplorers[CHAIN_NAME[3]]?.url}/address/${nftAddress}`
   }, [nftAddress])
 
-  const [getLeaseInfo, { loading }] = useLazyQuery(GET_LEASE_INFO, {
+  const [getLeaseInfo] = useLazyQuery(GET_LEASE_INFO, {
     variables: { id: [nftAddress, tokenId].join('-') },
     onCompleted(data) {
       setRentInfo(data.lease)
@@ -281,8 +278,8 @@ const Detail: NextPageWithLayout = () => {
                   />
                   :
                   ([ZERO_ADDRESS, address?.toLowerCase()].includes(rentInfo?.whitelist) ?
-                    rentInfo && <RentNFTModal
-                      reloadInfo={() => { }}
+                    <RentNFTModal
+                      reloadInfo={getLeaseInfo}
                       rentInfo={rentInfo}
                       trigger={<Box
                         className={
