@@ -43,8 +43,8 @@ export const GET_LEASE_INFO = gql`
 `
 
 export const GET_MY_RENTING = gql`
-  query($renter: String!) {
-    leases(where: { renter: $renter}) {
+  query($renter: String!, $timestamp: String!) {
+    leases(where: { renter: $renter, expires_gt: $timestamp}) {
         deposit
         daysPerPeriod
         erc20Address

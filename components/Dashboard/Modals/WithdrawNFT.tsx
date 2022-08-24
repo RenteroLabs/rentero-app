@@ -1,5 +1,5 @@
 import { Alert, Box, Stack, Typography } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { erc20ABI, useAccount, useContract, useSigner, useWaitForTransaction } from 'wagmi'
 import classNames from 'classnames/bind';
 import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../../constants/contractABI'
@@ -7,8 +7,10 @@ import AppDialog from '../../Dialog'
 import styles from './modal.module.scss'
 import DefaultButton from '../../Buttons/DefaultButton';
 import { LeaseItem } from '../../../types';
-import { ethers } from 'ethers';
+import { BigNumber, ethers, utils } from 'ethers';
 import TxLoadingDialog from '../../TxLoadingDialog';
+import { ADDRESS_TOKEN_MAP, ONEDAY } from '../../../constants';
+import { dateFormat } from '../../../utils/format';
 
 const cx = classNames.bind(styles)
 interface WithdrawNFTModalProps {
@@ -29,6 +31,16 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   const [showTxDialog, setShowTxDialog] = useState<boolean>(false)
 
   const { data: signer } = useSigner()
+
+  // 计算一个周期内还未使用消耗的天数费用
+  const unUsedDaysInPeriod = useMemo(() => {
+    const currentTime = Math.round(Number(new Date()) / 1000)
+    console.log(parseInt(rentInfo.expires) ,currentTime)
+    if (!rentInfo.expires || parseInt(rentInfo.expires) < currentTime) return 0
+
+    const days = (parseInt(rentInfo.expires) - currentTime) / ONEDAY
+    console.log(days)
+  }, [rentInfo])
 
   const contractMarket = useContract({
     addressOrName: INSTALLMENT_MARKET,
@@ -110,17 +122,17 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
       <Stack className={styles.redeemInfo} spacing="1.33rem">
         <Box >
           <Box>Original Expiry Time</Box>
-          <Box>{rentInfo.expires}</Box>
+          <Box>{dateFormat("YYYY-mm-dd HH:MM", new Date(parseInt(rentInfo.expires) * 1000)) }</Box>
         </Box>
-        <Box>
+        {/* <Box>
           <Box>Total Amount</Box>
           <Box></Box>
-        </Box>
+        </Box> */}
       </Stack>
-      <hr/>
+      <Box className={styles.stackLine}></Box>
       <Stack className={styles.payDetail} spacing="1.33rem">
         <Box>
-          <Box>Total  liquidated damages</Box>
+          <Box className={styles.totalLabelValue}>Total  liquidated damages</Box>
           <Box></Box>
         </Box>
         <Box>
@@ -129,7 +141,10 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
         </Box>
         <Box>
           <Box>Compensation To Renter</Box>
-          <Box></Box>
+          <Box>
+            <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+            {utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)}
+          </Box>
         </Box>
       </Stack>
       {txError &&

@@ -27,62 +27,6 @@ import { BigNumber, ethers } from "ethers"
 
 const cx = classNames.bind(styles)
 
-const LendOperation: React.FC<{ item: OrderInfo }> = ({ item }) => {
-  const [showModal, setShowModal] = useState<boolean>(false)
-
-  let redeemButton
-  switch (item.status) {
-    case 'BCancel':
-    case 'LCancel':
-      redeemButton = (item.itemStatus === 'Renting' ?
-        <span className={cx({ "returnButton": true, "returnButton_disable": true })}>Withdraw</span>
-        : <WithdrawNFTModal
-          trigger={<span className={cx({ "returnButton": true, })} >Withdraw</span>}
-          nftUid={item.nftUid}
-        />)
-      break;
-    case 'Doing':
-    default:
-      redeemButton = <TakeOffNFTModal
-        trigger={<span className={cx({
-          "returnButton": true,
-          "returnButton_disable": item.status && item.status !== 'Doing'
-        })}>TakeOff</span>}
-        orderId={item.orderId}
-      />; break;
-
-  }
-
-  return <Box sx={{ display: 'flex', alignItems: 'center' }}>
-    <Box
-      className={`${styles.returnButton} ${item.status && styles.returnButton_disable}`}
-      onClick={() => {
-        if (!item.status) {
-          setShowModal(true)
-        }
-      }}>
-      Edit</Box>
-    {redeemButton}
-
-    <Dialog open={showModal} className={styles.container}>
-      <DialogTitle className={styles.dialogTitle}>
-        <Box className={styles.emptyBox}></Box>
-        Update Lend NFT Config
-        <IconButton
-          aria-label="close"
-          onClick={() => setShowModal(false)}
-          sx={{ color: (theme) => theme.palette.grey[500] }}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent className={styles.dialogContent}>
-        <LendConfig />
-      </DialogContent>
-    </Dialog>
-  </Box>
-}
-
 export interface DashboardProps { }
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
@@ -101,10 +45,14 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const [lendingList, setLendingList] = useState<LeaseItem[]>([])
   const [metaList, setMetaList] = useState<Record<string, any>>({})
 
+  const timestamp = useMemo(() => {
+    return (new Date().getTime() / 1000).toFixed()
+  }, [])
+
   const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
     manual: true,
+    throttleWait: 10,
     onSuccess: ({ data }) => {
-      console.log(data)
       setMetaList({
         ...metaList,
         [`${data.contractAddress.toLowerCase()}-${data.tokenId}`]: data
@@ -113,7 +61,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   })
 
   const { loading: rentLoading } = useQuery(GET_MY_RENTING, {
-    variables: { renter: address },
+    variables: { renter: address, timestamp },
     onCompleted(data) {
       setRentingList(data.leases)
       data?.leases?.forEach((item: { tokenId: any; nftAddress: any }) => {
@@ -131,19 +79,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       })
     }
   })
-
-  const contractWrap = useContract({
-    addressOrName: Ropsten_WrapNFT,
-    contractInterface: Ropsten_WrapNFT_ABI,
-    signerOrProvider: signer
-  })
-
-  const contractAccount = useContract({
-    addressOrName: ROPSTEN_ACCOUNT,
-    contractInterface: ROPSTEN_ACCOUNT_ABI,
-    signerOrProvider: signer
-  })
-
 
   const isLoading = useMemo(() => {
     return lendLoading || rentLoading
@@ -167,16 +102,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       title: 'Manage'
     }
   ]
-
-  // 赎回 NFT
-  const withdrawNFT = async (nftUid: number) => {
-    try {
-      await contractWrap.redeem(nftUid)
-    } catch (err: any) {
-      console.error(err.message)
-    }
-  }
-
 
   // TODO: dashboard页在调用合约操作之前需判断当前所处网络
 
@@ -225,7 +150,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           />
         </div>
       </Box>
-      <Paper component="form" className={styles.searchInput}>
+      {/* <Paper component="form" className={styles.searchInput}>
         <IconButton>
           <SearchIcon sx={{ color: '#777E90', width: '1.4rem', height: '1.4rem' }} />
         </IconButton>
@@ -233,7 +158,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           sx={{ flex: 1 }}
           placeholder="Enter NFT Id or Name For Searching"
         />
-      </Paper>
+      </Paper> */}
     </Box>
     <Table className={styles.tableBox}>
       <TableHead className={styles.tableHeader}>
@@ -255,9 +180,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                   </Box>
                   <Stack sx={{ margin: 'auto 1rem' }}>
                     <Typography className={styles.nftCollectionName}>
-                      {
-                        console.log(metaList[[item.nftAddress, item.tokenId].join('-')])
-                      }
                       {
                         metaList[[item.nftAddress, item.tokenId].join('-')] && JSON.parse(metaList[[item.nftAddress, item.tokenId].join('-')]?.metadata).name
                       }
@@ -285,7 +207,11 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 </Box>
               </TableCell>
               <TableCell>
-                {dateFormat('YYYY-mm-dd', new Date(parseInt(item?.expires) * 1000))}
+                {
+                  item?.status === "lending"
+                    ? '-'
+                    : dateFormat('YYYY-mm-dd', new Date(parseInt(item?.expires) * 1000))
+                }
               </TableCell>
 
               <TableCell align="center">
@@ -323,7 +249,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       {
         !isLoading
         && isMounted
-        && (tableType === 'LEND' && lendDataSource.length === 0 || tableType === 'RENT' && borrowerDataSource.length === 0)
+        && (tableType === 'LEND' && lendingList.length === 0 || tableType === 'RENT' && rentingList.length === 0)
         && <TableFooter className={styles.tableFooter}>
           <TableRow>
             <TableCell colSpan={12}>

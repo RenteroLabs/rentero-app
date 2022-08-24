@@ -40,6 +40,7 @@ export const MAX_RENTABLE_DAYS = 2 ** 16 - 1 // 65535
 export const MIN_RENTABLE_DAYS = 1
 
 export const AVAILABEL_DATE_FORMAT = "MM-DD-YYYY"
+export const ONEDAY = 24 * 60 * 60
 
 const ETH_USDT = '0xdac17f958d2ee523a2206206994597c13d831ec7'
 const ETH_USDC = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'

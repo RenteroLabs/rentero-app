@@ -63,15 +63,44 @@
   padding: 2rem 3.33rem;
   width: 46.67rem;
 
-  .redeemInfo, .payDetail {
+  .redeemInfo,
+  .payDetail {
     & > div {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-size: 1.33rem;
       font-family: Poppins-Regular, Poppins;
       font-weight: 400;
       color: #777e90;
       line-height: 2rem;
+      div {
+        display: inline-flex;
+        align-items: center;
+        img {
+          width: 1.67rem;
+          height: 1.67rem;
+          margin-right: 0.5rem;
+        }
+      }
     }
+  }
+
+  .payDetail {
+    margin-bottom: 2.67rem;
+  }
+
+  .totalLabelValue {
+    font-size: 1.67rem;
+    font-family: Poppins-SemiBold, Poppins;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 2.33rem;
+  }
+  .stackLine {
+    background: #d8d8d8;
+    opacity: 0.08;
+    border: 0.08rem solid #979797;
+    margin: 2rem auto;
   }
 }

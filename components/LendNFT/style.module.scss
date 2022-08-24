@@ -459,17 +459,17 @@
   padding: 1.08rem 5rem !important;
 }
 
-.lendStepTwoBox {
-  overflow: hidden;
-  :global {
-    .MuiStepper-root {
-      padding-left: 25%;
-      margin: auto;
-      text-align: center;
-      margin-top: 2rem;
-    }
-  }
-}
+// .lendStepTwoBox {
+//   overflow: hidden;
+//   :global {
+//     .MuiStepper-root {
+//       padding-left: 25%;
+//       margin: auto;
+//       text-align: center;
+//       margin-top: 2rem;
+//     }
+//   }
+// }
 
 .lendTypeBox {
   border-bottom: 0.16rem solid rgba($color: #979797, $alpha: 0.08);
@@ -783,6 +783,17 @@
       & > div {
         height: 3.33rem;
       }
+      .errorFormat {
+        display: flex;
+        align-items: center;
+        text-align: left;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+        font-family: Poppins-Regular, Poppins;
+        font-weight: 400;
+        line-height: 1.67rem;
+        color: #d32f2f;
+      }
     }
 
     .formValueBox {
@@ -828,17 +839,6 @@
       @extend .lendFormItem;
       & > div {
         @extend .formValueBox;
-      }
-      .errorFormat {
-        display: flex;
-        align-items: center;
-        text-align: left;
-        font-size: 1rem;
-        margin-top: 0.5rem;
-        font-family: Poppins-Regular, Poppins;
-        font-weight: 400;
-        color: rgb(205, 78, 78);
-        line-height: 1.67rem;
       }
     }
 
