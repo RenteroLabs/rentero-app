@@ -57,6 +57,17 @@
   color: #d6d7dc !important;
   line-height: 2rem !important;
 }
+.normalRedeemBox {
+  padding: 2rem 3.33rem;
+  width: 46.67rem;
+  p {
+    font-size: 1.33rem;
+    font-family: Poppins-Regular, Poppins;
+    color: #ffffff;
+    line-height: 2.33rem;
+    margin-bottom: 2rem;
+  }
+}
 
 .redeemNFTBox {
   box-sizing: border-box;

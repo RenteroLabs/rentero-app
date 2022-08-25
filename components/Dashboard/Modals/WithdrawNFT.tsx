@@ -1,15 +1,15 @@
 import { Alert, Box, Stack, Typography } from '@mui/material'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { erc20ABI, useAccount, useContract, useSigner, useWaitForTransaction } from 'wagmi'
 import classNames from 'classnames/bind';
-import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../../constants/contractABI'
+import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI } from '../../../constants/contractABI'
 import AppDialog from '../../Dialog'
 import styles from './modal.module.scss'
 import DefaultButton from '../../Buttons/DefaultButton';
 import { LeaseItem } from '../../../types';
 import { BigNumber, ethers, utils } from 'ethers';
 import TxLoadingDialog from '../../TxLoadingDialog';
-import { ADDRESS_TOKEN_MAP, ONEDAY } from '../../../constants';
+import { ADDRESS_TOKEN_MAP, ONEDAY, ZERO_ADDRESS } from '../../../constants';
 import { dateFormat } from '../../../utils/format';
 
 const cx = classNames.bind(styles)
@@ -25,6 +25,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   const [txError, setTxError] = useState<string | undefined>()
   const [buttonLoading, setButtonLoading] = useState<boolean>(false)
 
+  const { address } = useAccount()
   const [isApproved, setIsApproved] = useState<boolean>(false)
   const [alreadyApproved, setAlreadyApproved] = useState<boolean>(false)
 
@@ -32,14 +33,20 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
 
   const { data: signer } = useSigner()
 
+  const isNormalRedeem = useMemo(() => {
+    return rentInfo.renter === ZERO_ADDRESS
+  }, [rentInfo])
+
   // 计算一个周期内还未使用消耗的天数费用
-  const unUsedDaysInPeriod = useMemo(() => {
+  const [unUsedDaysInPeriod, totalReturn] = useMemo(() => {
     const currentTime = Math.round(Number(new Date()) / 1000)
-    console.log(parseInt(rentInfo.expires) ,currentTime)
-    if (!rentInfo.expires || parseInt(rentInfo.expires) < currentTime) return 0
+    if (!rentInfo.expires || parseInt(rentInfo.expires) < currentTime) return [0, 0]
 
     const days = (parseInt(rentInfo.expires) - currentTime) / ONEDAY
-    console.log(days)
+    const unUsedDaysInPeriod = Math.ceil(days)
+    const totalReturn = BigNumber.from(rentInfo.rentPerDay).mul(BigNumber.from(unUsedDaysInPeriod)).add(BigNumber.from(rentInfo.deposit))
+
+    return [unUsedDaysInPeriod, totalReturn]
   }, [rentInfo])
 
   const contractMarket = useContract({
@@ -48,7 +55,6 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
-  // 授权 ERC20 token 合约
   const contractERC20 = useContract({
     addressOrName: rentInfo.erc20Address,
     contractInterface: erc20ABI,
@@ -58,9 +64,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   const [approveTxHash, setApproveTxHash] = useState<string | undefined>()
   useWaitForTransaction({
     hash: approveTxHash,
-    onSuccess: () => {
-      setIsApproved(true)
-    },
+    onSuccess: () => setIsApproved(true),
     onSettled: () => {
       setShowTxDialog(false)
       setApproveTxHash('')
@@ -72,9 +76,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   useWaitForTransaction({
     hash: redeemTxHash,
     onSuccess: () => {
-      // 关闭租借弹窗
       setHiddenDialog(true)
-      // 刷新页面数据
       reloadTable()
     },
     onSettled: () => {
@@ -84,12 +86,26 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
     }
   })
 
+  useEffect(() => {
+    (async () => {
+      // TODO: 调用 allowance 方法前需处于正确网络中, 不然执行该合约调用会报错
+
+      const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET)
+
+      // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
+      const compareAmount = ethers.constants.MaxInt256
+      if (ethers.BigNumber.from(approveToken).gte(compareAmount)) {
+        setAlreadyApproved(true)
+      }
+    })()
+  }, [rentInfo])
+
   const handleApproveERC20 = async () => {
     setTxError('')
     setButtonLoading(true)
     setShowTxDialog(true)
     try {
-      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, ethers.constants.MaxUint256)
+      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, totalReturn)
       setApproveTxHash(hash)
     } catch (err: any) {
       setTxError(err.message)
@@ -115,68 +131,98 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
 
   return <AppDialog
     trigger={trigger}
-    title="Redeeming NFT"
+    title={`Redeeming NFT #${rentInfo.tokenId}`}
     hiddenDialog={hiddenDialog}
   >
-    <Box className={styles.redeemNFTBox}>
-      <Stack className={styles.redeemInfo} spacing="1.33rem">
-        <Box >
-          <Box>Original Expiry Time</Box>
-          <Box>{dateFormat("YYYY-mm-dd HH:MM", new Date(parseInt(rentInfo.expires) * 1000)) }</Box>
+    {
+      isNormalRedeem ?
+        <Box className={styles.normalRedeemBox}>
+          <Typography>Are you sure you want to get your NFT back?</Typography>
+          {txError &&
+            <Alert
+              variant="outlined"
+              severity="error"
+              sx={{ m: '1rem auto' }}
+              onClose={() => setTxError('')}
+              className="alertTxErrorMsg"
+            >{txError}</Alert>}
+          <Stack>
+            <DefaultButton
+              onClick={() => redeemNFT()}
+              loading={buttonLoading}
+              className={styles.baseButton} >
+              Redeem
+            </DefaultButton>
+          </Stack>
         </Box>
-        {/* <Box>
-          <Box>Total Amount</Box>
-          <Box></Box>
-        </Box> */}
-      </Stack>
-      <Box className={styles.stackLine}></Box>
-      <Stack className={styles.payDetail} spacing="1.33rem">
-        <Box>
-          <Box className={styles.totalLabelValue}>Total  liquidated damages</Box>
-          <Box></Box>
-        </Box>
-        <Box>
-          <Box>Unrealized Amount</Box>
-          <Box></Box>
-        </Box>
-        <Box>
-          <Box>Compensation To Renter</Box>
-          <Box>
-            <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
-            {utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)}
-          </Box>
-        </Box>
-      </Stack>
-      {txError &&
-        <Alert
-          variant="outlined"
-          severity="error"
-          sx={{ m: '1rem auto' }}
-          onClose={() => setTxError('')}
-          className="alertTxErrorMsg"
-        >{txError}</Alert>}
+        :
+        <Box className={styles.redeemNFTBox}>
+          <Stack className={styles.redeemInfo} spacing="1.33rem">
+            <Box >
+              <Box>Original Expiry Time</Box>
+              <Box>{dateFormat("YYYY-mm-dd HH:MM", new Date(parseInt(rentInfo.expires) * 1000))}</Box>
+            </Box>
+            {/* <Box>
+                  <Box>Total Amount</Box>
+                  <Box></Box>
+                </Box> */}
+          </Stack>
+          <Box className={styles.stackLine}></Box>
+          <Stack className={styles.payDetail} spacing="1.33rem">
+            <Box>
+              <Box className={styles.totalLabelValue}>Total  liquidated damages</Box>
+              <Box>
+                <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+                {parseFloat(utils.formatUnits(totalReturn, ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal))}
+              </Box>
+            </Box>
+            <Box>
+              <Box>Unrealized Amount</Box>
+              <Box>
+                <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+                {unUsedDaysInPeriod} * {utils.formatUnits(BigNumber.from(rentInfo?.rentPerDay), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)}
+              </Box>
+            </Box>
+            <Box>
+              <Box>Compensation To Renter</Box>
+              <Box>
+                <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+                {utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)}
+              </Box>
+            </Box>
+          </Stack>
+          {txError &&
+            <Alert
+              variant="outlined"
+              severity="error"
+              sx={{ m: '1rem auto' }}
+              onClose={() => setTxError('')}
+              className="alertTxErrorMsg"
+            >{txError}</Alert>}
 
-      <Stack direction="row" spacing="2rem">
-        {!alreadyApproved && <DefaultButton
-          className={cx({ 'baseButton': true, 'disableButton': isApproved })}
-          loading={buttonLoading && !isApproved}
-          onClick={() => handleApproveERC20()}
-        >
-          {isApproved ? 'Approved' : 'Approve'}
-        </DefaultButton>}
-        <DefaultButton
-          className={cx({ 'baseButton': true, 'disableButton': !isApproved && !alreadyApproved })}
-          loading={buttonLoading && (isApproved || alreadyApproved)}
-          onClick={() => {
-            if (isApproved || alreadyApproved) {
-              redeemNFT()
-            }
-          }}
-        >
-          Redeem
-        </DefaultButton>
-      </Stack>
-    </Box>
+          <Stack direction="row" spacing="2rem">
+            {!alreadyApproved && <DefaultButton
+              className={cx({ 'baseButton': true, 'disableButton': isApproved })}
+              loading={buttonLoading && !isApproved}
+              onClick={() => handleApproveERC20()}
+            >
+              {isApproved ? 'Approved' : 'Approve'}
+            </DefaultButton>}
+            <DefaultButton
+              className={cx({ 'baseButton': true, 'disableButton': !isApproved && !alreadyApproved })}
+              loading={buttonLoading && (isApproved || alreadyApproved)}
+              onClick={() => {
+                if (isApproved || alreadyApproved) {
+                  redeemNFT()
+                }
+              }}
+            >
+              Redeem
+            </DefaultButton>
+          </Stack>
+        </Box>
+    }
+
     <TxLoadingDialog showTxDialog={showTxDialog} txHash={approveTxHash || redeemTxHash || ''} />
   </AppDialog>
 }

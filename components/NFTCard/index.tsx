@@ -1,7 +1,7 @@
 import { Box, Stack, Typography, useMediaQuery } from '@mui/material'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import NFT_RENTED from '../../public/nft_rented.png'
 import { ADDRESS_TOKEN_MAP, AVAILABEL_DATE_FORMAT, NFT_COLLECTIONS, ZERO_ADDRESS } from '../../constants'
 import styles from './index.module.scss'
@@ -25,11 +25,16 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
   const [attrList, setAttrList] = useState<Record<string, any>[]>([])
   const minMobileWidth = useMediaQuery("(max-width: 426px)")
 
+  const nftStatus = useMemo(() => {
+    const current = (Number(new Date) / 1000).toFixed()
+    return nftInfo.expires > current ? 'renting' : 'lending'
+  }, [nftInfo])
+
   const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
     manual: true,
-    onSuccess: ({ data }) => { 
-      setMetaInfo(data) 
-      let attrs 
+    onSuccess: ({ data }) => {
+      setMetaInfo(data)
+      let attrs
       try {
         attrs = JSON.parse(data.metadata)?.attributes
       } catch (err) {
@@ -56,7 +61,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
       <Box className={styles.nftImage}>
         {metaInfo?.imageUrl &&
           <Image src={metaInfo?.imageUrl} layout="fill" />}
-        {nftInfo.status === 'renting' &&
+        {nftStatus === 'renting' &&
           <Box className={styles.imageCover}>
             <Stack direction="column" className={styles.lockCoverInfo}>
               <Image src={NFT_RENTED} alt="NFT RENTED" className={styles.lockIcon} />
@@ -64,7 +69,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
               <Box className={styles.unlockTime}>{dateFormat("mm-dd-YYYY", new Date(parseInt(nftInfo.expires) * 1000))} Available</Box>
             </Stack>
           </Box>}
-        {nftInfo.status === 'lending' &&
+        {nftStatus === 'lending' &&
           <Box className={styles.imageCoverAttr}>
             <Stack direction="column" className={styles.attrList}>
               {
@@ -114,7 +119,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
           </>
       }
       <Box className={styles.rentButtonBox} >
-        {nftInfo.status === 'lending' && mode !== '@trial' &&
+        {nftStatus === 'lending' && mode !== '@trial' &&
           <Box className={styles.rentButton} onClick={handleRentNow} >
             Rent
           </Box>

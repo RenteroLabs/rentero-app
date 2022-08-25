@@ -13,7 +13,7 @@ import { PropsWithChildren, ReactElement, useEffect, useMemo, useState } from "r
 import { useRequest } from "ahooks";
 import { getNFTInfo } from "../../services/market";
 import { formatAddress } from "../../utils/format";
-import { ADDRESS_TOKEN_MAP, CHAIN_ICON, CHAIN_NAME, NFT_COLLECTIONS, ZERO_ADDRESS } from "../../constants";
+import { ADDRESS_TOKEN_MAP, CHAIN_NAME, NFT_COLLECTIONS, ZERO_ADDRESS } from "../../constants";
 import Head from "next/head";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
@@ -57,7 +57,12 @@ const Detail: NextPageWithLayout = () => {
     return `${etherscanBlockExplorers[CHAIN_NAME[3]]?.url}/address/${nftAddress}`
   }, [nftAddress])
 
-  const [getLeaseInfo] = useLazyQuery(GET_LEASE_INFO, {
+  const nftStatus = useMemo(() => {
+    const current = (Number(new Date) / 1000).toFixed()
+    return (rentInfo?.expires || 0) > current ? 'renting' : 'lending'
+  }, [rentInfo])
+
+  const [getLeaseInfo, { refetch }] = useLazyQuery(GET_LEASE_INFO, {
     variables: { id: [nftAddress, tokenId].join('-') },
     onCompleted(data) {
       setRentInfo(data.lease)
@@ -152,7 +157,7 @@ const Detail: NextPageWithLayout = () => {
                 <span className={styles.nftCollectionName}>{NFT_COLLECTIONS[nftAddress]}</span>
               </Box>
               <Box className={styles.tagList}>
-                {rentInfo?.status === 'renting' &&
+                {nftStatus === 'renting' &&
                   <Box component="span" className={styles.rentedTag}>Rented</Box>}
                 {
                   rentInfo?.whitelist && rentInfo.whitelist != ZERO_ADDRESS &&
@@ -192,7 +197,7 @@ const Detail: NextPageWithLayout = () => {
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography>Renter</Typography>
                 {
-                  rentInfo?.renter ?
+                  rentInfo?.renter != ZERO_ADDRESS ?
                     <>
                       <span className={styles.ownerAddress}>
                         {formatAddress(rentInfo?.renter, 4)}
@@ -209,7 +214,7 @@ const Detail: NextPageWithLayout = () => {
                               <IconButton
                                 size="small"
                                 onClick={() => {
-                                  copyAddress(rentInfo?.renter)
+                                  copyAddress(rentInfo?.renter || '')
                                   setRenterCopyed(true)
                                   setTimeout(() => setRenterCopyed(false), 2500)
                                 }}>
@@ -265,12 +270,12 @@ const Detail: NextPageWithLayout = () => {
                   }
                 </Box>
               </Box>
-              {rentInfo?.status === 'renting' &&
+              {nftStatus === 'renting' &&
                 <Box className={styles.rentedButton}>
                   {baseInfo.mode === 'FreeTrial' ? 'Trialed' : 'Rented'}
                 </Box>}
               {
-                rentInfo?.status === 'lending' &&
+                nftStatus === 'lending' &&
                 ((isMounted && !isConnected) ?
                   <ConnectWallet
                     trigger={<Box className={styles.rentButton}>Connect Wallet</Box>}
@@ -279,8 +284,8 @@ const Detail: NextPageWithLayout = () => {
                   :
                   ([ZERO_ADDRESS, address?.toLowerCase()].includes(rentInfo?.whitelist) ?
                     <RentNFTModal
-                      reloadInfo={getLeaseInfo}
-                      rentInfo={rentInfo}
+                      reloadInfo={refetch}
+                      rentInfo={rentInfo || {} as LeaseItem}
                       trigger={<Box
                         className={
                           baseInfo.mode === 'FreeTrial' ?

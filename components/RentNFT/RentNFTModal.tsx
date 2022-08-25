@@ -1,12 +1,12 @@
-import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography, Alert, Dialog, DialogTitle, IconButton } from '@mui/material'
+import { Box, Stack, Typography, Alert, Dialog, DialogTitle, IconButton } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
 import styles from './rentModal.module.scss'
-import { erc20ABI, etherscanBlockExplorers, useAccount, useContract, useNetwork, useSigner, useWaitForTransaction } from 'wagmi';
-import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI, Ropsten_721_AXE_NFT, ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../constants/contractABI';
+import { erc20ABI, useAccount, useContract, useSigner, useWaitForTransaction } from 'wagmi';
+import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI';
 import CloseIcon from '@mui/icons-material/Close';
 import DefaultButton from '../Buttons/DefaultButton';
 import InputNumber from 'rc-input-number'
-import { ADDRESS_TOKEN_MAP, MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS, TOKEN_LIST } from '../../constants';
+import { ADDRESS_TOKEN_MAP } from '../../constants';
 import { ethers, BigNumber, utils } from 'ethers';
 import classNames from "classnames/bind"
 import { LeaseItem } from '../../types';
@@ -36,15 +36,13 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   const [showTxDialog, setShowTxDialog] = useState<boolean>(false)
 
   const [approveTxHash, setApproveTxHash] = useState<string | undefined>()
-  const { } = useWaitForTransaction({
+  useWaitForTransaction({
     hash: approveTxHash,
-    onSuccess: () => {
-      setIsApproved(true)
-      setApproveTxHash('')
-    },
+    onSuccess: () => setIsApproved(true),
     onSettled: () => {
       setButtonLoading(false)
       setShowTxDialog(false)
+      setApproveTxHash('')
     }
   })
 
@@ -52,7 +50,6 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   useWaitForTransaction({
     hash: rentTxHash,
     onSuccess: () => {
-      setRentTxHash('')
       // 关闭租借弹窗
       setVisibile(false)
       // 刷新页面数据
@@ -61,6 +58,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
     onSettled: () => {
       setButtonLoading(false)
       setShowTxDialog(false)
+      setRentTxHash('')
     }
   })
 
@@ -70,7 +68,6 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
-  // 授权 ERC20 token 合约
   const contractERC20 = useContract({
     addressOrName: rentInfo.erc20Address,
     contractInterface: erc20ABI,
@@ -84,6 +81,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
 
         // 判断是否已经 approveForAll ERC20 token
         const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET)
+
         // 已授权的金额是否大于最大可支付金额 （此次定价授权金额是否会对其他订单的授权金额产生影响）
 
         // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
@@ -121,29 +119,31 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
 
   const handleApproveERC20 = async () => {
     setTxError('')
-
     setButtonLoading(true)
+    setShowTxDialog(true)
     try {
       const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, ethers.constants.MaxUint256)
       setApproveTxHash(hash)
     } catch (err: any) {
       setTxError(err.message)
       setButtonLoading(false)
+      setShowTxDialog(false)
     }
   }
 
   const handleRentNFT = async () => {
-    console.log("22")
-    setTxError('')
+    // TODO: 判断是否是当前 NFT 所属网络
+
     // 用户不能租借自己出租的 NFT
     if (rentInfo?.lender === address?.toLowerCase()) {
       setTxError('Users cannot rent NFTs they own')
       return
     }
 
+    setTxError('')
     setButtonLoading(true)
     setShowTxDialog(true)
-    console.log("tee")
+
     try {
       const { hash } = await contractMarket.rent(rentInfo?.nftAddress, rentInfo?.tokenId, rentDay)
       setRentTxHash(hash)
@@ -256,9 +256,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
               handleApproveERC20()
             }}
           >
-            {
-              isApproved ? 'Approved' : 'Approve'
-            }
+            {isApproved ? 'Approved' : 'Approve'}
           </DefaultButton>}
           <DefaultButton
             className={cx({ 'baseButton': true, 'disableButton': !isApproved && !alreadyApproved })}

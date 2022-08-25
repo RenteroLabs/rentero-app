@@ -11,10 +11,8 @@ import WithdrawNFTModal from "./Modals/WithdrawNFT"
 import { useLocalStorageState, useRequest } from "ahooks"
 import { borrowerList, lenderList, overviewData } from "../../services/dashboard"
 import { OrderInfo } from "../../types/dashboard"
-import { ROPSTEN_ACCOUNT_ABI, ROPSTEN_ACCOUNT, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from "../../constants/contractABI"
 import { dateFormat, formatAddress } from "../../utils/format"
 import { useAccount, useContract, useSigner } from "wagmi"
-import { LoadingButton } from "@mui/lab"
 import TakeOffNFTModal from "./Modals/TakeOffNFT"
 import LendConfig from "../LendNFT/SliptModeLendConfig"
 import CloseIcon from '@mui/icons-material/Close'
@@ -49,34 +47,34 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     return (new Date().getTime() / 1000).toFixed()
   }, [])
 
-  const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
-    manual: true,
-    throttleWait: 10,
-    onSuccess: ({ data }) => {
-      setMetaList({
-        ...metaList,
-        [`${data.contractAddress.toLowerCase()}-${data.tokenId}`]: data
+  const batchRequestMetas = (list: LeaseItem[]) => {
+    const requestList = list.map((item: { tokenId: any; nftAddress: any }) => {
+      return getNFTInfo({ tokenId: item.tokenId, contractAddress: item.nftAddress })
+    })
+    Promise.all(requestList).then(results => {
+      let metadata: Record<string, any> = {}
+      results.forEach(({ data }) => {
+        metadata[`${data.contractAddress.toLowerCase()}-${data.tokenId}`] = data
       })
-    }
-  })
+      setMetaList({ ...metaList, ...metadata })
+    })
+  }
 
-  const { loading: rentLoading } = useQuery(GET_MY_RENTING, {
+  const { loading: rentLoading, refetch: refetchRenting } = useQuery(GET_MY_RENTING, {
     variables: { renter: address, timestamp },
     onCompleted(data) {
-      setRentingList(data.leases)
-      data?.leases?.forEach((item: { tokenId: any; nftAddress: any }) => {
-        fetchNFTInfo({ tokenId: item.tokenId, contractAddress: item.nftAddress })
-      })
+      const list = data?.leases
+      setRentingList(list)
+      batchRequestMetas(list)
     }
   })
 
-  const { loading: lendLoading } = useQuery(GET_MY_LENDING, {
+  const { loading: lendLoading, refetch: refetchLending } = useQuery(GET_MY_LENDING, {
     variables: { lender: address },
     onCompleted(data) {
-      setLendingList(data.leases)
-      data?.leases?.forEach((item: { tokenId: any; nftAddress: any }) => {
-        fetchNFTInfo({ tokenId: item.tokenId, contractAddress: item.nftAddress })
-      })
+      const list = data?.leases
+      setLendingList(list)
+      batchRequestMetas(list)
     }
   })
 
@@ -104,33 +102,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   ]
 
   // TODO: dashboard页在调用合约操作之前需判断当前所处网络
-
-  const lendingStatus = (item: OrderInfo) => {
-    if (tableType === 'RENT') {
-      switch (item.status) {
-        case 'Doing': return <span className={styles.rentingStatus}>Renting</span>
-        case "BCancel": return <span className={styles.returningStatus}>Returning</span>
-        case "LCancel": return <span className={styles.returningStatus}>Redeeming</span>
-        default: return <span>{item.status}</span>
-      }
-    }
-
-    if (item.itemStatus === "Active" && !item.status) {
-      return <span className={styles.listingStatus}>Listing</span>
-    }
-    if (item.itemStatus === 'Renting') {
-      switch (item.status) {
-        case 'Doing': return <span className={styles.lendingStatus}>Lending</span>
-        case 'BCancel':
-        case "LCancel":
-        case 'Cancel':
-          return <span className={styles.removingStatus}>Removing</span>
-      }
-    }
-    if (item.itemStatus === 'TakeDown') {
-      return <span className={styles.removedStatus}>Removed</span>
-    }
-  }
 
   return <Box>
     <Box className={styles.tableSearch}>
@@ -186,7 +157,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                       &nbsp;#{item.tokenId}
                     </Typography>
                     <Typography className={styles.nftAddress}>
-                      {formatAddress(tableType === 'RENT' ? item.lender : item.renter, 5)}
+                      {tableType === 'LEND' && item.renter === ZERO_ADDRESS
+                        ? '-'
+                        : formatAddress(tableType === 'RENT' ? item.lender : item.renter, 5)}
                     </Typography>
                   </Stack>
                 </Box>
@@ -208,7 +181,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
               </TableCell>
               <TableCell>
                 {
-                  item?.status === "lending"
+                  item?.expires < (Number(new Date) / 1000).toFixed()
                     ? '-'
                     : dateFormat('YYYY-mm-dd', new Date(parseInt(item?.expires) * 1000))
                 }
@@ -221,7 +194,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     tokenId={item.tokenId}
                     nftAddress={item.nftAddress}
                     // TODO: 目前采用刷新页面方式更新最新数据，后续再优化
-                    reloadTable={() => window.location.reload()}
+                    reloadTable={refetchRenting}
                   />}
                 {/* {tableType === 'LEND' && <LendOperation item={item} />} */}
                 {tableType === 'LEND' &&
@@ -229,7 +202,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     trigger={<span className={cx({ "returnButton": true, })} >Redeem</span>}
                     rentInfo={item}
                     // TODO:
-                    reloadTable={() => window.location.reload()}
+                    reloadTable={refetchLending}
                   />}
               </TableCell>
             </TableRow>

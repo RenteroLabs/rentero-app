@@ -126,7 +126,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
         nftInfo.tokenId, // NFT id
         TOKEN_LIST[paymentCoinType].address, // pay token address
         whitelist || ZERO_ADDRESS, // whitelist address
-        rentDailyPrice.mul(DEPOSIT_DAYS), // deposit
+        isNeedDeposit ? rentDailyPrice.mul(DEPOSIT_DAYS) : 0, // deposit
         rentDailyPrice, // daily rent price
         payPeriod, // pay period
         minDuration, // min rent day

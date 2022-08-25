@@ -14,7 +14,6 @@ export const GET_LEASES = gql`
         nftAddress
         rentPerDay
         renter
-        status
         tokenId
         whitelist
     }
@@ -35,7 +34,6 @@ export const GET_LEASE_INFO = gql`
       nftAddress
       rentPerDay
       renter
-      status
       tokenId
       whitelist
     }
@@ -56,7 +54,6 @@ export const GET_MY_RENTING = gql`
         nftAddress
         rentPerDay
         renter
-        status
         tokenId
         whitelist
     } 
@@ -77,7 +74,6 @@ export const GET_MY_LENDING = gql`
         nftAddress
         rentPerDay
         renter
-        status
         tokenId
         whitelist 
     }

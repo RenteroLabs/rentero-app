@@ -21,7 +21,6 @@ export interface LeaseItem {
   nftAddress: string;
   rentPerDay: string;
   renter: string;
-  status: string;
   tokenId: string;
   whitelist: string;
 }
