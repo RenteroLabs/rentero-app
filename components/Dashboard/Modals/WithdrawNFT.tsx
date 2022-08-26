@@ -42,8 +42,10 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
     const currentTime = Math.round(Number(new Date()) / 1000)
     if (!rentInfo.expires || parseInt(rentInfo.expires) < currentTime) return [0, 0]
 
+    // TODO: 此处计算需使用 paidExpire 字段
     const days = (parseInt(rentInfo.expires) - currentTime) / ONEDAY
-    const unUsedDaysInPeriod = Math.ceil(days)
+    
+    const unUsedDaysInPeriod = (Math.ceil(days) % Number(rentInfo.daysPerPeriod)) || Number(rentInfo.daysPerPeriod)
     const totalReturn = BigNumber.from(rentInfo.rentPerDay).mul(BigNumber.from(unUsedDaysInPeriod)).add(BigNumber.from(rentInfo.deposit))
 
     return [unUsedDaysInPeriod, totalReturn]

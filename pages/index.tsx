@@ -5,7 +5,7 @@ import ScheduleIcon from '@material-ui/icons/Schedule';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Checkbox, FormControlLabel, Menu, MenuItem, MenuList, Skeleton, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useStepperContext } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Checkbox, FormControlLabel, Menu, MenuItem, MenuList, Skeleton, Stack, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useStepperContext } from '@mui/material'
 import { useQuery, gql, useLazyQuery } from '@apollo/client'
 import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
@@ -17,7 +17,7 @@ import { useIsMounted } from '../hooks'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
 import Link from 'next/link';
 import Layout2 from '../components/layout2';
-import { GET_LEASES } from '../constants/documentNode';
+import { GET_LEASES, GET_TOTAL_LEASES } from '../constants/documentNode';
 import { LeaseItem } from '../types';
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
@@ -35,7 +35,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [selectedSortBy, setSelectedSortBy] = useState<number>(0)
 
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(20)
+  const [pageSize, setPageSize] = useState<number>(10)
   const [leasesList, setLeasesList] = useState<LeaseItem[]>([])
   const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
   // const [trialZoneList, setTrialZoneList] = useState<Record<string, any>[]>([])
@@ -49,8 +49,14 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     return gamesInfo[parseInt(currentGame)] || {}
   }, [currentGame, gamesInfo])
 
+  useQuery(GET_TOTAL_LEASES, {
+    variables: { id: "all" },
+    onCompleted({ summary }) {
+      setNFTTotal(summary.leaseCount)
+    }
+  })
 
-  const [getLeasesList, { loading: isLeasesLoading }] = useLazyQuery(GET_LEASES, {
+  const { loading: isLeasesLoading, refetch: getLeasesList } = useQuery(GET_LEASES, {
     variables: {
       pageSize: pageSize,
       skip: (currentPage - 1) * pageSize
@@ -60,12 +66,9 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     }
   })
 
-  useEffect(() => {
-    getLeasesList()
-  }, [currentPage])
-
-  const handelGetMoreList = async () => {
+  const handelGetMoreList = () => {
     setCurrentPage(currentPage + 1)
+    getLeasesList()
   }
 
   const handleCheckWhitelist = (_: any, checked: boolean) => {
@@ -122,54 +125,48 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
       </div>
       <div className={styles.contentBox}>
         <section className={styles.topCover}>
+          <img src="./rentero_top_banner.png" className={styles.topCoverImage} />
+          <img src='./rentero_logo_big.png' className={styles.topLogo} />
+
           <Box className={styles.topCoverInfo}>
-            <Typography variant='h4' className={styles.gameTitle}>
-              {currentGameInfo.gameName}
-            </Typography>
-            {currentGame !== '-1' && <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ScheduleIcon style={{ color: '#48475b', width: '22px', height: '22px' }} />
-              <Typography variant="body2" display="block" className={styles.releaseTime}>
-                Released at {dateFormat("YYYY-mm-dd", new Date(currentGameInfo.releaseTime))}
+            <Stack direction={minMobileWidth ? 'column' : 'row'} spacing={minMobileWidth ? '1.5rem' : '2rem'}>
+              <Typography variant='h4' className={styles.gameTitle}>
+                {currentGameInfo.gameName}
               </Typography>
-              <Box className={styles.gameStatus}>Beta</Box>
-            </Box>}
-            {currentGame !== '-1' && <Typography className={styles.tagList}>
-              <span>NFT</span>
-              <span>Rent</span>
-              <span>Lend</span>
-            </Typography>}
-            <Typography className={styles.gameDesc}>{currentGameInfo.gameDesc}</Typography>
-            {currentGame !== '-1' && <Box justifyContent="left" sx={{ display: 'flex', alignItems: 'center', mt: '1rem' }} >
-              <a href={currentGameInfo.gameHomeUrl} target="_blank" rel="noreferrer">
-                <span className={styles.websiteBtn}>
-                  Website &nbsp;&nbsp;&nbsp; <ArrowRightAltRoundedIcon style={{ width: '18px', height: '18px', color: 'white' }} />
-                </span>
-              </a>
-              {
-                currentGameInfo.discordUrl &&
-                <a href={currentGameInfo.discordUrl} target="_blank" rel="noreferrer">
-                  <span className={styles.discordLink}></span>
+              {minMobileWidth && <Typography className={styles.gameDesc}>{currentGameInfo.gameDesc}</Typography>}
+              <Box className={styles.linkList}>
+                <a href={currentGameInfo.gameHomeUrl} target="_blank" rel="noreferrer">
+                  <span className={styles.websiteBtn}>
+                    Website &nbsp;&nbsp;&nbsp; <ArrowRightAltRoundedIcon style={{ width: '18px', height: '18px', color: 'white' }} />
+                  </span>
                 </a>
-              }
-              {
-                currentGameInfo.twitterUrl &&
-                <a href={currentGameInfo.twitterUrl} target="_blank" rel="noreferrer">
-                  <span className={styles.twitterLink}></span>
-                </a>
-              }
-              {
-                currentGameInfo.telegramUrl &&
-                <a href={currentGameInfo.telegramUrl} target="_blank" rel="noreferrer">
-                  <span className={styles.telegramLink}></span>
-                </a>
-              }
-              {
-                currentGameInfo.facebookUrl &&
-                <a href={currentGameInfo.facebookUrl} target="_blank" rel="noreferrer">
-                  <span className={styles.facebookLink}></span>
-                </a>
-              }
-            </Box>}
+                {
+                  currentGameInfo.discordUrl &&
+                  <a href={currentGameInfo.discordUrl} target="_blank" rel="noreferrer">
+                    <span className={styles.discordLink}></span>
+                  </a>
+                }
+                {
+                  currentGameInfo.twitterUrl &&
+                  <a href={currentGameInfo.twitterUrl} target="_blank" rel="noreferrer">
+                    <span className={styles.twitterLink}></span>
+                  </a>
+                }
+                {
+                  currentGameInfo.telegramUrl &&
+                  <a href={currentGameInfo.telegramUrl} target="_blank" rel="noreferrer">
+                    <span className={styles.telegramLink}></span>
+                  </a>
+                }
+                {
+                  currentGameInfo.facebookUrl &&
+                  <a href={currentGameInfo.facebookUrl} target="_blank" rel="noreferrer">
+                    <span className={styles.facebookLink}></span>
+                  </a>
+                }
+              </Box>
+            </Stack>
+            {!minMobileWidth && <Typography className={styles.gameDesc}>{currentGameInfo.gameDesc}</Typography>}
           </Box>
         </section>
 
@@ -202,13 +199,14 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           </Box>
         </Box> */}
 
-        <Box className={styles.listTitleBox} >
-          <div className={styles.listTitle}>
-            {NFTTotal} Items &nbsp;
-            {/* <span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 12 })}><AutorenewIcon /></span> */}
-          </div>
-          <Box className={styles.sortList}>
-            {/* {whitelistNums > 0 && <FormControlLabel
+        <Box className={styles.cardListBox}>
+          <Box className={styles.listTitleBox} >
+            <div className={styles.listTitle}>
+              {NFTTotal} Items &nbsp;
+              {/* <span onClick={() => fetchNFTList({ pageIndex: 1, pageSize: 12 })}><AutorenewIcon /></span> */}
+            </div>
+            <Box className={styles.sortList}>
+              {/* {whitelistNums > 0 && <FormControlLabel
               control={<Checkbox
                 disableRipple
                 onChange={handleCheckWhitelist}
@@ -224,7 +222,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
                 <Box component="span" className={styles.whitelistNum}>{whitelistNums}</Box>
               </>}
             />} */}
-            <Box
+              {/* <Box
               ref={chainTypeRef}
               onClick={() => setChainTypeShow(true)}
             >
@@ -245,8 +243,8 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
                   }}>
                   {item}
                 </MenuItem>)}
-            </Menu>
-            {/* <Box
+            </Menu> */}
+              {/* <Box
               ref={sortTypeRef}
               onClick={() => setSortTypeShow(true)}
             >
@@ -270,37 +268,36 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
                 </MenuItem>
               )}
             </Menu>*/}
+            </Box>
           </Box>
+          <div className={styles.nftCardList}>
+            {
+              leasesList?.map((item, index) => {
+                return <NFTCard nftInfo={item} key={index} />
+              })
+            }
+          </div>
+          {/* 骨架图 */}
+          {isLeasesLoading && <Box>
+            <Box className={styles.nftCardList}>
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+            </Box>
+            <Box className={styles.nftCardList}>
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+            </Box>
+          </Box>}
+          {isMounted && !isWhitelistOnly && !isLeasesLoading &&
+            currentPage * pageSize < NFTTotal &&
+            <div className={styles.showMore}>
+              <span onClick={handelGetMoreList}>Show more</span>
+            </div>}
         </Box>
-
-        <div className={styles.nftCardList}>
-          {
-            leasesList?.map((item, index) => {
-              return <NFTCard nftInfo={item} key={index} />
-            })
-          }
-        </div>
-
-        {/* 骨架图 */}
-        {isLeasesLoading && <Box>
-          <Box className={styles.nftCardList}>
-            <SkeletonNFTCard />
-            <SkeletonNFTCard />
-            <SkeletonNFTCard />
-            <SkeletonNFTCard />
-          </Box>
-          <Box className={styles.nftCardList}>
-            <SkeletonNFTCard />
-            <SkeletonNFTCard />
-            <SkeletonNFTCard />
-            <SkeletonNFTCard />
-          </Box>
-        </Box>}
-
-        {isMounted && !isWhitelistOnly &&
-          <div className={styles.showMore}>
-            <span onClick={handelGetMoreList}>Show more</span>
-          </div>}
       </div>
     </div >
   )

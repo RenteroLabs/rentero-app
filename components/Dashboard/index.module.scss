@@ -350,8 +350,7 @@
 }
 
 .payCoinCol {
-  display: inline-flex;
-  align-items: center;
+  display: flex; 
   img {
     margin-right: 0.67rem;
     width: 1.67rem;

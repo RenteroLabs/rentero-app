@@ -20,7 +20,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import LaunchIcon from '@mui/icons-material/Launch';
 import Layout2 from "../../components/layout2";
 import { NextPageWithLayout } from "../_app";
-import { GET_LEASES, GET_LEASE_INFO } from "../../constants/documentNode";
+import { GET_LEASES, GET_LEASE_INFO, GET_MORE_RECOMMENDED_FOUR } from "../../constants/documentNode";
 import { LeaseItem } from "../../types";
 import { BigNumber, utils } from "ethers";
 
@@ -69,11 +69,13 @@ const Detail: NextPageWithLayout = () => {
     },
   })
 
-  useQuery(GET_LEASES, {
-    variables: { pageSize: 5, skip: 0 },
-    onCompleted(data) {
-      setNFTList(data.leases.filter((item: any) => item.tokenId != tokenId).splice(0, 4))
-    }
+  useQuery(GET_MORE_RECOMMENDED_FOUR, {
+    variables: {
+      nftAddress,
+      tokenId,
+      expires: (Number(new Date) / 1000).toFixed()
+    },
+    onCompleted(data) { setNFTList(data.leases) }
   })
 
   const { run: fetchNFTInfo } = useRequest(getNFTInfo, {

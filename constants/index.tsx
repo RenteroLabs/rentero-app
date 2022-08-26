@@ -100,7 +100,9 @@ export const ADDRESS_TOKEN_MAP: Record<string, TokenInfo> = {
 
 export const DEPOSIT_DAYS = 1
 
-export const ROPSTEN_THEGRAPH = 'http://18.166.215.241:8000/subgraphs/name/john-rentero/rentero-market'
+// export const ROPSTEN_THEGRAPH = 'https://ropsten.rentero.io/subgraphs/name/john-rentero/rentero-market'
+
+export const ROPSTEN_THEGRAPH = 'http://ropsten.rentero.io:8000/subgraphs/name/john-rentero/rentero-market'
 
 
 export const NFT_COLLECTIONS: Record<string, string> = {

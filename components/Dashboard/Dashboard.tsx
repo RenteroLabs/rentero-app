@@ -32,12 +32,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const isMounted = useIsMounted()
   const { data: signer } = useSigner()
   const { address } = useAccount()
-  const [rawToken] = useLocalStorageState<string>('token')
   const [tableType, setTableType] = useState<"RENT" | "LEND">('RENT')
 
-  const [lendDataSource, setLendDataSource] = useState<OrderInfo[]>([])
   const [lendTotal, setLendTotal] = useState<number>(0)
-  const [borrowerDataSource, setBorrowerDataSource] = useState<OrderInfo[]>([])
   const [borrowerTotal, setBorrowerTotal] = useState<number>(0)
   const [rentingList, setRentingList] = useState<LeaseItem[]>([])
   const [lendingList, setLendingList] = useState<LeaseItem[]>([])
@@ -52,6 +49,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       return getNFTInfo({ tokenId: item.tokenId, contractAddress: item.nftAddress })
     })
     Promise.all(requestList).then(results => {
+      console.log(results)
       let metadata: Record<string, any> = {}
       results.forEach(({ data }) => {
         metadata[`${data.contractAddress.toLowerCase()}-${data.tokenId}`] = data
@@ -233,7 +231,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         </TableFooter>
       }
     </Table>
-
+{/* 
     <Pagination
       className={styles.pagination}
       count={tableType === 'LEND' ? lendTotal : borrowerTotal}
@@ -243,7 +241,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         } else if (tableType === 'RENT') {
           // getBorrowerList({ token: jwtToken, pageIndex: currentPage })
         }
-      }} />
+      }} /> */}
   </Box>
 }
 

@@ -221,7 +221,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
             <Typography variant='h3'>Pay Now</Typography>
             <Typography className={styles.payListItemP}>
               <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
-              {rentInfo && firstTotalPay}
+              {rentInfo && parseFloat(firstTotalPay)}
             </Typography>
           </Box>
           <Box>
