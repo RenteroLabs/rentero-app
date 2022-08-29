@@ -122,19 +122,6 @@ export default function Header() {
     setOpenSetting(false);
   }
 
-  const handleEnterDashboard = (event: Event | React.SyntheticEvent) => {
-    handleClose(event)
-    if (!jwtToken) {
-      signMessage()
-    } else {
-      const [recordAddress] = jwtToken.split('*')
-      if (recordAddress !== address) {
-        signMessage()
-      }
-    }
-    router.push('/dashboard')
-  }
-
   const handleLogout = (event: Event | React.SyntheticEvent) => {
     disconnect()
     handleClose(event)
@@ -162,7 +149,10 @@ export default function Header() {
       <Link href="/"  >
         <a className={router.pathname === '/' || ['/detail'].some(item => router.pathname.indexOf(item) === 0) ? styles.activeNavItem : undefined}>Market</a></Link>
       <Link href="/lend">
-        <a className={router.pathname === '/lend' ? styles.activeNavItem : undefined}>Lend NFTs</a>
+        <a className={router.pathname === '/lend' ? styles.activeNavItem : undefined}>Lend</a>
+      </Link>
+      <Link href="/dashboard">
+        <a className={router.pathname === '/dashboard' ? styles.activeNavItem : undefined}>Dashboard</a>
       </Link>
       {/* <a className={styles.supportNav}>Support</a> */}
       <Snackbar
@@ -305,10 +295,6 @@ export default function Header() {
         }}
         sx={{ zIndex: 1600 }}
       >
-        <MenuItem onClick={handleEnterDashboard}>
-          <DashboardIcon />
-          <span className={styles.menuText}>Dashboard</span>
-        </MenuItem>
         <MenuItem onClick={handleLogout}>
           <LogoutIcon />
           <span className={styles.menuText}>Disconnect</span>

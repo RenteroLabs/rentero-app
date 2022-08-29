@@ -9,86 +9,68 @@
   flex-shrink: 0;
   min-height: calc(100vh - 6rem);
   box-shadow: inset -0.08rem 0rem 0rem 0rem #2b2c40;
-  padding: 2rem 1.33rem;
+}
 
-  .accordionHeader {
-    background: rgba($color: #ffffff, $alpha: 0.15);
-    background-color: #3c3c5e;
-    border-radius: 1rem 1rem 0rem 0rem;
-    padding: 0.67rem 1.33rem;
-    font-size: 1.17rem;
-    font-family: Poppins-SemiBold, Poppins;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: 2rem;
-    margin: 0;
+.leftGameList {
+  position: fixed;
+  top: 6rem;
+  left: 0;
+  width: 20rem;
+  background: #1b1a46;
+  padding-bottom: 1rem;
+  font-size: 1.17rem;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  color: #777e90;
+  line-height: 2rem;
+
+  .sidebarController {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.67rem;
+  }
+  .sidebarControllerMin {
+    @extend .sidebarController;
+    justify-content: center;
+  }
+  .gameItem {
+    display: flex;
     align-items: center;
+    height: 3.33rem;
+    padding-left: 1.33rem;
+    cursor: pointer;
 
-    .navHeaderIcon {
-      display: inline-block;
+    img {
       width: 2rem;
       height: 2rem;
-      background: url(../public/nav_game_icon.png);
+      display: inline-block;
+      background: #ffffff;
+      border-radius: 0.53rem;
       margin-right: 0.67rem;
     }
-    :global {
-      .MuiAccordionSummary-content {
-        margin: 0;
-      }
-      .Mui-expanded {
-        margin: 0;
-      }
+
+    & + .gameItem {
+      margin-top: 0.67rem;
     }
   }
-
-  .accordionNavList {
-    background-color: #1a1a46;
-    border-radius: 0 0 1rem 1rem;
-    padding: 0px;
-
-    :global {
-      button {
-        border: none;
-        margin-top: 0.67rem !important;
-        padding: 0.67rem 1.33rem;
-      }
-      .MuiBox-root {
-        width: 100%;
-        text-align: left;
-        display: flex;
-        justify-content: left;
-        align-items: center;
-        font-size: 1.17rem;
-        font-family: Poppins-Medium, Poppins;
-        font-weight: 500;
-        line-height: 2rem;
-        color: #777e90;
-
-        img {
-          display: inline-block;
-          width: 2rem;
-          height: 2rem;
-          background: #ffffff;
-          border-radius: 0.53rem;
-          margin-right: 0.67rem;
-        }
-      }
-      .Mui-selected {
-        background: #aa3ff8;
-        font-size: 1.17rem;
-        font-family: Poppins-SemiBold, Poppins;
-        font-weight: 600;
-        color: #ffffff;
-        line-height: 2rem;
-
-        :global {
-          .MuiBox-root {
-            color: #fff;
-          }
-        }
-      }
+  .activeItem {
+    background: #aa3ff8;
+    font-size: 1.17rem;
+    color: #ffffff;
+    line-height: 2rem;
+    p {
+      font-family: Poppins;
+      font-weight: 600;
     }
   }
+}
+
+.leftNavMin {
+  @extend .leftNav;
+  width: 5rem;
+  .leftGameList {
+    width: 5rem;
+  } 
 }
 
 .contentBox {

@@ -119,14 +119,14 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
           </>
       }
       <Box className={styles.rentButtonBox} >
-        {nftStatus === 'lending' && mode !== '@trial' &&
-          <Box className={styles.rentButton} onClick={handleRentNow} >
-            Rent
-          </Box>
-        }
+        {nftStatus === 'lending' && mode !== '@trial' && !minMobileWidth &&
+          < Box className={styles.rentButton} onClick={handleRentNow} >
+        Rent
       </Box>
+        }
     </Box>
-  </Link>
+  </Box>
+  </Link >
 }
 
 export default NFTCard

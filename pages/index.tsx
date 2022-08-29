@@ -5,7 +5,7 @@ import ScheduleIcon from '@material-ui/icons/Schedule';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowRightAltRoundedIcon from '@material-ui/icons/ArrowRightAltRounded';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Checkbox, FormControlLabel, Menu, MenuItem, MenuList, Skeleton, Stack, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useStepperContext } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Card, Checkbox, FormControlLabel, IconButton, Menu, MenuItem, MenuList, Skeleton, Stack, ToggleButton, ToggleButtonGroup, Typography, useMediaQuery, useStepperContext } from '@mui/material'
 import { useQuery, gql, useLazyQuery } from '@apollo/client'
 import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
@@ -19,12 +19,18 @@ import Link from 'next/link';
 import Layout2 from '../components/layout2';
 import { GET_LEASES, GET_TOTAL_LEASES } from '../constants/documentNode';
 import { LeaseItem } from '../types';
+import WestIcon from '@mui/icons-material/West';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import classNames from 'classnames/bind';
+
+const cx = classNames.bind(styles)
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
   const isMounted = useIsMounted()
-  const [currentGame, setCurrentGame] = useState<string>("0")
+  const [currentGame, setCurrentGame] = useState<number>(0)
 
   const minMobileWidth = useMediaQuery("(max-width: 600px)")
+  const [showLeftBar, setShowLeftBar] = useState<boolean>(true)
 
   const chainTypeRef = useRef<HTMLElement>()
   const sortTypeRef = useRef<HTMLElement>()
@@ -34,7 +40,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [selectedSortBy, setSelectedSortBy] = useState<number>(0)
 
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(10)
+  const [pageSize, setPageSize] = useState<number>(12)
   const [leasesList, setLeasesList] = useState<LeaseItem[]>([])
   const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
   // const [trialZoneList, setTrialZoneList] = useState<Record<string, any>[]>([])
@@ -45,7 +51,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [whitelistLists, setWhitelistLists] = useState<Record<string, any>[]>([])
 
   const currentGameInfo = useMemo(() => {
-    return gamesInfo[parseInt(currentGame)] || {}
+    return gamesInfo[currentGame] || {}
   }, [currentGame, gamesInfo])
 
   useQuery(GET_TOTAL_LEASES, {
@@ -91,36 +97,46 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className={styles.leftNav}>
-        <Accordion sx={{ borderRadius: '1rem 1rem 0rem 0rem', backgroundColor: 'transparent' }} defaultExpanded disableGutters={true}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ width: '18px', height: '18px' }} />} className={styles.accordionHeader}
+      <div className={showLeftBar ? styles.leftNav : styles.leftNavMin}>
+        <Stack className={styles.leftGameList}>
+          <Box className={showLeftBar ? styles.sidebarController : styles.sidebarControllerMin}>
+            <IconButton onClick={() => setShowLeftBar(!showLeftBar)}>
+              {
+                showLeftBar ?
+                  <WestIcon fontSize="inherit" /> :
+                  <FilterAltIcon fontSize="large" />
+              }
+            </IconButton>
+          </Box>
+          <Box
+            className={cx({
+              'gameItem': true,
+              'activeItem': currentGame == 0
+            })}
+            onClick={() => setCurrentGame(0)}
           >
-            <span className={styles.navHeaderIcon}></span>
-            Game
-          </AccordionSummary>
-          <AccordionDetails className={styles.accordionNavList} >
-            <ToggleButtonGroup
-              exclusive
-              fullWidth={true}
-              orientation="vertical"
-              value={currentGame}
-              onChange={(_, val) => {
-                if (val == 0) { setCurrentGame(val) }
-              }}
-              sx={{ textAlign: 'left' }}
-            >
-              <ToggleButton value="0" >
-                <Box>All games</Box>
-              </ToggleButton>
-              {/* <ToggleButton value="1" sx={{ cursor: 'not-allowed' }}>
-                <Box><img src='/axie-logo.png' alt='game_logo' />Axie</Box>
-              </ToggleButton>
-              <ToggleButton value="2" sx={{ cursor: 'not-allowed' }}>
-                <Box><img src='/stepn-logo.jpeg' alt='game_logo_stepn' />Stepn</Box>
-              </ToggleButton> */}
-            </ToggleButtonGroup>
-          </AccordionDetails>
-        </Accordion>
+            <img src='/rentero_logo_big.png' alt='rentero' />
+            {showLeftBar && <Typography>All Game</Typography>}
+          </Box>
+          <Box className={cx({
+            'gameItem': true,
+            'activeItem': currentGame == 1
+          })}
+            onClick={() => setCurrentGame(1)}
+          >
+            <img src='/axie-logo.png' alt='game_logo' />
+            {showLeftBar && <Typography>Axie</Typography>}
+          </Box>
+          <Box className={cx({
+            'gameItem': true,
+            'activeItem': currentGame == 2
+          })}
+            onClick={() => setCurrentGame(2)}
+          >
+            <img src='/stepn-logo.jpeg' alt='game_logo_stepn' />
+            {showLeftBar && <Typography>Stepn</Typography>}
+          </Box>
+        </Stack>
       </div>
       <div className={styles.contentBox}>
         <section className={styles.topCover}>
@@ -142,7 +158,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
               <Box className={styles.linkList}>
                 <a href={currentGameInfo.gameHomeUrl} target="_blank" rel="noreferrer">
                   <span className={styles.websiteBtn}>
-                    Website &nbsp;&nbsp;&nbsp; 
+                    Website &nbsp;&nbsp;&nbsp;
                     <ArrowRightAltRoundedIcon style={{ width: '18px', height: '18px', color: 'white' }} />
                   </span>
                 </a>
@@ -284,14 +300,14 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             }
             {
               isLeasesLoading && <>
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-              <SkeletonNFTCard /> 
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
               </>
             }
           </div>

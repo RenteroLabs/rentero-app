@@ -26,19 +26,7 @@ const Dashboard: NextPage = () => {
       <title>Dashboard | Rentero</title>
       <meta name="description" content="Manage your lend & rent NFTs and incomes" />
     </Head>
-    <div className={styles.leftNav}>
-      <Stack spacing="1.33rem">
-        <Box className={classNames({ activeNavItem: currentNav === NAV_ITEM_LIST[0] })} onClick={() => setCurrentNav(NAV_ITEM_LIST[0])}>
-          <DashboardIcon />{NAV_ITEM_LIST[0]}
-        </Box>
-        {/* <Box className={classNames({ activeNavItem: currentNav === NAV_ITEM_LIST[1] })} onClick={() => setCurrentNav(NAV_ITEM_LIST[1])}>
-          <BallotIcon />{NAV_ITEM_LIST[1]}
-        </Box> */}
-        {/* <Box className={classNames({ activeNavItem: currentNav === NAV_ITEM_LIST[2] })} onClick={() => setCurrentNav(NAV_ITEM_LIST[2])}>
-          <PaidIcon />{NAV_ITEM_LIST[2]}
-        </Box> */}
-      </Stack>
-    </div>
+
     <div className={styles.contentBox}>
       {currentNav === NAV_ITEM_LIST[0] && <DashboardBox />}
       {/* {currentNav === NAV_ITEM_LIST[1] && <Withdraw />} */}
