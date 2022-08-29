@@ -23,7 +23,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
   const { nftInfo, mode = '@lease' } = props
   const [metaInfo, setMetaInfo] = useState<Record<string, any>>({})
   const [attrList, setAttrList] = useState<Record<string, any>[]>([])
-  const minMobileWidth = useMediaQuery("(max-width: 426px)")
+  const minMobileWidth = useMediaQuery("(max-width: 600px)")
 
   const nftStatus = useMemo(() => {
     const current = (Number(new Date) / 1000).toFixed()

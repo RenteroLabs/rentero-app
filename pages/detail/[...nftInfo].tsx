@@ -1,4 +1,4 @@
-import { Box, Breadcrumbs, Fade, IconButton, Paper, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Breadcrumbs, Fade, IconButton, Paper, Stack, Tooltip, Typography, useMediaQuery } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -43,6 +43,7 @@ const Detail: NextPageWithLayout = () => {
 
   const { isConnected, address } = useAccount()
   const isMounted = useIsMounted()
+  const minMobileWidth = useMediaQuery("(max-width: 600px)")
 
   const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
   const [nftList, setNFTList] = useState<Record<string, any>[]>([])
@@ -168,9 +169,9 @@ const Detail: NextPageWithLayout = () => {
               </Box>
             </Box>
             <Typography variant="h2">{NFT_COLLECTIONS[nftAddress]} #{rentInfo?.tokenId}</Typography>
-            <Stack direction="row" spacing="4.83rem" className={styles.addressInfo}>
+            <Stack direction={minMobileWidth ? 'column' : 'row'} spacing={minMobileWidth ? '10px' : '4.83rem'} className={styles.addressInfo}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography >Owned</Typography>
+                <Typography >Owner</Typography>
                 <span className={styles.ownerAddress}>
                   {formatAddress(rentInfo?.lender, 4)}
                 </span>
@@ -333,12 +334,13 @@ const Detail: NextPageWithLayout = () => {
         <Link href="/"><Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography></Link>
       </Box>
       <Box sx={{ overflowX: 'scroll' }}>
-        {nftList && isMounted && <Stack direction="row" className={styles.cardList} >
-          {
-            nftList.map((item: any, index: number) =>
-              <NFTCard nftInfo={item} key={index} />)
-          }
-        </Stack>}
+        {nftList && isMounted &&
+          <Stack direction="row" className={styles.cardList} spacing="1rem">
+            {
+              nftList.map((item: any, index: number) =>
+                <NFTCard nftInfo={item} key={index} />)
+            }
+          </Stack>}
       </Box>
     </Box>}
   </Box>

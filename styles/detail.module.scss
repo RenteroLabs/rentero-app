@@ -285,6 +285,44 @@
   margin-left: 3.33rem;
 }
 
+.cardList {
+  justify-content: space-around;
+  padding-right: 1rem;
+  & > div {
+    width: 25%;
+  }
+}
+@media screen and (max-width: 1100px) {
+  .cardList {
+    width: 110vw;
+  }
+}
+@media screen and (max-width: 1000px) {
+  .cardList {
+    width: 120vw;
+  }
+}
+@media screen and (max-width: 900px) {
+  .cardList {
+    width: 133vw;
+  }
+}
+@media screen and (max-width: 800px) {
+  .cardList {
+    width: 160vw;
+  }
+}
+@media screen and (max-width: 700px) {
+  .cardList {
+    width: 180vw;
+  }
+}
+@media screen and (max-width: 600px) {
+  .cardList {
+    width: calc(200vw - 3rem);
+  }
+}
+
 @media screen and (max-width: 1160px) {
   .rightBox {
     width: 40rem;
@@ -334,7 +372,7 @@
     color: #777e90;
     line-height: 2rem;
     a {
-      color: #5BD9FE;
+      color: #5bd9fe;
       margin-left: 1rem;
     }
   }
@@ -351,7 +389,7 @@
     width: 100%;
     margin-top: 6rem;
     .cardList {
-      overflow-x: scroll;
+      // overflow-x: scroll;
       margin: auto 1rem;
     }
   }
@@ -395,29 +433,12 @@
   }
   .moreNFTCards {
     margin-top: 4rem;
+    margin-bottom: 1rem;
   }
   .moreNFTtitle {
     margin-bottom: 1rem;
     h3 {
       font-size: 1.6rem;
-    }
-  }
-  .cardList {
-    width: calc(200vw - 2.6rem);
-    // overflow-x: scroll;
-    :global {
-      .nftCardBox {
-        // width: calc(50vw - 1rem);
-        // &:first {
-        //   height: calc(50vw - 1rem);
-        // }
-        // & div span {
-        //   height: calc(50vw - 1rem);
-        // }
-        // & + .nftAttrCard {
-        //   margin-left: 1rem !important;
-        // }
-      }
     }
   }
 }

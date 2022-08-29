@@ -142,7 +142,7 @@
           rgba(183, 33, 255, 1),
           rgba(90, 220, 254, 1)
         );
-        border-top-right-radius: 2rem;
+        border-top-right-radius: 2.8rem;
         clip-path: polygon(
           30% 0%,
           82% 0%,
@@ -213,6 +213,12 @@
 .cardListBox {
   padding: 0 2.67rem 4rem;
 }
+@media screen and (max-width: 600px) {
+  .cardListBox {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
 
 .listTitleBox {
   display: flex;
@@ -235,10 +241,34 @@
     cursor: pointer;
   }
 }
+
 .nftCardList {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
+  & > div {
+    width: calc((100% - 6rem) / 6);
+  }
+}
+@media screen and (max-width: 1850px) {
+  .nftCardList > div {
+    width: calc((100% - 6rem) / 5);
+  }
+}
+@media screen and (max-width: 1650px) {
+  .nftCardList > div {
+    width: calc((100% - 4rem) / 4);
+  }
+}
+@media screen and (max-width: 1120px) {
+  .nftCardList > div {
+    width: calc((100% - 4rem) / 3);
+  }
+}
+@media screen and (max-width: 855px) {
+  .nftCardList > div {
+    width: calc((100% - 2rem) / 2);
+  }
 }
 
 .showMore {
@@ -406,12 +436,6 @@
 }
 
 @media screen and (max-width: 600px) {
-  .cardListBox {
-    padding: 0 1rem ;
-  }
-  .contentBox {
-    // padding: 1rem;
-  }
   .topCover {
     .topCoverImage {
       height: 11.16rem;
@@ -450,9 +474,6 @@
     }
   }
 
-  .topCover {
-    margin-bottom: 3rem;
-  }
   .trialZone {
     margin: 2rem auto;
     width: 100%;

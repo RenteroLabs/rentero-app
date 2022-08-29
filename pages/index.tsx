@@ -22,7 +22,6 @@ import { LeaseItem } from '../types';
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
   const isMounted = useIsMounted()
-  const [rawToken] = useLocalStorageState<string>('token')
   const [currentGame, setCurrentGame] = useState<string>("0")
 
   const minMobileWidth = useMediaQuery("(max-width: 600px)")
@@ -129,15 +128,22 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           <img src='./rentero_logo_big.png' className={styles.topLogo} />
 
           <Box className={styles.topCoverInfo}>
-            <Stack direction={minMobileWidth ? 'column' : 'row'} spacing={minMobileWidth ? '1.5rem' : '2rem'}>
+            <Stack
+              direction={minMobileWidth ? 'column' : 'row'}
+              spacing={minMobileWidth ? '1.5rem' : '2rem'}
+              sx={{ justifyContent: 'space-between' }}>
               <Typography variant='h4' className={styles.gameTitle}>
                 {currentGameInfo.gameName}
               </Typography>
-              {minMobileWidth && <Typography className={styles.gameDesc}>{currentGameInfo.gameDesc}</Typography>}
+              {minMobileWidth &&
+                <Typography className={styles.gameDesc}>
+                  {currentGameInfo.gameDesc}
+                </Typography>}
               <Box className={styles.linkList}>
                 <a href={currentGameInfo.gameHomeUrl} target="_blank" rel="noreferrer">
                   <span className={styles.websiteBtn}>
-                    Website &nbsp;&nbsp;&nbsp; <ArrowRightAltRoundedIcon style={{ width: '18px', height: '18px', color: 'white' }} />
+                    Website &nbsp;&nbsp;&nbsp; 
+                    <ArrowRightAltRoundedIcon style={{ width: '18px', height: '18px', color: 'white' }} />
                   </span>
                 </a>
                 {
@@ -276,22 +282,19 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
                 return <NFTCard nftInfo={item} key={index} />
               })
             }
+            {
+              isLeasesLoading && <>
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+              <SkeletonNFTCard /> 
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+              <SkeletonNFTCard />
+              </>
+            }
           </div>
-          {/* 骨架图 */}
-          {isLeasesLoading && <Box>
-            <Box className={styles.nftCardList}>
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-            </Box>
-            <Box className={styles.nftCardList}>
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-              <SkeletonNFTCard />
-            </Box>
-          </Box>}
           {isMounted && !isWhitelistOnly && !isLeasesLoading &&
             currentPage * pageSize < NFTTotal &&
             <div className={styles.showMore}>
