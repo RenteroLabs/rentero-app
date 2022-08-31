@@ -133,5 +133,6 @@ export const RINKEBY_THEGRAPH = 'https://rinkeby.rentero.io/subgraphs/name/john-
 
 export const NFT_COLLECTIONS: Record<string, string> = {
   "0x26aa590dd520cec0f6638f59ebd4e93f9287448b": "Axe Game",
+  "0x340280c7874d90ff0372b63dc674c5bf25275ed1": "Axe Game",
   "0x80b4a4da97d676ee139bada2bf757b7f5afd0644": "Fork Azuik"
 }
