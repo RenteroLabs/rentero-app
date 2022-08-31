@@ -1,16 +1,18 @@
 import { Box, Stack, Typography, Alert, Dialog, DialogTitle, IconButton } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
 import styles from './rentModal.module.scss'
-import { erc20ABI, useAccount, useContract, useSigner, useWaitForTransaction } from 'wagmi';
+import { erc20ABI, useAccount, useContract, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from 'wagmi';
 import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI';
 import CloseIcon from '@mui/icons-material/Close';
 import DefaultButton from '../Buttons/DefaultButton';
 import InputNumber from 'rc-input-number'
-import { ADDRESS_TOKEN_MAP } from '../../constants';
+import { ADDRESS_TOKEN_MAP, CHAIN_ID_MAP } from '../../constants';
 import { ethers, BigNumber, utils } from 'ethers';
 import classNames from "classnames/bind"
 import { LeaseItem } from '../../types';
 import TxLoadingDialog from '../TxLoadingDialog';
+import ConnectWallet from '../ConnectWallet';
+import SwitchNetwork from '../SwitchNetwork'
 
 const cx = classNames.bind(styles)
 
@@ -27,11 +29,14 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   const [txError, setTxError] = useState<string>('')
   const [buttonLoading, setButtonLoading] = useState<boolean>(false)
   const { address } = useAccount()
+  const { chain } = useNetwork()
   const { data: signer } = useSigner()
 
   const [rentDay, setRentDay] = useState<number>()
   const [isApproved, setIsApproved] = useState<boolean>(false)
   const [alreadyApproved, setAlreadyApproved] = useState<boolean>(false)
+
+  const [showSwitchNetwork, setShowSwitchNetwork] = useState<boolean>(false)
 
   const [showTxDialog, setShowTxDialog] = useState<boolean>(false)
 
@@ -75,11 +80,11 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   })
 
   const checkAlreadyApproveToken = async () => {
+    // 调用 allowance 方法前需处于正确网络中, 不然执行该合约调用会报错
     // 判断是否已经 approveForAll ERC20 token
     const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET)
 
     // 已授权的金额是否大于最大可支付金额 （此次定价授权金额是否会对其他订单的授权金额产生影响）
-
     // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
     const compareAmount = ethers.constants.MaxInt256
     if (ethers.BigNumber.from(approveToken).gte(compareAmount)) {
@@ -89,16 +94,12 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
 
   // 当租借弹窗打开时
   useEffect(() => {
-    // 未连接钱包
-    if (!address) {
-      // TODO: 弹出连接钱包弹窗
-
-      return
-    }
     if (rentInfo && visibile) {
-      // TODO: 调用 allowance 方法前需处于正确网络中, 不然执行该合约调用会报错
-
-      // checkAlreadyApproveToken()
+      if (CHAIN_ID_MAP[rentInfo.chain] !== chain?.id) {
+        setShowSwitchNetwork(true)
+      } else {
+        checkAlreadyApproveToken()
+      }
     }
   }, [rentInfo, visibile, address])
 
@@ -127,10 +128,6 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   }, [rentDay, rentInfo])
 
   const handleApproveERC20 = async () => {
-    // TODO: 判断是否是当前 NFT 所属网络
-
-    await checkAlreadyApproveToken()
-
     setTxError('')
     setButtonLoading(true)
     setShowTxDialog(true)
@@ -145,8 +142,6 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   }
 
   const handleRentNFT = async () => {
-    // TODO: 判断是否是当前 NFT 所属网络
-
     // 用户不能租借自己出租的 NFT
     if (rentInfo?.lender === address?.toLowerCase()) {
       setTxError('Users cannot rent NFTs they own')
@@ -168,6 +163,19 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   }
 
   return <Box>
+    <SwitchNetwork
+      showDialog={showSwitchNetwork}
+      targetNetwork={CHAIN_ID_MAP[rentInfo.chain]}
+      closeDialog={() => {
+        setShowSwitchNetwork(false)
+        setVisibile(false)
+      }}
+      callback={() => {
+        setShowSwitchNetwork(false)
+        // TODO: 此处应该重新获取授权 token 数量，但存在报错，未修复
+        // checkAlreadyApproveToken()
+      }}
+    />
     <Box sx={{ width: '100%' }} onClick={() => setVisibile(true)}>{trigger}</Box>
     <Dialog
       open={visibile}
@@ -262,26 +270,36 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
         >{txError}</Alert>}
 
         <Stack direction="row" spacing="2rem">
-          {!alreadyApproved && <DefaultButton
-            className={cx({ 'baseButton': true, 'disableButton': isApproved })}
-            loading={buttonLoading && !isApproved}
-            onClick={() => {
-              handleApproveERC20()
-            }}
-          >
-            {isApproved ? 'Approved' : 'Approve'}
-          </DefaultButton>}
-          <DefaultButton
-            className={cx({ 'baseButton': true, 'disableButton': !isApproved && !alreadyApproved })}
-            loading={buttonLoading && (isApproved || alreadyApproved)}
-            onClick={() => {
-              if (isApproved || alreadyApproved) {
-                handleRentNFT()
-              }
-            }}
-          >
-            Rent
-          </DefaultButton>
+          {!address ?
+            <ConnectWallet
+              trigger={<DefaultButton className={cx({ 'baseButton': true })}>
+                Connect Wallet
+              </DefaultButton>}
+              closeCallback={() => { }}
+            />
+            :
+            <>
+              {!alreadyApproved && <DefaultButton
+                className={cx({ 'baseButton': true, 'disableButton': isApproved })}
+                loading={buttonLoading && !isApproved}
+                onClick={() => {
+                  handleApproveERC20()
+                }}
+              >
+                {isApproved ? 'Approved' : 'Approve'}
+              </DefaultButton>}
+              <DefaultButton
+                className={cx({ 'baseButton': true, 'disableButton': !isApproved && !alreadyApproved })}
+                loading={buttonLoading && (isApproved || alreadyApproved)}
+                onClick={() => {
+                  if (isApproved || alreadyApproved) {
+                    handleRentNFT()
+                  }
+                }}
+              >
+                Rent
+              </DefaultButton>
+            </>}
         </Stack>
       </Box>
     </Dialog>

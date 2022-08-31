@@ -45,7 +45,7 @@ const ConnectWallet: React.FC<ConnectWalletProps> = (props) => {
   }
 
   // current support metamask and walletconnect to login
-  return <div>
+  return <Box sx={{ width: '100%'}}>
     <div className={styles.triggerBox} onClick={() => { setVisibile(true) }}>
       {trigger}
     </div>
@@ -124,7 +124,7 @@ const ConnectWallet: React.FC<ConnectWalletProps> = (props) => {
         </Box>
       </Box>
     </Drawer>
-  </div>
+  </Box>
 }
 
 export default ConnectWallet

@@ -23,6 +23,7 @@ export interface LeaseItem {
   renter: string;
   tokenId: string;
   whitelist: string;
+  chain: string;
 }
 
 export interface TokenInfo {

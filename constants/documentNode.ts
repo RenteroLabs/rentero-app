@@ -16,6 +16,7 @@ export const GET_LEASES = gql`
         renter
         tokenId
         whitelist
+        chain
     }
   }
 `
@@ -46,6 +47,7 @@ export const GET_LEASE_INFO = gql`
       renter
       tokenId
       whitelist
+      chain
     }
   }
 `
@@ -70,6 +72,7 @@ export const GET_MORE_RECOMMENDED_FOUR = gql`
       renter
       tokenId
       whitelist
+      chain
     }
   } 
 `
@@ -91,6 +94,7 @@ export const GET_MY_RENTING = gql`
         renter
         tokenId
         whitelist
+        chain
     } 
   }
 `
@@ -110,7 +114,8 @@ export const GET_MY_LENDING = gql`
         rentPerDay
         renter
         tokenId
-        whitelist 
+        whitelist
+        chain
     }
   }
 `

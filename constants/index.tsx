@@ -9,6 +9,10 @@ export const CHAIN_ICON: Record<number, string> = {
   97: '../bnb_logo.png',
 }
 
+export const CHAIN_ID_MAP: Record<string, number> = {
+  "rinkeby": 4
+}
+
 const BSC_CHAIN: Chain = {
   id: 56,
   name: 'BSC Chain',
