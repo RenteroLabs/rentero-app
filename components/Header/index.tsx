@@ -8,9 +8,8 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
-import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, Slide, Snackbar, Typography, Box, IconButton, Drawer, Stack, useMediaQuery } from '@mui/material'
+import { Avatar, Chip, ClickAwayListener, Menu, MenuItem,  Typography, Box, IconButton, Drawer, Stack, useMediaQuery } from '@mui/material'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { TransitionProps } from '@mui/material/transitions'
 import { useRouter } from 'next/router'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
 import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT } from '../../constants/contractABI'
@@ -76,9 +75,6 @@ export default function Header() {
   const networkListAnchorRef = useRef<HTMLElement>(null)
   const [networkListOpen, setNetworkListOpen] = useState<boolean>(false)
 
-  const [showAlertMessage, setShowAlertMessage] = useState<boolean>(false)
-
-  // const provider = useProvider()
   const { data: signer } = useSigner()
 
   const contract = useContract({
@@ -86,30 +82,6 @@ export default function Header() {
     contractInterface: Ropsten_721_AXE_NFT_ABI,
     signerOrProvider: signer
   })
-
-  const mint721 = async () => {
-    try {
-      await contract.mint()
-    } catch (err: any) {
-      console.log(err.message)
-    }
-  }
-  // const updateURI = async () => {
-  //   try {
-  //     await contract.setBaseURI("ipfs://QmaV3ixoANZQcgTNnTFnXDtVR7wgBKQq7wX4JSrpYmkmer/")
-  //   } catch (err: any) {
-  //     console.log(err.message)
-  //   }
-  // }
-
-  const transfer721 = async () => {
-    try {
-      await contract.transferFrom(address, '0x66567071D55A9FBE6B3944172592961c1C414075', 3)
-    } catch (err: any) {
-      console.log(err.message)
-
-    }
-  }
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
     if (
@@ -127,11 +99,6 @@ export default function Header() {
     handleClose(event)
   }
 
-  const handleLinkToSupport = (event: Event) => {
-    event.preventDefault()
-    setShowAlertMessage(true)
-  }
-
   const chooseSwitchNetwork = (id) => {
     setNetworkListOpen(false)
     if ((chain?.id !== id || pendingChainId !== id)) {
@@ -141,7 +108,7 @@ export default function Header() {
 
   return <header className={styles.header}>
     <div className={styles.logo}>
-      <a href='https://rentero.io' rel='noreferrer'>
+      <a href='https://app.rentero.io' rel='noreferrer'>
         <img src='/header_logo.svg' alt='Rentero Logo' />
       </a>
     </div>
@@ -154,19 +121,7 @@ export default function Header() {
       <Link href="/dashboard">
         <a className={router.pathname === '/dashboard' ? styles.activeNavItem : undefined}>Dashboard</a>
       </Link>
-      {/* <a className={styles.supportNav}>Support</a> */}
-      <Snackbar
-        open={showAlertMessage}
-        message="WIP: Coming soon！"
-        autoHideDuration={3000}
-        onClose={() => setShowAlertMessage(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        TransitionComponent={(props: TransitionProps) => <Slide {...props} direction="right" />}
-      />
     </nav>
-    {/* <button onClick={updateURI}>updateURI</button> */}
-    {/* <button onClick={mint721}>Click</button> */}
-    {/* <button onClick={transfer721}>Transfer</button> */}
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {(isMounted && isConnected) &&
         <Chip

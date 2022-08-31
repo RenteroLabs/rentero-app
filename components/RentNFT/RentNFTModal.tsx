@@ -74,24 +74,33 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
+  const checkAlreadyApproveToken = async () => {
+    // 判断是否已经 approveForAll ERC20 token
+    const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET)
+
+    // 已授权的金额是否大于最大可支付金额 （此次定价授权金额是否会对其他订单的授权金额产生影响）
+
+    // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
+    const compareAmount = ethers.constants.MaxInt256
+    if (ethers.BigNumber.from(approveToken).gte(compareAmount)) {
+      setAlreadyApproved(true)
+    }
+  }
+
+  // 当租借弹窗打开时
   useEffect(() => {
-    (async () => {
-      if (address && rentInfo) {
-        // TODO: 调用 allowance 方法前需处于正确网络中, 不然执行该合约调用会报错
+    // 未连接钱包
+    if (!address) {
+      // TODO: 弹出连接钱包弹窗
 
-        // 判断是否已经 approveForAll ERC20 token
-        const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET)
+      return
+    }
+    if (rentInfo && visibile) {
+      // TODO: 调用 allowance 方法前需处于正确网络中, 不然执行该合约调用会报错
 
-        // 已授权的金额是否大于最大可支付金额 （此次定价授权金额是否会对其他订单的授权金额产生影响）
-
-        // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
-        const compareAmount = ethers.constants.MaxInt256
-        if (ethers.BigNumber.from(approveToken).gte(compareAmount)) {
-          setAlreadyApproved(true)
-        }
-      }
-    })();
-  }, [rentInfo])
+      // checkAlreadyApproveToken()
+    }
+  }, [rentInfo, visibile, address])
 
   const [
     dailyPrice,
@@ -118,6 +127,10 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   }, [rentDay, rentInfo])
 
   const handleApproveERC20 = async () => {
+    // TODO: 判断是否是当前 NFT 所属网络
+
+    await checkAlreadyApproveToken()
+
     setTxError('')
     setButtonLoading(true)
     setShowTxDialog(true)

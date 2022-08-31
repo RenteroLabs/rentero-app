@@ -225,7 +225,7 @@
   display: flex;
   justify-content: space-between;
   align-content: center;
-  margin-bottom: 2.67rem;
+  margin-bottom: 2.6rem;
   h3 {
     font-size: 2rem;
     font-family: MonumentExtended-Black, MonumentExtended;
@@ -288,6 +288,7 @@
 .cardList {
   justify-content: space-around;
   padding-right: 1rem;
+  padding-top: 2px;
   & > div {
     width: 25%;
   }
@@ -381,7 +382,7 @@
 .moreNFTCards {
   width: 94.66rem;
   margin: auto;
-  margin: 8.33rem auto 0rem;
+  margin: 8.33rem auto 2.67rem;
 }
 
 @media screen and (max-width: 1160px) {

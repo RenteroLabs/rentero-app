@@ -84,7 +84,7 @@
           margin-top: 1.33rem;
         }
       }
-      
+
       .rentDayBox {
         height: 4rem;
         width: 100%;
@@ -164,4 +164,18 @@
   font-weight: 600 !important;
   color: #d6d7dc !important;
   line-height: 2rem !important;
+}
+
+@media screen and (max-width: 600px) {
+  .container {
+    .dialogTitle {
+      width: auto;
+    }
+    .dialogContent {
+      padding: 1.5rem;
+    }
+  }
+  .rentDayType {
+    margin: auto 0.5rem;
+  }
 }

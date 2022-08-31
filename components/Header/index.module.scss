@@ -123,11 +123,12 @@
 .networkList {
   display: flex;
   align-items: center;
-  margin: auto 1rem;
+  margin-right: 1rem;
   font-family: Poppins;
   font-weight: 400;
   font-size: 1.1428571428571428rem;
   line-height: 1.5;
+  min-width: 10rem;
 }
 
 .drawerNetworkList {

@@ -289,7 +289,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
         </Box>
         <Box className={styles.serviceFee}>
           <Typography>Service fee</Typography>
-          <Typography variant="h5">5%</Typography>
+          <Typography variant="h5">10%</Typography>
         </Box>
 
         {errorMessage &&

@@ -10,7 +10,6 @@ import { useQuery, gql, useLazyQuery } from '@apollo/client'
 import NFTCard from '../components/NFTCard'
 import styles from '../styles/Home.module.scss'
 import { SORT_BY, CHAINTYPE_SUPPORTED } from '../utils/constants'
-import { useLocalStorageState, useRequest } from 'ahooks'
 import { getGameInfos, getMarketNFTList, getNFTInfo } from '../services/market'
 import { dateFormat } from '../utils/format'
 import { useIsMounted } from '../hooks'
@@ -22,13 +21,13 @@ import { LeaseItem } from '../types';
 import WestIcon from '@mui/icons-material/West';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import classNames from 'classnames/bind';
+import { GAME_LOGOS } from '../constants';
 
 const cx = classNames.bind(styles)
 
 const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => {
   const isMounted = useIsMounted()
   const [currentGame, setCurrentGame] = useState<number>(0)
-
   const minMobileWidth = useMediaQuery("(max-width: 600px)")
   const [showLeftBar, setShowLeftBar] = useState<boolean>(true)
 
@@ -76,6 +75,11 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     getLeasesList()
   }
 
+  const resetGetList = () => {
+    setCurrentPage(1)
+    getLeasesList()
+  }
+
   const handleCheckWhitelist = (_: any, checked: boolean) => {
     if (checked) {
       setIsWhitelistOnly(true)
@@ -93,7 +97,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     <div className={styles.container}>
       <Head>
         <title>Market | Rentero</title>
-        <meta name="description" content="Lend and rent your NFTs" />
+        <meta name="description" content="World’s first NFT rental protocol that is built to maximize utility of NFTs | Lend and rent your NFTs" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -115,7 +119,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             })}
             onClick={() => setCurrentGame(0)}
           >
-            <img src='/rentero_logo_big.png' alt='rentero' />
+            <img src={GAME_LOGOS['0']} alt='rentero' />
             {showLeftBar && <Typography>All Game</Typography>}
           </Box>
           <Box className={cx({
@@ -124,10 +128,10 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           })}
             onClick={() => setCurrentGame(1)}
           >
-            <img src='/axie-logo.png' alt='game_logo' />
-            {showLeftBar && <Typography>Axie</Typography>}
+            <img src={GAME_LOGOS['1']} alt='metaline' />
+            {showLeftBar && <Typography>Metaline</Typography>}
           </Box>
-          <Box className={cx({
+          {/* <Box className={cx({
             'gameItem': true,
             'activeItem': currentGame == 2
           })}
@@ -135,13 +139,13 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           >
             <img src='/stepn-logo.jpeg' alt='game_logo_stepn' />
             {showLeftBar && <Typography>Stepn</Typography>}
-          </Box>
+          </Box> */}
         </Stack>
       </div>
       <div className={styles.contentBox}>
         <section className={styles.topCover}>
-          <img src="./rentero_top_banner.png" className={styles.topCoverImage} />
-          <img src='./rentero_logo_big.png' className={styles.topLogo} />
+          <img src={currentGameInfo.backUrl || "./rentero_top_banner.png"} className={styles.topCoverImage} />
+          <img src={GAME_LOGOS[currentGameInfo.gameId as string]} className={styles.topLogo} />
 
           <Box className={styles.topCoverInfo}>
             <Stack
@@ -191,35 +195,6 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             {!minMobileWidth && <Typography className={styles.gameDesc}>{currentGameInfo.gameDesc}</Typography>}
           </Box>
         </section>
-
-        {/* <Box className={styles.trialZone}>
-          <Box className={styles.headerTitle}>
-            <Typography className={styles.titleText}>
-              Trial Zone
-              <img src='/fire.png' />
-            </Typography>
-            <Typography className={styles.moreLink}>
-              <Link href="/trial">See All&nbsp; &gt;</Link>
-            </Typography>
-          </Box>
-          <Box className={styles.trialNFTListBox}>
-            <Box className={styles.trialNFTList}>
-              {isTrialLoading && <Box>
-                <Box className={styles.nftCardList}>
-                  <SkeletonNFTCard />
-                  <SkeletonNFTCard />
-                  <SkeletonNFTCard />
-                  <SkeletonNFTCard />
-                </Box>
-              </Box>}
-              {
-                trialZoneList.map((item, index) => {
-                  return <NFTCard nftInfo={item} key={index} mode="@trial" />
-                })
-              }
-            </Box>
-          </Box>
-        </Box> */}
 
         <Box className={styles.cardListBox}>
           <Box className={styles.listTitleBox} >
@@ -295,11 +270,15 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
           <div className={styles.nftCardList}>
             {
               leasesList?.map((item, index) => {
-                return <NFTCard nftInfo={item} key={index} />
+                return <NFTCard nftInfo={item} key={index} reloadList={resetGetList} />
               })
             }
             {
               isLeasesLoading && <>
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
                 <SkeletonNFTCard />
                 <SkeletonNFTCard />
                 <SkeletonNFTCard />

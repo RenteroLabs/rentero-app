@@ -11,16 +11,18 @@ import { LeaseItem } from '../../types'
 import { BigNumber, utils } from 'ethers'
 import { getNFTInfo } from '../../services/market'
 import { useRequest } from 'ahooks'
+import RentNFTModal from '../RentNFT/RentNFTModal'
 
 const cx = classNames.bind(styles)
 
 interface NFTCardProps {
   nftInfo: LeaseItem
   mode?: '@split' | '@trial' | '@lease', // @split: 分成模式 | @trial: 试玩模式 | @lease: 租金模式
+  reloadList?: () => any;
 }
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
-  const { nftInfo, mode = '@lease' } = props
+  const { nftInfo, mode = '@lease', reloadList } = props
   const [metaInfo, setMetaInfo] = useState<Record<string, any>>({})
   const [attrList, setAttrList] = useState<Record<string, any>[]>([])
   const minMobileWidth = useMediaQuery("(max-width: 600px)")
@@ -120,11 +122,17 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
             </Box>
           </>
       }
-      <Box className={styles.rentButtonBox} >
+      <Box className={styles.rentButtonBox} onClick={handleRentNow} >
         {nftStatus === 'lending' && mode !== '@trial' && !minMobileWidth &&
-          < Box className={styles.rentButton} onClick={handleRentNow} >
-            Rent
-          </Box>
+          <RentNFTModal
+            trigger={< Box className={styles.rentButton} > Rent </Box>}
+            rentInfo={nftInfo}
+            reloadInfo={() => {
+              if (reloadList) {
+                reloadList()
+              }
+            }}
+          />
         }
       </Box>
     </Box>

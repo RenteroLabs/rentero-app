@@ -23,6 +23,7 @@ import { NextPageWithLayout } from "../_app";
 import { GET_LEASES, GET_LEASE_INFO, GET_MORE_RECOMMENDED_FOUR } from "../../constants/documentNode";
 import { LeaseItem } from "../../types";
 import { BigNumber, utils } from "ethers";
+import SkeletonNFTCard from "../../components/NFTCard/SkeletonNFTCard";
 
 interface DetailCardBoxProps {
   title: React.ReactElement
@@ -173,7 +174,7 @@ const Detail: NextPageWithLayout = () => {
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography >Owner</Typography>
                 <span className={styles.ownerAddress}>
-                  {formatAddress(rentInfo?.lender, 4)}
+                  {address?.toLowerCase() === rentInfo?.lender ? "You" : formatAddress(rentInfo?.lender, 4)}
                 </span>
                 {
                   isCopyed ?
@@ -203,7 +204,7 @@ const Detail: NextPageWithLayout = () => {
                   rentInfo?.renter != ZERO_ADDRESS ?
                     <>
                       <span className={styles.ownerAddress}>
-                        {formatAddress(rentInfo?.renter, 4)}
+                        {address?.toLowerCase() === rentInfo?.renter ? "You" : formatAddress(rentInfo?.renter, 4)}
                       </span>
                       {
                         isRenterCopyed ?
@@ -339,6 +340,14 @@ const Detail: NextPageWithLayout = () => {
             {
               nftList.map((item: any, index: number) =>
                 <NFTCard nftInfo={item} key={index} />)
+            }
+            {
+              nftList.length === 0 && <>
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+                <SkeletonNFTCard />
+              </>
             }
           </Stack>}
       </Box>
