@@ -57,7 +57,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   useQuery(GET_TOTAL_LEASES, {
     variables: { id: "all" },
     onCompleted({ summary }) {
-      setNFTTotal(summary.leaseCount)
+      setNFTTotal(summary?.leaseCount || 0)
     }
   })
 

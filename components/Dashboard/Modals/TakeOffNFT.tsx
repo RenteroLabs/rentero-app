@@ -2,7 +2,7 @@ import { Alert, Box, Stack, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import { useAccount, useContract, useSigner } from 'wagmi'
 import CircularProgress from '@mui/material/CircularProgress';
-import { ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../../constants/contractABI'
+// import { ROPSTEN_MARKET, ROPSTEN_MARKET_ABI } from '../../../constants/contractABI'
 import AppDialog from '../../Dialog'
 import styles from './modal.module.scss'
 
@@ -19,18 +19,18 @@ const TakeOffNFTModal: React.FC<TakeOffNFTModalProps> = (props) => {
   const { address } = useAccount()
   const { data: signer } = useSigner()
 
-  const contractMarket = useContract({
-    addressOrName: ROPSTEN_MARKET,
-    contractInterface: ROPSTEN_MARKET_ABI,
-    signerOrProvider: signer
-  })
+  // const contractMarket = useContract({
+  //   addressOrName: ROPSTEN_MARKET,
+  //   contractInterface: ROPSTEN_MARKET_ABI,
+  //   signerOrProvider: signer
+  // })
 
   const withdrawLendNFT = async () => {
     if (isLoading) return
     setIsLoading(true)
     setTxError('')
     try {
-      await contractMarket.cancelOrderForLender(orderId)
+      // await contractMarket.cancelOrderForLender(orderId)
       hiddenAppDialog()
       // TODO: 弹框提示：当前 NFT 将在几分钟内被下架
 

@@ -2,7 +2,7 @@ import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Gri
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { chain, erc20ABI, erc721ABI, useAccount, useContract, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from 'wagmi'
-import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI, Ropsten_721_AXE_NFT, Ropsten_721_AXE_NFT_ABI, ROPSTEN_MARKET, ROPSTEN_MARKET_ABI, Ropsten_WrapNFT, Ropsten_WrapNFT_ABI } from '../../constants/contractABI'
+import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI, Ropsten_721_AXE_NFT, Ropsten_721_AXE_NFT_ABI, Ropsten_WrapNFT } from '../../constants/contractABI'
 import NFTCard from '../IntegrationCard/NFTCard'
 import styles from './style.module.scss'
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -10,8 +10,6 @@ import PageviewIcon from '@mui/icons-material/Pageview';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { web3GetNFTS } from '../../services/web3NFT';
-import Link from 'next/link';
-import DefaultButton from '../Buttons/DefaultButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SwitchNetwork from '../SwitchNetwork';
 import { ethers } from 'ethers';
@@ -72,8 +70,6 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const [userLendConfigInfo, setUserLendConfigInfo] = useState<UserLendConfigInfo>({})
 
   const [lendType, setLendType] = useState<'SliptMode' | 'TrialMode' | 'RentMode'>('SliptMode')  // 出借类型
-
-
 
   const contract721 = useContract({
     addressOrName: gameNFTCollection,
@@ -140,8 +136,8 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   // 当前用户没有 Axe NFT 时，可以 mint NFT 进行体验
   const mint721WhenEmpty = async () => {
     // 判断当前所在区块链网络
-    if (chain?.id !== 3 && switchNetwork) {
-      await switchNetwork(3)
+    if (chain?.id !== 4 && switchNetwork) {
+      await switchNetwork(4)
       return
     }
     try {
@@ -154,8 +150,8 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
   const handleConfirmChoose = () => {
     if (!selectedNFT) return
-    // 判断当前所处网络和当前游戏支持网络
-    if (chain?.id !== 3) {
+    // TODO: 判断当前所处网络和当前游戏支持网络
+    if (chain?.id !== 4) {
       setShowSwitchNetworkDialog(true)
     } else {
       setIsChooseNFT(false)
@@ -278,9 +274,9 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
             {lendStep === 0 && <InstallmentLendConfig
               nftInfo={{ tokenId: selectedNFT, nftAddress: gameNFTCollection }}
-              setUserLendConfigInfo={setUserLendConfigInfo} 
+              setUserLendConfigInfo={setUserLendConfigInfo}
               handleClose={() => setVisibile(false)}
-              />}
+            />}
 
           </Box>
         }

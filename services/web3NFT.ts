@@ -1,7 +1,7 @@
-import { ALCHEMY_ROPSTEN_URL } from "../constants"
+import { ALCHEMY_ROPSTEN_URL, ALCHEMY_RINKEBY_URL } from "../constants"
 import qs from 'qs'
 
-const baseWeb3URL = ALCHEMY_ROPSTEN_URL
+const baseWeb3URL = ALCHEMY_RINKEBY_URL
 
 /**
  * 获取指定地址的指定 NFT 数据

@@ -243,7 +243,7 @@ export default function Header() {
         </Box>}
         <Stack className={styles.drawerMenuList} spacing="1rem">
           <Link href="/"><Box><StoreIcon />Market</Box></Link>
-          <Link href="/lend"><Box><SwapHorizIcon />Lend NFTs</Box></Link>
+          <Link href="/lend"><Box><SwapHorizIcon />Lend</Box></Link>
           {isConnected && <Link href="/dashboard"><Box><DashboardIcon /> Dashboard</Box></Link>}
           {
             isConnected

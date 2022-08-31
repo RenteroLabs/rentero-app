@@ -34,9 +34,11 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     manual: true,
     onSuccess: ({ data }) => {
       setMetaInfo(data)
-      let attrs
+      let attrs = []
       try {
-        attrs = JSON.parse(data.metadata)?.attributes
+        if (data?.metadata) {
+          attrs = JSON.parse(data.metadata)?.attributes || []
+        }
       } catch (err) {
         console.error(err)
       }
@@ -121,11 +123,11 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
       <Box className={styles.rentButtonBox} >
         {nftStatus === 'lending' && mode !== '@trial' && !minMobileWidth &&
           < Box className={styles.rentButton} onClick={handleRentNow} >
-        Rent
-      </Box>
+            Rent
+          </Box>
         }
+      </Box>
     </Box>
-  </Box>
   </Link >
 }
 

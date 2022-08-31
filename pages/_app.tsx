@@ -6,18 +6,19 @@ import CssBaseline from '@mui/material/CssBaseline'
 import AppTheme from '../theme'
 import Head from 'next/head'
 
-import { WagmiConfig, configureChains, createClient, defaultChains, chain } from 'wagmi'
+import { WagmiConfig, configureChains, createClient, Chain } from 'wagmi'
 import { infuraProvider } from 'wagmi/providers/infura'
 import { publicProvider } from 'wagmi/providers/public'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
-import { ROPSTEN_THEGRAPH, SUPPORT_CHAINS } from '../constants'
+import { ROPSTEN_THEGRAPH, SUPPORT_CHAINS, RINKEBY_THEGRAPH } from '../constants'
 import { NextPage } from 'next/types'
 import type { ReactElement, ReactNode } from 'react'
 import Layout2 from '../components/layout2'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
+
 const { chains, provider, webSocketProvider } = configureChains(SUPPORT_CHAINS, [
   infuraProvider({ infuraId }),
   publicProvider()
@@ -41,7 +42,7 @@ const client = createClient({
 })
 
 const graphql = new ApolloClient({
-  uri: ROPSTEN_THEGRAPH,
+  uri: RINKEBY_THEGRAPH,
   cache: new InMemoryCache()
 })
 
