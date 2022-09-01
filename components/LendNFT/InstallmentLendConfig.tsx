@@ -10,13 +10,14 @@ import { UserLendConfigInfo } from './ChooseNFTModal';
 import classNames from 'classnames/bind'
 import { erc721ABI, useAccount, useContract, useSigner, useWaitForTransaction } from 'wagmi';
 import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI';
-import { DEPOSIT_DAYS, MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS, TOKEN_LIST, ZERO_ADDRESS } from '../../constants';
-import { ethers, utils } from 'ethers';
+import { ADDRESS_TOKEN_MAP, DEPOSIT_DAYS, MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS, TOKEN_LIST, ZERO_ADDRESS } from '../../constants';
+import { BigNumber, ethers, utils } from 'ethers';
 import TxLoadingDialog from '../TxLoadingDialog';
+import { LeaseItem } from '../../types';
 
 const cx = classNames.bind(styles)
 interface LendConfigProps {
-  nftInfo: { tokenId: string, nftAddress: string };
+  nftInfo: { tokenId: string, nftAddress: string } | LeaseItem;
   configType?: '@add' | '@modify';
   setUserLendConfigInfo?: (info: UserLendConfigInfo) => any;
   handleClose: () => any
@@ -40,7 +41,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
   const [maxDuration, setMaxDuration] = useState<number>(365)
   const [paymentCoinType, setPaymentCoinType] = useState<string>(TOKEN_LIST['USDT'].name)
   const [payPeriod, setPayPeriod] = useState<number>(1)
-  const [isNeedDeposit, setNeedDeposit] = useState<boolean>(true)
+  const [isNeedDeposit, setNeedDeposit] = useState<boolean>(true) // 默认需要押金
   const [isShowMoreOptions, setShowMoreOption] = useState<boolean>(false)
 
   const { data: signer } = useSigner()
@@ -78,6 +79,19 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
     }
   })
 
+  const [updateOrderTxHash, setUpdateOrderTxHash] = useState<string | undefined>()
+  useWaitForTransaction({
+    hash: updateOrderTxHash,
+    onSuccess() {
+      setLended(true)
+    },
+    onSettled() {
+      setIsLoading(false)
+      setShowTxDialog(false)
+      setListMarketTxHash('')
+    }
+  })
+
   // 授权 ERC721 NFT 合约
   const contractERC721 = useContract({
     addressOrName: nftInfo.nftAddress,
@@ -105,6 +119,26 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
         setAlreadyApproved(true)
       }
     })();
+
+    if (configType === '@modify') {
+      // 初始化表单数据
+      const erc20address = (nftInfo as LeaseItem).erc20Address
+      const erc20Info = ADDRESS_TOKEN_MAP[erc20address]
+      const dailPrice = BigNumber.from((nftInfo as LeaseItem).rentPerDay)
+      setLendDailyPrice(parseFloat(utils.formatUnits(dailPrice, erc20Info.decimal))) // 每天单价
+      setPaymentCoinType(erc20Info.name) // 支付 erc20 Token
+      setPayPeriod(parseInt((nftInfo as LeaseItem).daysPerPeriod)) // 结算周期
+      setMinDuration(parseInt((nftInfo as LeaseItem).minRentalDays)) // 最小租借天数
+      setMaxDuration(parseInt((nftInfo as LeaseItem).maxRentalDays)) // 最大租借天数
+      const whitelist = (nftInfo as LeaseItem).whitelist
+      if (whitelist !== ZERO_ADDRESS) {
+        setWhitelist(whitelist) // 白名单地址
+      }
+      const deposit = parseInt((nftInfo as LeaseItem).deposit)
+      if (deposit === 0) {
+        setNeedDeposit(false) // 是否需要押金
+      }
+    }
   }, [])
 
   // 出借 NFT
@@ -134,6 +168,39 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
       )
       // 等待交易被打包上链
       setListMarketTxHash(hash)
+    } catch (err: any) {
+      setErrorMessage(err?.message)
+      setIsLoading(false)
+      setShowTxDialog(false)
+    }
+  }
+
+  // 更新出借 NFT 订单信息
+  const handleUpdateOrder = async () => {
+    if (!lendDailyPrice) {
+      setShowDailyPriceError(true)
+      return
+    }
+    if (isLoading || (!isApproved && !alreadyApproved) || !isReady) return
+    setErrorMessage('')
+    setIsLoading(true)
+    setShowTxDialog(true)
+
+    const rentDailyPrice = utils.parseUnits(lendDailyPrice?.toString() || '', TOKEN_LIST[paymentCoinType].decimal)
+
+    try {
+      const { hash } = await RenteroMarket.reLend(
+        nftInfo.nftAddress,  // NFT address
+        nftInfo.tokenId, // NFT id
+        TOKEN_LIST[paymentCoinType].address, // pay token address
+        whitelist || ZERO_ADDRESS, // whitelist address
+        isNeedDeposit ? rentDailyPrice.mul(DEPOSIT_DAYS) : 0, // deposit
+        rentDailyPrice, // daily rent price
+        payPeriod, // pay period
+        minDuration, // min rent day
+        maxDuration // max rent day 
+      )
+      setUpdateOrderTxHash(hash)
     } catch (err: any) {
       setErrorMessage(err?.message)
       setIsLoading(false)
@@ -307,30 +374,43 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
       </Stack>
 
       <Stack direction="row" spacing="2rem" className={styles.buttonAsset}>
-        {!alreadyApproved && <DefaultButton
-          className={cx({
-            baseContractButton: true,
-            disableButton: isApproved
-          })}
-          onClick={handleApproveErc721}
-        >Approve</DefaultButton>}
-        <DefaultButton
-          className={cx({
-            baseContractButton: true,
-            disableButton: !isApproved && !alreadyApproved
-          })}
-          onClick={handleLendNFT}
-        >Lend</DefaultButton>
+        {
+          configType === '@add' ?
+            <>
+              {!alreadyApproved && <DefaultButton
+                className={cx({
+                  baseContractButton: true,
+                  disableButton: isApproved
+                })}
+                onClick={handleApproveErc721}
+              >Approve</DefaultButton>}
+              <DefaultButton
+                className={cx({
+                  baseContractButton: true,
+                  disableButton: !isApproved && !alreadyApproved
+                })}
+                onClick={handleLendNFT}
+              >Lend</DefaultButton>
+            </> :
+            <DefaultButton
+              className={cx({ baseContractButton: true })}
+              onClick={handleUpdateOrder}
+            >Update</DefaultButton>
+        }
       </Stack>
 
       <TxLoadingDialog
         showTxDialog={showTxDialog}
-        txHash={approveTxHash || listMarketTxHash || ''} />
+        txHash={approveTxHash || listMarketTxHash || updateOrderTxHash || ''} />
     </Box >
     :
-    <Box sx={{ mt: '6rem' }} className={styles.lendSuccess}>
+    <Box sx={{ m: '6rem 4rem 4rem' }} className={styles.lendSuccess}>
       <img src='/success_smile.png' alt='success_smile' />
-      <Typography variant='h3' > Successful Lend Your NFT </Typography>
+      <Typography variant='h3' >
+        {configType === '@add' ?
+          'Successful Lend Your NFT' :
+          'Successful Update Lend NFT Order'}
+      </Typography>
       <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: '1rem', fontSize: '1.5rem' }}>
         Your Lend NFT Will List In Market In Minutes!
         <Link href="/">

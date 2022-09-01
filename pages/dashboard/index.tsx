@@ -6,11 +6,13 @@ import styles from '../../styles/dashboard.module.scss'
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import BallotIcon from '@mui/icons-material/Ballot';
 import PaidIcon from '@mui/icons-material/Paid';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import classNames from "classnames";
 import DashboardBox from '../../components/Dashboard/Dashboard'
 import Withdraw from "../../components/Dashboard/Withdraw";
 import Payout from "../../components/Dashboard/Payout";
+import ConnectWallet from "../../components/ConnectWallet";
+import { useAccount } from "wagmi";
 
 const NAV_ITEM_LIST = [
   'Dashboard',
@@ -20,6 +22,14 @@ const NAV_ITEM_LIST = [
 
 const Dashboard: NextPage = () => {
   const [currentNav, setCurrentNav] = useState<string>(NAV_ITEM_LIST[0])
+  const [showConnect, setShowConnect] = useState<boolean>(false)
+  const { address } = useAccount()
+
+  useEffect(() => {
+    if (!address) {
+      setShowConnect(true)
+    }
+  }, [address])
 
   return <Container className={styles.mainBox}>
     <Head>
@@ -31,6 +41,11 @@ const Dashboard: NextPage = () => {
       {currentNav === NAV_ITEM_LIST[0] && <DashboardBox />}
       {/* {currentNav === NAV_ITEM_LIST[1] && <Withdraw />} */}
       {/* {currentNav === NAV_ITEM_LIST[2] && <Payout />} */}
+      <ConnectWallet
+        showConnect={showConnect}
+        trigger={<></>}
+        closeCallback={() => { }}
+      />
     </div>
   </Container>
 }

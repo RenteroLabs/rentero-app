@@ -24,6 +24,7 @@ import { GET_LEASES, GET_LEASE_INFO, GET_MORE_RECOMMENDED_FOUR } from "../../con
 import { LeaseItem } from "../../types";
 import { BigNumber, utils } from "ethers";
 import SkeletonNFTCard from "../../components/NFTCard/SkeletonNFTCard";
+import UpdateNFTModal from "../../components/UpdateNFT";
 
 interface DetailCardBoxProps {
   title: React.ReactElement
@@ -36,6 +37,48 @@ const DetailCardBox: React.FC<PropsWithChildren<DetailCardBoxProps>> = (props) =
     <Box className={styles.cardTitle}>{title}</Box>
     <Box className={styles.cardContent}>{children}</Box>
   </Paper>
+}
+
+interface RentOperationProps {
+  nftStatus: 'renting' | 'lending';
+  isConnected: boolean;
+  rentInfo: LeaseItem | undefined;
+  address: string | undefined;
+  reload: () => any
+}
+const RentOperation: React.FC<RentOperationProps> = (props) => {
+  const { nftStatus, rentInfo, isConnected, address, reload } = props
+
+  // 已出借
+  if (nftStatus === 'renting') {
+    return <Box className={styles.rentedButton}> Rented </Box>
+  }
+  // 未连接钱包
+  if (!isConnected) {
+    return <ConnectWallet
+      trigger={<Box className={styles.rentButton}>Connect Wallet</Box>}
+      closeCallback={() => { }}
+    />
+  }
+  // 编辑自己出借订单
+  if (rentInfo?.lender === address?.toLowerCase()) {
+    return <UpdateNFTModal
+      trigger={<Box className={styles.rentButton}>Edit</Box>}
+      rentInfo={rentInfo || {} as LeaseItem}
+      reloadInfo={reload}
+    />
+  }
+
+  // 非白名单地址不可租借
+  if (![ZERO_ADDRESS, address?.toLowerCase()].includes(rentInfo?.whitelist)) {
+    return <Box className={styles.rentedButton}>Rent</Box>
+  }
+
+  // 租借弹窗
+  return <RentNFTModal
+    reloadInfo={reload}
+    rentInfo={rentInfo || {} as LeaseItem}
+    trigger={<Box className={styles.rentButton}> Rent </Box>} />
 }
 
 const Detail: NextPageWithLayout = () => {
@@ -241,18 +284,7 @@ const Detail: NextPageWithLayout = () => {
             </Box>}
           >
             <Stack spacing="1.33rem" className={styles.rentInfoList}>
-              {/* {
-                baseInfo.mode === 'Dividend' &&
-                <>
-                  <Box><Box>Ratio To Renter</Box><Box>{baseInfo.borrowerEarnRatio}</Box></Box>
-                  <Box><Box>Security Deposit</Box><Box>10</Box></Box>
-                </>
-              } */}
-              {/* 租金模式 */}
-              {/* {
-                baseInfo.mode === 'Rent' && 
-              } */}
-              <Box>
+              {(!rentInfo?.deposit || parseInt(rentInfo?.deposit || '0') !== 0) && <Box>
                 <Box>Deposit</Box>
                 <Box>
                   {
@@ -262,7 +294,7 @@ const Detail: NextPageWithLayout = () => {
                     </> : '-'
                   }
                 </Box>
-              </Box>
+              </Box>}
               <Box>
                 <Box>Rent</Box>
                 <Box>
@@ -274,34 +306,13 @@ const Detail: NextPageWithLayout = () => {
                   }
                 </Box>
               </Box>
-              {nftStatus === 'renting' &&
-                <Box className={styles.rentedButton}>
-                  {baseInfo.mode === 'FreeTrial' ? 'Trialed' : 'Rented'}
-                </Box>}
-              {
-                nftStatus === 'lending' &&
-                ((isMounted && !isConnected) ?
-                  <ConnectWallet
-                    trigger={<Box className={styles.rentButton}>Connect Wallet</Box>}
-                    closeCallback={() => { }}
-                  />
-                  :
-                  ([ZERO_ADDRESS, address?.toLowerCase()].includes(rentInfo?.whitelist) ?
-                    <RentNFTModal
-                      reloadInfo={refetch}
-                      rentInfo={rentInfo || {} as LeaseItem}
-                      trigger={<Box
-                        className={
-                          baseInfo.mode === 'FreeTrial' ?
-                            styles.rentTrialButton :
-                            styles.rentButton}>
-                        {baseInfo.mode === 'FreeTrial' ? 'Trial' : 'Rent'}
-                      </Box>} /> :
-                    <Box className={styles.rentedButton}>
-                      {baseInfo.mode === 'FreeTrial' ? 'Trial' : 'Rent'}
-                    </Box>
-                  ))
-              }
+              <RentOperation
+                nftStatus={nftStatus}
+                isConnected={isMounted && isConnected}
+                rentInfo={rentInfo}
+                reload={refetch}
+                address={address}
+              />
             </Stack>
             {rentInfo?.whitelist !== ZERO_ADDRESS &&
               <Typography className={styles.whitelistButtonTip}>

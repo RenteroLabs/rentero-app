@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Alert, Box, CircularProgress, Dialog, DialogTitle, Drawer, IconButton, Typography, useMediaQuery } from '@mui/material'
 import ArrowRightAltRoundedIcon from '@mui/icons-material/ArrowRightAltRounded';
 import CloseIcon from '@mui/icons-material/Close';
@@ -8,16 +8,23 @@ import { Connector, useConnect } from 'wagmi';
 interface ConnectWalletProps {
   trigger: React.ReactElement
   closeCallback: () => any;
+  showConnect?: boolean
 }
 
 const ConnectWallet: React.FC<ConnectWalletProps> = (props) => {
-  const { trigger, closeCallback } = props
+  const { trigger, closeCallback, showConnect } = props
   const isMobileSize = useMediaQuery('(max-width: 600px)')
   const [visibile, setVisibile] = useState<boolean>(false)
 
   const showDrawer = useMemo(() => {
     return visibile && isMobileSize
   }, [visibile, isMobileSize])
+
+  useEffect(() => {
+    if (showConnect) {
+      setVisibile(true)
+    }
+  }, [showConnect])
 
   const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
     onSuccess() {
@@ -45,7 +52,7 @@ const ConnectWallet: React.FC<ConnectWalletProps> = (props) => {
   }
 
   // current support metamask and walletconnect to login
-  return <Box sx={{ width: '100%'}}>
+  return <Box sx={{ width: '100%' }}>
     <div className={styles.triggerBox} onClick={() => { setVisibile(true) }}>
       {trigger}
     </div>

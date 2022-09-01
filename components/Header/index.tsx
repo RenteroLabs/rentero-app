@@ -34,30 +34,30 @@ export default function Header() {
   const isMenuDrawer = useMediaQuery("(max-width: 900px)")
   const isOperateSize = useMediaQuery("(max-width: 750px)")
 
-  useEffect(() => {
-    const [recordAddress] = jwtToken.split('*')
-    if (address !== recordAddress && router.pathname === '/dashboard') {
-      setTimeout(signMessage, 2000)
-    }
-  }, [address])
+  // useEffect(() => {
+  //   const [recordAddress] = jwtToken.split('*')
+  //   if (address !== recordAddress && router.pathname === '/dashboard') {
+  //     setTimeout(signMessage, 2000)
+  //   }
+  // }, [address])
 
   const { chain } = useNetwork()
   const { pendingChainId, switchNetwork } = useSwitchNetwork()
 
-  const { signMessage } = useSignMessage({
-    message: 'Login Rentero',
-    onSuccess: async (data) => {
-      const params: UserLoginParams = {
-        signature: data,
-        timestamp: new Date().getTime(),
-        userAddress: address
-      }
-      const result = await userLogin(params)
-      // 存储 jwt token
-      setJwtToken(`${address}*${result.data.authToken}`)
-      router.push('/dashboard')
-    }
-  })
+  // const { signMessage } = useSignMessage({
+  //   message: 'Login Rentero',
+  //   onSuccess: async (data) => {
+  //     const params: UserLoginParams = {
+  //       signature: data,
+  //       timestamp: new Date().getTime(),
+  //       userAddress: address
+  //     }
+  //     const result = await userLogin(params)
+  //     // 存储 jwt token
+  //     setJwtToken(`${address}*${result.data.authToken}`)
+  //     router.push('/dashboard')
+  //   }
+  // })
 
   const isEth = useMemo(() => {
     if (chain && chain.id === 1) {

@@ -38,23 +38,28 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const [borrowerTotal, setBorrowerTotal] = useState<number>(0)
   const [rentingList, setRentingList] = useState<LeaseItem[]>([])
   const [lendingList, setLendingList] = useState<LeaseItem[]>([])
-  const [metaList, setMetaList] = useState<Record<string, any>>({})
+  const [rentingMetas, setRentingMetas] = useState<Record<string, any>>({})
+  const [lendingMetas, setLendingMetas] = useState<Record<string, any>>({})
 
   const timestamp = useMemo(() => {
     return (new Date().getTime() / 1000).toFixed()
   }, [])
 
-  const batchRequestMetas = (list: LeaseItem[]) => {
+  const batchRequestMetas = (list: LeaseItem[], listType: 'renting' | 'lending') => {
     const requestList = list.map((item: { tokenId: any; nftAddress: any }) => {
       return getNFTInfo({ tokenId: item.tokenId, contractAddress: item.nftAddress })
     })
     Promise.all(requestList).then(results => {
-      console.log(results)
       let metadata: Record<string, any> = {}
       results.forEach(({ data }) => {
         metadata[`${data.contractAddress.toLowerCase()}-${data.tokenId}`] = data
       })
-      setMetaList({ ...metaList, ...metadata })
+      if (listType === 'renting') {
+        setRentingMetas(metadata)
+      }
+      if (listType === 'lending') {
+        setLendingMetas(metadata)
+      }
     })
   }
 
@@ -63,7 +68,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     onCompleted(data) {
       const list = data?.leases
       setRentingList(list)
-      batchRequestMetas(list)
+      batchRequestMetas(list, 'renting')
     }
   })
 
@@ -72,7 +77,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     onCompleted(data) {
       const list = data?.leases
       setLendingList(list)
-      batchRequestMetas(list)
+      batchRequestMetas(list, 'lending')
     }
   })
 
@@ -140,6 +145,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       <TableBody className={styles.tableBody}>
         {
           !isLoading && (tableType === 'RENT' ? rentingList : lendingList).map((item, index) => {
+            const metaList = tableType === 'RENT' ? rentingMetas : lendingMetas
             return <TableRow key={index}>
               <TableCell>
                 <Box className={styles.nftBoxCell}>
@@ -231,7 +237,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         </TableFooter>
       }
     </Table>
-{/* 
+    {/* 
     <Pagination
       className={styles.pagination}
       count={tableType === 'LEND' ? lendTotal : borrowerTotal}
