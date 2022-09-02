@@ -6,17 +6,19 @@ import AppDialog from '../../Dialog'
 import TxLoadingDialog from '../../TxLoadingDialog'
 import DefaultButton from '../../Buttons/DefaultButton'
 import styles from './modal.module.scss'
+import { CHAIN_ID_MAP } from '../../../constants'
 
 interface ReturnNFTModalProps {
   trigger: React.ReactElement,
   tokenId: string;
+  chain: string;
   nftAddress: string;
   reloadTable: () => any;
 }
 
 const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
-  const { trigger, tokenId, nftAddress, reloadTable } = props
-  const [showDialog, setShowDialog] = useState<boolean>(false)
+  const { trigger, tokenId, nftAddress, reloadTable, chain } = props
+  const [showDialog, setHiddenDialog] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [txError, setTxError] = useState<string>('')
 
@@ -25,7 +27,7 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
   const { data: signer } = useSigner()
 
   const contractMarket = useContract({
-    addressOrName: INSTALLMENT_MARKET,
+    addressOrName: INSTALLMENT_MARKET[CHAIN_ID_MAP[chain]],
     contractInterface: INSTALLMENT_MARKET_ABI,
     signerOrProvider: signer
   })
@@ -35,7 +37,7 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
     hash: abortTxHash,
     onSuccess: async () => {
       // 关闭弹窗
-      setShowDialog(false)
+      setHiddenDialog(true)
       // 刷新列表数据
       reloadTable()
     },

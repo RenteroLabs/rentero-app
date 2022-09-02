@@ -2,7 +2,7 @@ import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Gri
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { chain, erc20ABI, erc721ABI, useAccount, useContract, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from 'wagmi'
-import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI, Ropsten_721_AXE_NFT, Ropsten_721_AXE_NFT_ABI, Ropsten_WrapNFT } from '../../constants/contractABI'
+import { Ropsten_721_AXE_NFT, Ropsten_721_AXE_NFT_ABI, Ropsten_WrapNFT } from '../../constants/contractABI'
 import NFTCard from '../IntegrationCard/NFTCard'
 import styles from './style.module.scss'
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -14,16 +14,23 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SwitchNetwork from '../SwitchNetwork';
 import { ethers } from 'ethers';
 import SliptModeLendConfig from './SliptModeLendConfig';
-import { SUPPORT_TOKENS, ZERO_ADDRESS } from '../../constants';
+import { CHAIN_ID_MAP, SUPPORT_TOKENS, ZERO_ADDRESS } from '../../constants';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import TrialModeLendConfig from './TrialModeLendConfig';
 import InstallmentLendConfig from './InstallmentLendConfig';
+import Moralis from 'moralis'
+import { moralisData2NFTdata } from '../../utils/format';
+
+Moralis.start({
+  apiKey: 'lcrA7KLt3r4NPceIOOkQiAzQzvwyOOmONfFKSQp5SNwIFbHHAexJ5sh21eq2YPBd'
+})
 
 interface ChooseNFTModalProps {
   gameName: string
-  gameNFTCollection: string
+  gameNFTCollection: string[]
   visibile: boolean;
   setVisibile: (v: boolean) => any;
+  targetChainId: number
 }
 
 export interface UserLendConfigInfo {
@@ -33,26 +40,8 @@ export interface UserLendConfigInfo {
   lendingDay?: number,
 }
 
-const formatNFTdata = (nftList: any[]) => {
-  return nftList.map((item) => ({
-    nftName: item.title,
-    nftImage: item.media?.[0]?.gateway || 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3esgombq6j20m80m83yv.jpg',
-    nftNumber: parseInt(item.id.tokenId),
-  }))
-}
-
-const OpenInExplorer: React.FC<{ txHash: string | undefined }> = ({ txHash }) => {
-  const { chain } = useNetwork()
-  const url = `${chain?.blockExplorers?.default.url}/tx/${txHash}`
-  return <Box className={styles.openInExplorer}>
-    <a href={url} target="_blank" rel="noreferrer">
-      View on blockchain explorer&nbsp;<OpenInNewIcon />
-    </a>
-  </Box>
-}
-
 const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
-  const { gameName, gameNFTCollection, visibile, setVisibile } = props
+  const { gameName, gameNFTCollection, visibile, setVisibile, targetChainId } = props
 
   const [selectedNFT, setSelectedNFT] = useState<string>('')
   const [isRequestingNFT, setIsRequestingNFT] = useState<boolean>(false)
@@ -72,19 +61,24 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const [lendType, setLendType] = useState<'SliptMode' | 'TrialMode' | 'RentMode'>('SliptMode')  // 出借类型
 
   const contract721 = useContract({
-    addressOrName: gameNFTCollection,
+    addressOrName: gameNFTCollection[0],
     contractInterface: Ropsten_721_AXE_NFT_ABI,
     signerOrProvider: signer
   })
 
   // 查询用户钱包地址所拥有的当前游戏 NFT 信息
-  const queryWalletNFT = async () => {
+  const queryWalletNFT2 = async () => {
     setIsRequestingNFT(true)
-    const nft = await web3GetNFTS({
-      owner: address || '',
-      contractAddresses: [gameNFTCollection]
-    })
-    setNFTList(formatNFTdata(nft.ownedNfts))
+    try {
+      const { result } = await Moralis.EvmApi.account.getNFTs({
+        address: address as string,
+        tokenAddresses: gameNFTCollection,
+        chain: targetChainId,
+      })
+      setNFTList(moralisData2NFTdata(result))
+    } catch (err) {
+      console.error(err)
+    }
     setIsRequestingNFT(false)
   }
 
@@ -94,7 +88,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
         // 尚未连接钱包
         setNFTList([])
       } else {
-        await queryWalletNFT()
+        await queryWalletNFT2()
       }
     })();
   }, [address, isConnected])
@@ -108,7 +102,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       setStepComplete({})
       setLendStep(0)
       if (isConnected) {
-        queryWalletNFT()
+        queryWalletNFT2()
       }
     }
   }, [visibile])
@@ -120,24 +114,13 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       return
     }
 
-    (async () => {
-      try {
-        const approvedList = await contract721.getApproved(parseInt(selectedNFT))
-        if (approvedList === Ropsten_WrapNFT) {
-          setStepComplete({ ...stepComplete, [0]: true })
-          setActiveStep(1)
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    })()
   }, [isChooseNFT, visibile])
 
   // 当前用户没有 Axe NFT 时，可以 mint NFT 进行体验
   const mint721WhenEmpty = async () => {
     // 判断当前所在区块链网络
-    if (chain?.id !== 4 && switchNetwork) {
-      await switchNetwork(4)
+    if (chain?.id !== targetChainId && switchNetwork) {
+      alert("Current Network Error!")
       return
     }
     try {
@@ -147,11 +130,10 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     }
   }
 
-
   const handleConfirmChoose = () => {
     if (!selectedNFT) return
     // TODO: 判断当前所处网络和当前游戏支持网络
-    if (chain?.id !== 4) {
+    if (chain?.id !== targetChainId) {
       setShowSwitchNetworkDialog(true)
     } else {
       setIsChooseNFT(false)
@@ -236,7 +218,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
           showDialog={showSwitchNetworkDialog}
           closeDialog={() => setShowSwitchNetworkDialog(false)}
           callback={() => setIsChooseNFT(false)}
-          targetNetwork={3}
+          targetNetwork={targetChainId}
         />
 
         {
@@ -273,7 +255,11 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
               </TabContext>} */}
 
             {lendStep === 0 && <InstallmentLendConfig
-              nftInfo={{ tokenId: selectedNFT, nftAddress: gameNFTCollection }}
+              nftInfo={{
+                tokenId: selectedNFT,
+                nftAddress: gameNFTCollection[0],
+                chain: CHAIN_ID_MAP[targetChainId] as string
+              }}
               setUserLendConfigInfo={setUserLendConfigInfo}
               handleClose={() => setVisibile(false)}
             />}
@@ -283,7 +269,6 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
       </div>
     </Dialog>}
   </React.Fragment >
-
 }
 
 export default ChooseNFTModal

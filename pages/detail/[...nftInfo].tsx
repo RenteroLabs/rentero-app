@@ -244,7 +244,7 @@ const Detail: NextPageWithLayout = () => {
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography>Renter</Typography>
                 {
-                  rentInfo?.renter != ZERO_ADDRESS ?
+                  (rentInfo?.renter != ZERO_ADDRESS && nftStatus === 'renting') ?
                     <>
                       <span className={styles.ownerAddress}>
                         {address?.toLowerCase() === rentInfo?.renter ? "You" : formatAddress(rentInfo?.renter, 4)}

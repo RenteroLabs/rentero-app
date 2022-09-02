@@ -42,7 +42,6 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [pageSize, setPageSize] = useState<number>(12)
   const [leasesList, setLeasesList] = useState<LeaseItem[]>([])
   const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
-  // const [trialZoneList, setTrialZoneList] = useState<Record<string, any>[]>([])
   const [NFTTotal, setNFTTotal] = useState<number>(0)
 
   const [isWhitelistOnly, setIsWhitelistOnly] = useState<boolean>(false)
@@ -311,10 +310,4 @@ export async function getStaticProps() {
   }
 }
 
-
-// Home.getLayout = function getLayout(page: ReactElement) {
-//   return (
-//     <Layout2>{page}</Layout2>
-//   )
-// }
 export default Home

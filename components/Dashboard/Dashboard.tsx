@@ -8,8 +8,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useMemo, useState } from "react"
 import ReturnNFTModal from "./Modals/ReturnNFT"
 import WithdrawNFTModal from "./Modals/WithdrawNFT"
-import { useLocalStorageState, useRequest } from "ahooks"
-import { borrowerList, lenderList, overviewData } from "../../services/dashboard"
 import { OrderInfo } from "../../types/dashboard"
 import { dateFormat, formatAddress } from "../../utils/format"
 import { useAccount, useContract, useSigner } from "wagmi"
@@ -27,10 +25,8 @@ const cx = classNames.bind(styles)
 
 export interface DashboardProps { }
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
-  const { } = props
+const Dashboard: React.FC<DashboardProps> = () => {
   const isMounted = useIsMounted()
-  const { data: signer } = useSigner()
   const { address } = useAccount()
   const [tableType, setTableType] = useState<"RENT" | "LEND">('RENT')
 
@@ -146,6 +142,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         {
           !isLoading && (tableType === 'RENT' ? rentingList : lendingList).map((item, index) => {
             const metaList = tableType === 'RENT' ? rentingMetas : lendingMetas
+            const nftStats = (item?.expires || 0) > timestamp ? 'renting' : 'lending'
             return <TableRow key={index}>
               <TableCell>
                 <Box className={styles.nftBoxCell}>
@@ -161,7 +158,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                       &nbsp;#{item.tokenId}
                     </Typography>
                     <Typography className={styles.nftAddress}>
-                      {tableType === 'LEND' && item.renter === ZERO_ADDRESS
+                      {tableType === 'LEND' && nftStats === 'lending'
                         ? '-'
                         : formatAddress(tableType === 'RENT' ? item.lender : item.renter, 5)}
                     </Typography>
@@ -171,17 +168,21 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
               <TableCell >
                 <Box className={styles.payCoinCol}>
                   <img src={ADDRESS_TOKEN_MAP[item?.erc20Address]?.logo} />
-                  {ethers.utils.formatUnits(BigNumber.from(item?.deposit), ADDRESS_TOKEN_MAP[item?.erc20Address]?.decimal)}
+                  {ethers.utils.formatUnits(BigNumber.from(item?.rentPerDay), ADDRESS_TOKEN_MAP[item?.erc20Address]?.decimal)}
                 </Box>
               </TableCell>
               <TableCell>
                 {item?.daysPerPeriod}
               </TableCell>
               <TableCell >
-                <Box className={styles.payCoinCol}>
-                  <img src={ADDRESS_TOKEN_MAP[item?.erc20Address]?.logo} />
-                  {ethers.utils.formatUnits(BigNumber.from(item?.rentPerDay), ADDRESS_TOKEN_MAP[item?.erc20Address]?.decimal)}
-                </Box>
+                {
+                  parseInt(item.deposit) !== 0 ?
+                    <Box className={styles.payCoinCol}>
+                      <img src={ADDRESS_TOKEN_MAP[item?.erc20Address]?.logo} />
+                      {ethers.utils.formatUnits(BigNumber.from(item?.deposit), ADDRESS_TOKEN_MAP[item?.erc20Address]?.decimal)}
+                    </Box> :
+                    '-'
+                }
               </TableCell>
               <TableCell>
                 {
@@ -197,15 +198,13 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     trigger={<span className={cx({ "returnButton": true })}>Return</span>}
                     tokenId={item.tokenId}
                     nftAddress={item.nftAddress}
-                    // TODO: 目前采用刷新页面方式更新最新数据，后续再优化
+                    chain={item.chain}
                     reloadTable={refetchRenting}
                   />}
-                {/* {tableType === 'LEND' && <LendOperation item={item} />} */}
                 {tableType === 'LEND' &&
                   <WithdrawNFTModal
                     trigger={<span className={cx({ "returnButton": true, })} >Redeem</span>}
                     rentInfo={item}
-                    // TODO:
                     reloadTable={refetchLending}
                   />}
               </TableCell>

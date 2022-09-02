@@ -9,7 +9,7 @@ import DefaultButton from '../../Buttons/DefaultButton';
 import { LeaseItem } from '../../../types';
 import { BigNumber, ethers, utils } from 'ethers';
 import TxLoadingDialog from '../../TxLoadingDialog';
-import { ADDRESS_TOKEN_MAP, ONEDAY, ZERO_ADDRESS } from '../../../constants';
+import { ADDRESS_TOKEN_MAP, CHAIN_ID_MAP, ONEDAY, ZERO_ADDRESS } from '../../../constants';
 import { dateFormat } from '../../../utils/format';
 
 const cx = classNames.bind(styles)
@@ -34,7 +34,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   const { data: signer } = useSigner()
 
   const isNormalRedeem = useMemo(() => {
-    return rentInfo.renter === ZERO_ADDRESS
+    return rentInfo.expires < (new Date().getTime() / 1000).toFixed()
   }, [rentInfo])
 
   // 计算一个周期内还未使用消耗的天数费用
@@ -44,7 +44,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
 
     // TODO: 此处计算需使用 paidExpire 字段
     const days = (parseInt(rentInfo.expires) - currentTime) / ONEDAY
-    
+
     const unUsedDaysInPeriod = (Math.ceil(days) % Number(rentInfo.daysPerPeriod)) || Number(rentInfo.daysPerPeriod)
     const totalReturn = BigNumber.from(rentInfo.rentPerDay).mul(BigNumber.from(unUsedDaysInPeriod)).add(BigNumber.from(rentInfo.deposit))
 
@@ -52,7 +52,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   }, [rentInfo])
 
   const contractMarket = useContract({
-    addressOrName: INSTALLMENT_MARKET,
+    addressOrName: INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]],
     contractInterface: INSTALLMENT_MARKET_ABI,
     signerOrProvider: signer
   })
@@ -92,7 +92,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
     (async () => {
       // TODO: 调用 allowance 方法前需处于正确网络中, 不然执行该合约调用会报错
 
-      const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET)
+      const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]])
 
       // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
       const compareAmount = ethers.constants.MaxInt256
@@ -107,7 +107,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
     setButtonLoading(true)
     setShowTxDialog(true)
     try {
-      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, totalReturn)
+      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]], totalReturn)
       setApproveTxHash(hash)
     } catch (err: any) {
       setTxError(err.message)

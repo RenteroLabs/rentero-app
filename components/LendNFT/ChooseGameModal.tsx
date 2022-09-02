@@ -1,41 +1,31 @@
 import { Box, Dialog, DialogTitle, Grid, IconButton } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
-import { Ropsten_721_AXE_NFT } from '../../constants/contractABI'
-import { GameItem } from '../../types'
 import IntegrationCard from '../IntegrationCard'
 import styles from './style.module.scss'
 import ChooseNFTModal from './ChooseNFTModal';
+import { GameList } from '../../constants';
+import ConnectWallet from '../ConnectWallet';
+import { useAccount } from 'wagmi';
 
 interface LendNFTModalProps {
   trigger: React.ReactElement
 }
 
-const GameList: GameItem[] = [
-  {
-    gameName: 'Axe Game',
-    gameDesc: 'A true play to earn game, get money and fun in bear market',
-    gameCover: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3nrmn495jj209804mt8t.jpg',
-    gameLogo: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3yth290wij20690693yk.jpg',
-    gameStatus: 0,
-    gameNFTCollection: Ropsten_721_AXE_NFT,
-    chainId: 3,
-  }, {
-    gameName: '',
-    gameDesc: '',
-    gameCover: '',
-    gameLogo: '',
-    gameStatus: 1,
-    gameNFTCollection: '',
-    chainId: 3
-  }
-]
-
 const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
   const { trigger } = props
   const [visibile, changeVisibile] = useState<boolean>(false)
+  const [showConnect, setShowConnect] = useState<boolean>(false)
   const [NFTModalShow, setNFTModalShow] = useState<boolean>(false)
   const [choosedGame, setChoosedGame] = useState<number>(-1)
+
+  const { address } = useAccount()
+
+  useEffect(() => {
+    if (visibile && !address) {
+      setShowConnect(true)
+    }
+  }, [visibile, address])
 
   const updateChooseGame = (index: number) => {
     setChoosedGame(index)
@@ -82,7 +72,6 @@ const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
                 />
               </Grid>
             })}
-
           </Grid>
         </Box>
       </div>
@@ -93,7 +82,14 @@ const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
         setVisibile={setNFTModalShow}
         gameName={GameList[choosedGame].gameName}
         gameNFTCollection={GameList[choosedGame].gameNFTCollection}
+        targetChainId={GameList[choosedGame].chainId}
       />}
+
+    <ConnectWallet
+      trigger={<></>}
+      closeCallback={() => { }}
+      showConnect={showConnect}
+    />
   </React.Fragment >
 }
 

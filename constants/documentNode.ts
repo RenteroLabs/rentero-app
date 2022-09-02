@@ -21,6 +21,33 @@ export const GET_LEASES = gql`
   }
 `
 
+export const GET_LEASES_BY_GAME = gql`
+  query($skip: Int!, $pageSize: Int!, $collections: [String]!) {
+    leases(
+      skip: $skip, 
+      first: $pageSize, 
+      orderDirection: asc, 
+      orderBy: expires,
+      nftAddress_in: $collections
+      ) {
+        deposit
+        daysPerPeriod
+        erc20Address
+        expires
+        id
+        lender
+        maxRentalDays
+        minRentalDays
+        nftAddress
+        rentPerDay
+        renter
+        tokenId
+        whitelist
+        chain
+    } 
+  }
+`
+
 export const GET_TOTAL_LEASES = gql`
   query($id: String!) {
     summary(id: $id) {

@@ -10,14 +10,14 @@ import { UserLendConfigInfo } from './ChooseNFTModal';
 import classNames from 'classnames/bind'
 import { erc721ABI, useAccount, useContract, useSigner, useWaitForTransaction } from 'wagmi';
 import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI';
-import { ADDRESS_TOKEN_MAP, DEPOSIT_DAYS, MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS, TOKEN_LIST, ZERO_ADDRESS } from '../../constants';
+import { ADDRESS_TOKEN_MAP, CHAIN_ID_MAP, DEPOSIT_DAYS, MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS, TOKEN_LIST, ZERO_ADDRESS } from '../../constants';
 import { BigNumber, ethers, utils } from 'ethers';
 import TxLoadingDialog from '../TxLoadingDialog';
 import { LeaseItem } from '../../types';
 
 const cx = classNames.bind(styles)
 interface LendConfigProps {
-  nftInfo: { tokenId: string, nftAddress: string } | LeaseItem;
+  nftInfo: { tokenId: string, nftAddress: string, chain: string } | LeaseItem;
   configType?: '@add' | '@modify';
   setUserLendConfigInfo?: (info: UserLendConfigInfo) => any;
   handleClose: () => any
@@ -101,7 +101,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
 
   // 新版 Rentero Market 合约
   const RenteroMarket = useContract({
-    addressOrName: INSTALLMENT_MARKET,
+    addressOrName: INSTALLMENT_MARKET[CHAIN_ID_MAP[nftInfo.chain]],
     contractInterface: INSTALLMENT_MARKET_ABI,
     signerOrProvider: signer
   })
@@ -114,7 +114,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
 
   useEffect(() => {
     (async () => {
-      const result = await contractERC721.isApprovedForAll(address, INSTALLMENT_MARKET)
+      const result = await contractERC721.isApprovedForAll(address, INSTALLMENT_MARKET[CHAIN_ID_MAP[nftInfo.chain]])
       if (result) {
         setAlreadyApproved(true)
       }
@@ -216,7 +216,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
     setShowTxDialog(true)
 
     try {
-      const { hash } = await contractERC721.setApprovalForAll(INSTALLMENT_MARKET, true)
+      const { hash } = await contractERC721.setApprovalForAll(INSTALLMENT_MARKET[CHAIN_ID_MAP[nftInfo.chain]], true)
       setApproveTxHash(hash)
     } catch (err: any) {
       setErrorMessage(err?.message)

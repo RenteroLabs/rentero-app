@@ -68,7 +68,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   })
 
   const contractMarket = useContract({
-    addressOrName: INSTALLMENT_MARKET,
+    addressOrName: INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]],
     contractInterface: INSTALLMENT_MARKET_ABI,
     signerOrProvider: signer
   })
@@ -82,7 +82,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   const checkAlreadyApproveToken = async () => {
     // 调用 allowance 方法前需处于正确网络中, 不然执行该合约调用会报错
     // 判断是否已经 approveForAll ERC20 token
-    const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET)
+    const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]])
 
     // 已授权的金额是否大于最大可支付金额 （此次定价授权金额是否会对其他订单的授权金额产生影响）
     // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
@@ -132,7 +132,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
     setButtonLoading(true)
     setShowTxDialog(true)
     try {
-      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET, ethers.constants.MaxUint256)
+      const { hash } = await contractERC20.approve(INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]], ethers.constants.MaxUint256)
       setApproveTxHash(hash)
     } catch (err: any) {
       setTxError(err.message)
@@ -165,7 +165,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
   return <Box>
     <SwitchNetwork
       showDialog={showSwitchNetwork}
-      targetNetwork={CHAIN_ID_MAP[rentInfo.chain]}
+      targetNetwork={CHAIN_ID_MAP[rentInfo.chain] as number}
       closeDialog={() => {
         setShowSwitchNetwork(false)
         setVisibile(false)
