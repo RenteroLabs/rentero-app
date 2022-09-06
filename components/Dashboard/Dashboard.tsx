@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Card, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, InputBase, Pagination, Paper, Slide, SlideProps, Snackbar, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
+import { Alert, Autocomplete, Box, Button, Card, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, InputBase, MenuItem, Pagination, Paper, Select, SelectChangeEvent, Slide, SlideProps, Snackbar, Stack, Table, TableBody, TableCell, TableFooter, TableHead, TableRow, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
 import styles from './index.module.scss'
 import classNames from "classnames/bind"
 import NotFound from '../../public/table_not_found.svg'
@@ -8,18 +8,18 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useMemo, useState } from "react"
 import ReturnNFTModal from "./Modals/ReturnNFT"
 import WithdrawNFTModal from "./Modals/WithdrawNFT"
-import { OrderInfo } from "../../types/dashboard"
 import { dateFormat, formatAddress } from "../../utils/format"
 import { useAccount, useContract, useSigner } from "wagmi"
 import TakeOffNFTModal from "./Modals/TakeOffNFT"
 import LendConfig from "../LendNFT/SliptModeLendConfig"
 import CloseIcon from '@mui/icons-material/Close'
-import { ADDRESS_TOKEN_MAP, ZERO_ADDRESS } from "../../constants"
+import { ADDRESS_TOKEN_MAP, SUPPORT_CHAINS, ZERO_ADDRESS } from "../../constants"
 import { GET_MY_LENDING, GET_MY_RENTING } from "../../constants/documentNode"
-import { useQuery } from "@apollo/client"
+import { useLazyQuery, useQuery } from "@apollo/client"
 import { LeaseItem } from "../../types"
 import { getNFTInfo } from "../../services/market"
 import { BigNumber, ethers } from "ethers"
+import { rinkebyGraph, bsctestGraph } from '../../services/graphql'
 
 const cx = classNames.bind(styles)
 
@@ -29,6 +29,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const isMounted = useIsMounted()
   const { address } = useAccount()
   const [tableType, setTableType] = useState<"RENT" | "LEND">('RENT')
+
+  const [targetChain, setTargetChainId] = useState<number>(SUPPORT_CHAINS[0].id)
+  const [graphService, setGraphService] = useState<any>(rinkebyGraph)
 
   const [lendTotal, setLendTotal] = useState<number>(0)
   const [borrowerTotal, setBorrowerTotal] = useState<number>(0)
@@ -59,8 +62,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
     })
   }
 
-  const { loading: rentLoading, refetch: refetchRenting } = useQuery(GET_MY_RENTING, {
+  const [refetchRenting, { loading: rentLoading }] = useLazyQuery(GET_MY_RENTING, {
     variables: { renter: address, timestamp },
+    client: graphService,
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'network-only',
     onCompleted(data) {
       const list = data?.leases
       setRentingList(list)
@@ -68,8 +74,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
     }
   })
 
-  const { loading: lendLoading, refetch: refetchLending } = useQuery(GET_MY_LENDING, {
+  const [refetchLending, { loading: lendLoading }] = useLazyQuery(GET_MY_LENDING, {
     variables: { lender: address },
+    client: graphService,
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'network-only',
     onCompleted(data) {
       const list = data?.leases
       setLendingList(list)
@@ -80,6 +89,31 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const isLoading = useMemo(() => {
     return lendLoading || rentLoading
   }, [rentLoading, lendLoading])
+
+  useEffect(() => {
+    refetchLending()
+    refetchRenting()
+  }, [])
+
+  useEffect(() => {
+    setRentingList([])
+    setLendingList([])
+    switch (targetChain) {
+      case 1:
+      case 4:
+        setGraphService(rinkebyGraph);
+        break;
+      case 56:
+      case 97:
+        setGraphService(bsctestGraph);
+        break;
+      default:
+        setGraphService(rinkebyGraph)
+        break;
+    }
+    refetchRenting({ variables: { renter: address, timestamp } })
+    refetchLending({ variables: { lender: address } })
+  }, [targetChain])
 
   const columns = [
     {
@@ -129,6 +163,15 @@ const Dashboard: React.FC<DashboardProps> = () => {
           placeholder="Enter NFT Id or Name For Searching"
         />
       </Paper> */}
+
+      <Select
+        className={styles.networkChangeSelect}
+        size="small"
+        value={targetChain.toString()}
+        onChange={(e: SelectChangeEvent) => setTargetChainId(parseInt(e.target.value))}
+      >
+        {SUPPORT_CHAINS.map(item => <MenuItem value={item.id}>{item.name}</MenuItem>)}
+      </Select>
     </Box>
     <Table className={styles.tableBox}>
       <TableHead className={styles.tableHeader}>

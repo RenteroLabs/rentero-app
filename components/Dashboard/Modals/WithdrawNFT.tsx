@@ -92,13 +92,18 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
     (async () => {
       // TODO: 调用 allowance 方法前需处于正确网络中, 不然执行该合约调用会报错
 
-      const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]])
+      try {
+        const approveToken = await contractERC20.allowance(address, INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]])
 
-      // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
-      const compareAmount = ethers.constants.MaxInt256
-      if (ethers.BigNumber.from(approveToken).gte(compareAmount)) {
-        setAlreadyApproved(true)
+        // 此处暂时设置一个 较大值(MaxInt256) 进行判断 
+        const compareAmount = ethers.constants.MaxInt256
+        if (ethers.BigNumber.from(approveToken).gte(compareAmount)) {
+          setAlreadyApproved(true)
+        }
+      } catch (err) {
+        console.error(err)
       }
+
     })()
   }, [rentInfo])
 

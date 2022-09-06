@@ -21,6 +21,16 @@ export const GET_LEASES = gql`
   }
 `
 
+// 获取指定游戏市场上 NFT 总数
+export const GET_GAME_LEASES_COUNT = gql`
+  query($contractAddresses: [String]!) {
+    summaries(where: {id_in: $contractAddresses}) {
+      id
+      leaseCount
+    }
+  }
+`
+
 export const GET_LEASES_BY_GAME = gql`
   query($skip: Int!, $pageSize: Int!, $collections: [String]!) {
     leases(

@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useMemo, useState } from 'react'
 import NFT_RENTED from '../../public/nft_rented.png'
-import { ADDRESS_TOKEN_MAP, AVAILABEL_DATE_FORMAT, CHAIN_ID_MAP, NFT_COLLECTIONS, ZERO_ADDRESS } from '../../constants'
+import { ADDRESS_TOKEN_MAP, CHAIN_ID_MAP, NFT_COLLECTIONS, ZERO_ADDRESS } from '../../constants'
 import styles from './index.module.scss'
 import classNames from 'classnames/bind'
 import { dateFormat } from "../../utils/format"

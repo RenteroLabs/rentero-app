@@ -221,6 +221,7 @@
       height: 3.33rem;
       border-radius: 0.5rem;
       margin: auto;
+      object-fit: contain;
     }
     .whitelistIcon {
       position: absolute;
@@ -350,10 +351,27 @@
 }
 
 .payCoinCol {
-  display: flex; 
+  display: flex;
   img {
     margin-right: 0.67rem;
     width: 1.67rem;
     height: 1.67rem;
+  }
+}
+
+.networkChangeSelect {
+  width: 20rem;
+  outline: none;
+  border: 0.17rem solid rgba(119, 126, 145, 0.3);
+  border-radius: 1rem;
+  font-size: 1.17rem;
+  font-family: Poppins-Medium, Poppins;
+  font-weight: 500;
+  color: white;
+  // color: rgba(255, 255, 255, 0.5);
+  :global {
+    fieldset {
+      border: none;
+    }
   }
 }

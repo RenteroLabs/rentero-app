@@ -6,12 +6,14 @@ const BSC_TEST_THEGRAPH = 'https://bsc-testnet.rentero.io/subgraphs/name/john-re
 
 const rinkebyGraph = new ApolloClient({
   uri: RINKEBY_THEGRAPH,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
+  name: 'rinkeby',
 })
 
 const bsctestGraph = new ApolloClient({
   uri: BSC_TEST_THEGRAPH,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
+  name: 'bsc-testnet'
 })
 
 const GRAPH_SERVICE_MAP: Record<number, any> = {

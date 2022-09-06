@@ -16,12 +16,12 @@ import { useIsMounted } from '../hooks'
 import SkeletonNFTCard from '../components/NFTCard/SkeletonNFTCard'
 import Link from 'next/link';
 import Layout2 from '../components/layout2';
-import { GET_LEASES, GET_TOTAL_LEASES } from '../constants/documentNode';
+import { GET_GAME_LEASES_COUNT, GET_LEASES, GET_TOTAL_LEASES } from '../constants/documentNode';
 import { LeaseItem } from '../types';
 import WestIcon from '@mui/icons-material/West';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import classNames from 'classnames/bind';
-import { GAME_LOGOS } from '../constants';
+import { GAME_CONTRACTS, GAME_LOGOS, GAME_NAMES } from '../constants';
 import { useRouter } from 'next/router';
 import { rinkebyGraph, bsctestGraph } from '../services/graphql'
 
@@ -35,6 +35,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const router = useRouter()
 
   const [graphService, setGraphService] = useState<any>(rinkebyGraph)
+  const [gameContracts, setGameContracts] = useState<string[]>(GAME_CONTRACTS[0])
 
   const chainTypeRef = useRef<HTMLElement>()
   const sortTypeRef = useRef<HTMLElement>()
@@ -57,35 +58,90 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     return gamesInfo[currentGame] || {}
   }, [currentGame, gamesInfo])
 
-  useQuery(GET_TOTAL_LEASES, {
+  // 识别页面初始选中游戏
+  // useEffect(() => {
+  //   switch (router.query?.game) {
+  //     case GAME_NAMES.METALINE:
+  //       setCurrentGame(1);
+  //       break;
+  //     default:
+  //       // setCurrentGame(0);
+  //       break;
+  //   }
+  // }, [router])
+
+  const { refetch: reloadTotal } = useQuery(GET_TOTAL_LEASES, {
     variables: { id: "all" },
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'network-only',
     onCompleted({ summary }) {
+      console.log(summary)
       setNFTTotal(summary?.leaseCount || 0)
+    }
+  })
+
+  const [getGameLeaseCount] = useLazyQuery(GET_GAME_LEASES_COUNT, {
+    variables: { contractAddresses: gameContracts.map(item => item.toLowerCase()) },
+    client: graphService,
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
+    onCompleted({ summaries }) {
+      const gameLeaseTotal = summaries?.reduce((pre: number, item: { leaseCount: string; }) => parseInt(item.leaseCount) + pre, 0)
+      setNFTTotal(gameLeaseTotal)
+    }
+  })
+
+  const [getLeasesList, { loading: isLeasesLoading }] = useLazyQuery(GET_LEASES, {
+    variables: {
+      pageSize: pageSize,
+      skip: (currentPage - 1) * pageSize
+    },
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'network-only',
+    client: graphService,
+    onCompleted(data) {
+      setLeasesList([...leasesList, ...data.leases])
     }
   })
 
   // 监听游戏切换
   useEffect(() => {
     setCurrentPage(1)
-
+    setLeasesList([])
     switch (currentGame) {
-      case 0: setGraphService(rinkebyGraph); break;
-      case 1: setGraphService(bsctestGraph); break;
-      default: setGraphService(rinkebyGraph); break;
+      case 0:
+        setGraphService(rinkebyGraph);
+        reloadTotal();
+        break;
+      case 1:
+        setGraphService(bsctestGraph);
+        setGameContracts(GAME_CONTRACTS[1]);
+        getGameLeaseCount();
+        break;
+      default:
+        setGraphService(rinkebyGraph); break;
     }
-    getLeasesList()
+    getLeasesList();
+
   }, [currentGame])
 
-  const { loading: isLeasesLoading, refetch: getLeasesList } = useQuery(GET_LEASES, {
-    variables: {
-      pageSize: pageSize,
-      skip: (currentPage - 1) * pageSize
-    },
-    client: graphService,
-    onCompleted(data) {
-      setLeasesList(currentPage === 1 ? data.leases : [...leasesList, ...data.leases])
-    }
-  })
+  // const handleSwitchAll = () => {
+  //   setCurrentGame(0)
+  //   setCurrentPage(1)
+  //   setLeasesList([])
+  //   setGraphService(rinkebyGraph);
+  //   reloadTotal();
+  //   getLeasesList();
+  // }
+  // const handleSwitchMetaline = () => {
+  //   setCurrentGame(1)
+  //   setCurrentPage(1)
+  //   setLeasesList([])
+  //   setGraphService(bsctestGraph);
+  //   setGameContracts(GAME_CONTRACTS[1]);
+  //   getGameLeaseCount();
+  //   getLeasesList();
+  // }
 
   const handelGetMoreList = () => {
     setCurrentPage(currentPage + 1)
@@ -129,30 +185,27 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
               }
             </IconButton>
           </Box>
-          <Link href={{ pathname: '/' }} replace>
-            <Box
-              className={cx({ 'gameItem': true, 'activeItem': currentGame == 0 })}
-              onClick={() => setCurrentGame(0)}
-            >
-              <img src={GAME_LOGOS['0']} alt='rentero' />
-              {showLeftBar && <Typography>All Game</Typography>}
-            </Box>
-          </Link>
-          <Link href={{
+          {/* <Link href={{ pathname: '/' }} > */}
+          <Box
+            className={cx({ 'gameItem': true, 'activeItem': currentGame == 0 })}
+            onClick={() => setCurrentGame(0)}
+          >
+            <img src={GAME_LOGOS['0']} alt='rentero' />
+            {showLeftBar && <Typography>All Game</Typography>}
+          </Box>
+          {/* </Link> */}
+          {/* <Link href={{
             pathname: '/',
-            query: { game: 'metaline' }
-          }} replace>
-            <Box
-              className={cx({ 'gameItem': true, 'activeItem': currentGame == 1 })}
-              onClick={() => {
-                setCurrentGame(1)
-                console.log(1)
-              }}
-            >
-              <img src={GAME_LOGOS['1']} alt='metaline' />
-              {showLeftBar && <Typography>Metaline</Typography>}
-            </Box>
-          </Link>
+            query: { game: GAME_NAMES.METALINE }
+          }} > */}
+          <Box
+            className={cx({ 'gameItem': true, 'activeItem': currentGame == 1 })}
+            onClick={() => setCurrentGame(1)}
+          >
+            <img src={GAME_LOGOS['1']} alt={GAME_NAMES.METALINE} />
+            {showLeftBar && <Typography>Metaline</Typography>}
+          </Box>
+          {/* </Link> */}
           {/* <Box className={cx({
             'gameItem': true,
             'activeItem': currentGame == 2
