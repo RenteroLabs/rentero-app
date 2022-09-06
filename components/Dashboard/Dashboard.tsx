@@ -170,7 +170,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
         value={targetChain.toString()}
         onChange={(e: SelectChangeEvent) => setTargetChainId(parseInt(e.target.value))}
       >
-        {SUPPORT_CHAINS.map(item => <MenuItem value={item.id}>{item.name}</MenuItem>)}
+        {SUPPORT_CHAINS.map((item, index) => <MenuItem key={index} value={item.id}>{item.name}</MenuItem>)}
       </Select>
     </Box>
     <Table className={styles.tableBox}>
