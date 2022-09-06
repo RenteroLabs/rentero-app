@@ -32,6 +32,9 @@
   margin-bottom: 1rem;
   position: relative;
 
+  img {
+    object-fit: contain;
+  }
   .imageCover {
     position: absolute;
     top: 0px;

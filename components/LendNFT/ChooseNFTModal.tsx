@@ -14,7 +14,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SwitchNetwork from '../SwitchNetwork';
 import { ethers } from 'ethers';
 import SliptModeLendConfig from './SliptModeLendConfig';
-import { CHAIN_ID_MAP, SUPPORT_TOKENS, ZERO_ADDRESS } from '../../constants';
+import { CHAIN_ID_MAP } from '../../constants';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import TrialModeLendConfig from './TrialModeLendConfig';
 import InstallmentLendConfig from './InstallmentLendConfig';
@@ -22,7 +22,7 @@ import Moralis from 'moralis'
 import { moralisData2NFTdata } from '../../utils/format';
 
 Moralis.start({
-  apiKey: 'lcrA7KLt3r4NPceIOOkQiAzQzvwyOOmONfFKSQp5SNwIFbHHAexJ5sh21eq2YPBd'
+  apiKey: 'DewBAeYa9EmQh3WWko5vErjAEJjWysKjagsPJzxGIV3jV9XZuQ39MnPiUurtsSZj'
 })
 
 interface ChooseNFTModalProps {
@@ -44,6 +44,7 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const { gameName, gameNFTCollection, visibile, setVisibile, targetChainId } = props
 
   const [selectedNFT, setSelectedNFT] = useState<string>('')
+  const [selectedContractAddress, setContractAddress] = useState<string>('')
   const [isRequestingNFT, setIsRequestingNFT] = useState<boolean>(false)
   const [showSwitchNetworkDialog, setShowSwitchNetworkDialog] = useState<boolean>(false)
   const { chain } = useNetwork()
@@ -132,7 +133,6 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
 
   const handleConfirmChoose = () => {
     if (!selectedNFT) return
-    // TODO: 判断当前所处网络和当前游戏支持网络
     if (chain?.id !== targetChainId) {
       setShowSwitchNetworkDialog(true)
     } else {
@@ -175,9 +175,17 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
               <Typography variant="h3" sx={{ fontSize: '2rem', lineHeight: '2.67rem' }} >{gameName}</Typography>
             </Grid>
             {
-              !isRequestingNFT && NFTList && NFTList.map((item, index) => <Grid key={index} item xs="auto">
-                <NFTCard {...item} selectedNFT={selectedNFT} setSelectedNFT={setSelectedNFT} />
-              </Grid>)
+              !isRequestingNFT && NFTList &&
+              NFTList.map((item, index) =>
+                <Grid key={index} item xs="auto">
+                  <NFTCard
+                    {...item}
+                    chainId={targetChainId}
+                    selectedNFT={selectedNFT}
+                    setSelectedNFT={setSelectedNFT}
+                    setContractAddress={setContractAddress}
+                  />
+                </Grid>)
             }
             {
               isRequestingNFT && <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -217,7 +225,9 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
         <SwitchNetwork
           showDialog={showSwitchNetworkDialog}
           closeDialog={() => setShowSwitchNetworkDialog(false)}
-          callback={() => setIsChooseNFT(false)}
+          callback={() => {
+            setShowSwitchNetworkDialog(false)
+          }}
           targetNetwork={targetChainId}
         />
 
@@ -257,13 +267,12 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
             {lendStep === 0 && <InstallmentLendConfig
               nftInfo={{
                 tokenId: selectedNFT,
-                nftAddress: gameNFTCollection[0],
+                nftAddress: selectedContractAddress,
                 chain: CHAIN_ID_MAP[targetChainId] as string
               }}
               setUserLendConfigInfo={setUserLendConfigInfo}
               handleClose={() => setVisibile(false)}
             />}
-
           </Box>
         }
       </div>

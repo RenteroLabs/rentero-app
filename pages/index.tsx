@@ -22,6 +22,8 @@ import WestIcon from '@mui/icons-material/West';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import classNames from 'classnames/bind';
 import { GAME_LOGOS } from '../constants';
+import { useRouter } from 'next/router';
+import { rinkebyGraph, bsctestGraph } from '../services/graphql'
 
 const cx = classNames.bind(styles)
 
@@ -30,6 +32,9 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [currentGame, setCurrentGame] = useState<number>(0)
   const minMobileWidth = useMediaQuery("(max-width: 600px)")
   const [showLeftBar, setShowLeftBar] = useState<boolean>(true)
+  const router = useRouter()
+
+  const [graphService, setGraphService] = useState<any>(rinkebyGraph)
 
   const chainTypeRef = useRef<HTMLElement>()
   const sortTypeRef = useRef<HTMLElement>()
@@ -59,11 +64,24 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     }
   })
 
+  // 监听游戏切换
+  useEffect(() => {
+    setCurrentPage(1)
+
+    switch (currentGame) {
+      case 0: setGraphService(rinkebyGraph); break;
+      case 1: setGraphService(bsctestGraph); break;
+      default: setGraphService(rinkebyGraph); break;
+    }
+    getLeasesList()
+  }, [currentGame])
+
   const { loading: isLeasesLoading, refetch: getLeasesList } = useQuery(GET_LEASES, {
     variables: {
       pageSize: pageSize,
       skip: (currentPage - 1) * pageSize
     },
+    client: graphService,
     onCompleted(data) {
       setLeasesList(currentPage === 1 ? data.leases : [...leasesList, ...data.leases])
     }
@@ -111,25 +129,30 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
               }
             </IconButton>
           </Box>
-          <Box
-            className={cx({
-              'gameItem': true,
-              'activeItem': currentGame == 0
-            })}
-            onClick={() => setCurrentGame(0)}
-          >
-            <img src={GAME_LOGOS['0']} alt='rentero' />
-            {showLeftBar && <Typography>All Game</Typography>}
-          </Box>
-          <Box className={cx({
-            'gameItem': true,
-            'activeItem': currentGame == 1
-          })}
-            onClick={() => setCurrentGame(1)}
-          >
-            <img src={GAME_LOGOS['1']} alt='metaline' />
-            {showLeftBar && <Typography>Metaline</Typography>}
-          </Box>
+          <Link href={{ pathname: '/' }} replace>
+            <Box
+              className={cx({ 'gameItem': true, 'activeItem': currentGame == 0 })}
+              onClick={() => setCurrentGame(0)}
+            >
+              <img src={GAME_LOGOS['0']} alt='rentero' />
+              {showLeftBar && <Typography>All Game</Typography>}
+            </Box>
+          </Link>
+          <Link href={{
+            pathname: '/',
+            query: { game: 'metaline' }
+          }} replace>
+            <Box
+              className={cx({ 'gameItem': true, 'activeItem': currentGame == 1 })}
+              onClick={() => {
+                setCurrentGame(1)
+                console.log(1)
+              }}
+            >
+              <img src={GAME_LOGOS['1']} alt='metaline' />
+              {showLeftBar && <Typography>Metaline</Typography>}
+            </Box>
+          </Link>
           {/* <Box className={cx({
             'gameItem': true,
             'activeItem': currentGame == 2
@@ -145,7 +168,6 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
         <section className={styles.topCover}>
           <img src={currentGameInfo.backUrl || "./rentero_top_banner.png"} className={styles.topCoverImage} />
           <img src={GAME_LOGOS[currentGameInfo.gameId as string]} className={styles.topLogo} />
-
           <Box className={styles.topCoverInfo}>
             <Stack
               direction={minMobileWidth ? 'column' : 'row'}

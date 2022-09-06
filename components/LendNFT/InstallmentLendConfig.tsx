@@ -10,7 +10,7 @@ import { UserLendConfigInfo } from './ChooseNFTModal';
 import classNames from 'classnames/bind'
 import { erc721ABI, useAccount, useContract, useSigner, useWaitForTransaction } from 'wagmi';
 import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI';
-import { ADDRESS_TOKEN_MAP, CHAIN_ID_MAP, DEPOSIT_DAYS, MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_TOKENS, TOKEN_LIST, ZERO_ADDRESS } from '../../constants';
+import { ADDRESS_TOKEN_MAP, CHAIN_ID_MAP, DEPOSIT_DAYS, MAX_RENTABLE_DAYS, MIN_RENTABLE_DAYS, SUPPORT_CHAINS, SUPPORT_TOKENS, TOKEN_LIST, ZERO_ADDRESS } from '../../constants';
 import { BigNumber, ethers, utils } from 'ethers';
 import TxLoadingDialog from '../TxLoadingDialog';
 import { LeaseItem } from '../../types';
@@ -30,7 +30,7 @@ interface LendConfigProps {
  */
 const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
   const { configType = '@add', nftInfo, handleClose } = props
-
+  console.log(nftInfo)
   const [isLended, setLended] = useState<boolean>(false)
 
   const [whitelist, setWhitelist] = useState<string>('')
@@ -39,7 +39,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
   const [showDailyPriceError, setShowDailyPriceError] = useState<boolean>(false)
   const [minDuration, setMinDuration] = useState<number>(MIN_RENTABLE_DAYS)
   const [maxDuration, setMaxDuration] = useState<number>(365)
-  const [paymentCoinType, setPaymentCoinType] = useState<string>(TOKEN_LIST['USDT'].name)
+  const [paymentCoinType, setPaymentCoinType] = useState<string>(SUPPORT_TOKENS[CHAIN_ID_MAP[nftInfo.chain] as number][0].name)
   const [payPeriod, setPayPeriod] = useState<number>(1)
   const [isNeedDeposit, setNeedDeposit] = useState<boolean>(true) // 默认需要押金
   const [isShowMoreOptions, setShowMoreOption] = useState<boolean>(false)
@@ -251,10 +251,10 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
               onChange={(event: SelectChangeEvent) => setPaymentCoinType(event.target.value as string)}
             >
               {
-                SUPPORT_TOKENS[1].map(item =>
+                SUPPORT_TOKENS[CHAIN_ID_MAP[nftInfo.chain] as number].map(item =>
                   <MenuItem value={item?.name} className={styles.coinTypeItem} key={item?.address}>
                     <img src={item?.logo} alt={`${item?.name}_LOGO`} />
-                    {item?.name}
+                    {item?.name?.split('-')[1]}
                   </MenuItem>)
               }
             </Select>

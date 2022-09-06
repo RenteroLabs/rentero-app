@@ -25,6 +25,7 @@ import { LeaseItem } from "../../types";
 import { BigNumber, utils } from "ethers";
 import SkeletonNFTCard from "../../components/NFTCard/SkeletonNFTCard";
 import UpdateNFTModal from "../../components/UpdateNFT";
+import { GRAPH_SERVICE_MAP } from '../../services/graphql'
 
 interface DetailCardBoxProps {
   title: React.ReactElement
@@ -83,11 +84,12 @@ const RentOperation: React.FC<RentOperationProps> = (props) => {
 
 const Detail: NextPageWithLayout = () => {
   const router = useRouter()
-  const [, nftAddress, tokenId] = router.query.nftInfo as string[] || []
+  const [chainId, nftAddress, tokenId] = router.query.nftInfo as string[] || []
 
   const { isConnected, address } = useAccount()
   const isMounted = useIsMounted()
   const minMobileWidth = useMediaQuery("(max-width: 600px)")
+  const timestamp = (Number(new Date) / 1000).toFixed()
 
   const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
   const [nftList, setNFTList] = useState<Record<string, any>[]>([])
@@ -102,6 +104,10 @@ const Detail: NextPageWithLayout = () => {
     return `${etherscanBlockExplorers[CHAIN_NAME[3]]?.url}/address/${nftAddress}`
   }, [nftAddress])
 
+  const graphClient = useMemo(() => {
+    return GRAPH_SERVICE_MAP[parseInt(chainId)]
+  }, [chainId])
+
   const nftStatus = useMemo(() => {
     const current = (Number(new Date) / 1000).toFixed()
     return (rentInfo?.expires || 0) > current ? 'renting' : 'lending'
@@ -109,17 +115,19 @@ const Detail: NextPageWithLayout = () => {
 
   const [getLeaseInfo, { refetch }] = useLazyQuery(GET_LEASE_INFO, {
     variables: { id: [nftAddress, tokenId].join('-') },
+    client: graphClient,
     onCompleted(data) {
       setRentInfo(data.lease)
     },
   })
 
-  useQuery(GET_MORE_RECOMMENDED_FOUR, {
+  const [getMoreLease, { loading }] = useLazyQuery(GET_MORE_RECOMMENDED_FOUR, {
     variables: {
       nftAddress,
       tokenId,
-      expires: (Number(new Date) / 1000).toFixed()
+      expires: timestamp
     },
+    client: graphClient,
     onCompleted(data) { setNFTList(data.leases) }
   })
 
@@ -130,6 +138,7 @@ const Detail: NextPageWithLayout = () => {
 
   useEffect(() => {
     getLeaseInfo()
+    getMoreLease()
     if (nftAddress && tokenId) {
       fetchNFTInfo({ tokenId: parseInt(tokenId), contractAddress: nftAddress })
     }
@@ -353,7 +362,7 @@ const Detail: NextPageWithLayout = () => {
                 <NFTCard nftInfo={item} key={index} />)
             }
             {
-              nftList.length === 0 && <>
+              loading && <>
                 <SkeletonNFTCard />
                 <SkeletonNFTCard />
                 <SkeletonNFTCard />

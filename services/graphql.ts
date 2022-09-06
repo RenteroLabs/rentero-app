@@ -14,7 +14,13 @@ const bsctestGraph = new ApolloClient({
   cache: new InMemoryCache()
 })
 
+const GRAPH_SERVICE_MAP: Record<number, any> = {
+  4: rinkebyGraph,
+  97: bsctestGraph
+}
+
 export {
   rinkebyGraph,
-  bsctestGraph
+  bsctestGraph,
+  GRAPH_SERVICE_MAP
 }
