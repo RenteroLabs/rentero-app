@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, Box, Typography, Stack } from '@mui/material'
-import { useSigner, useContract, useWaitForTransaction } from 'wagmi'
+import { useSigner, useContract, useWaitForTransaction, useNetwork } from 'wagmi'
 import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI } from '../../../constants/contractABI'
 import AppDialog from '../../Dialog'
 import TxLoadingDialog from '../../TxLoadingDialog'
 import DefaultButton from '../../Buttons/DefaultButton'
 import styles from './modal.module.scss'
 import { CHAIN_ID_MAP } from '../../../constants'
+import SwitchNetwork from '../../SwitchNetwork'
 
 interface ReturnNFTModalProps {
   trigger: React.ReactElement,
@@ -22,9 +23,18 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [txError, setTxError] = useState<string>('')
 
+  const [showSwitchNetworkDialog, setShowSwitchNetworkDialog] = useState<boolean>(false)
+
   const [showTxDialog, setShowTxDialog] = useState<boolean>(false)
 
   const { data: signer } = useSigner()
+  const { chain: currentChain } = useNetwork()
+
+  useEffect(() => {
+    if (!showDialog && currentChain?.id != CHAIN_ID_MAP[chain]) {
+      setShowSwitchNetworkDialog(true)
+    }
+  }, [showDialog])
 
   const contractMarket = useContract({
     addressOrName: INSTALLMENT_MARKET[CHAIN_ID_MAP[chain]],
@@ -90,6 +100,19 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
         </DefaultButton>
       </Stack>
     </Box>
+
+    <SwitchNetwork
+      showDialog={showSwitchNetworkDialog}
+      closeDialog={() => {
+        setShowSwitchNetworkDialog(false)
+        setHiddenDialog(true)
+      }}
+      callback={() => {
+        setShowSwitchNetworkDialog(false)
+      }}
+      targetNetwork={CHAIN_ID_MAP[chain] as number}
+    />
+
     <TxLoadingDialog showTxDialog={showTxDialog} txHash={abortTxHash || ''} />
   </AppDialog>
 }

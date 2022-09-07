@@ -196,7 +196,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
                   <Stack sx={{ margin: 'auto 1rem' }}>
                     <Typography className={styles.nftCollectionName}>
                       {
-                        metaList[[item.nftAddress, item.tokenId].join('-')] && JSON.parse(metaList[[item.nftAddress, item.tokenId].join('-')]?.metadata).name
+                        metaList[[item.nftAddress, item.tokenId].join('-')]?.metadata && JSON.parse(metaList[[item.nftAddress, item.tokenId].join('-')]?.metadata).name
                       }
                       &nbsp;#{item.tokenId}
                     </Typography>

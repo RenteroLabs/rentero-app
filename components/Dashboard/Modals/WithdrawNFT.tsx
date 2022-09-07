@@ -1,6 +1,6 @@
 import { Alert, Box, Stack, Typography } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
-import { erc20ABI, useAccount, useContract, useSigner, useWaitForTransaction } from 'wagmi'
+import { erc20ABI, useAccount, useContract, useNetwork, useSigner, useWaitForTransaction } from 'wagmi'
 import classNames from 'classnames/bind';
 import { INSTALLMENT_MARKET, INSTALLMENT_MARKET_ABI } from '../../../constants/contractABI'
 import AppDialog from '../../Dialog'
@@ -11,6 +11,7 @@ import { BigNumber, ethers, utils } from 'ethers';
 import TxLoadingDialog from '../../TxLoadingDialog';
 import { ADDRESS_TOKEN_MAP, CHAIN_ID_MAP, ONEDAY, ZERO_ADDRESS } from '../../../constants';
 import { dateFormat } from '../../../utils/format';
+import SwitchNetwork from '../../SwitchNetwork';
 
 const cx = classNames.bind(styles)
 interface WithdrawNFTModalProps {
@@ -24,14 +25,22 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   const [hiddenDialog, setHiddenDialog] = useState<boolean>(false)
   const [txError, setTxError] = useState<string | undefined>()
   const [buttonLoading, setButtonLoading] = useState<boolean>(false)
+  const [showSwitchNetworkDialog, setShowSwitchNetworkDialog] = useState<boolean>(false)
 
   const { address } = useAccount()
+  const { chain } = useNetwork()
   const [isApproved, setIsApproved] = useState<boolean>(false)
   const [alreadyApproved, setAlreadyApproved] = useState<boolean>(false)
 
   const [showTxDialog, setShowTxDialog] = useState<boolean>(false)
 
   const { data: signer } = useSigner()
+
+  useEffect(() => {
+    if (!hiddenDialog && chain?.id != CHAIN_ID_MAP[rentInfo.chain]) {
+      setShowSwitchNetworkDialog(true)
+    }
+  }, [hiddenDialog])
 
   const isNormalRedeem = useMemo(() => {
     return rentInfo.expires < (new Date().getTime() / 1000).toFixed()
@@ -230,6 +239,17 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
         </Box>
     }
 
+    <SwitchNetwork
+      showDialog={showSwitchNetworkDialog}
+      closeDialog={() => {
+        setShowSwitchNetworkDialog(false)
+        setHiddenDialog(true)
+      }}
+      callback={() => {
+        setShowSwitchNetworkDialog(false)
+      }}
+      targetNetwork={CHAIN_ID_MAP[rentInfo.chain] as number}
+    />
     <TxLoadingDialog showTxDialog={showTxDialog} txHash={approveTxHash || redeemTxHash || ''} />
   </AppDialog>
 }
