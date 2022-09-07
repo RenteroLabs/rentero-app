@@ -184,6 +184,14 @@ const Dashboard: React.FC<DashboardProps> = () => {
           !isLoading && (tableType === 'RENT' ? rentingList : lendingList).map((item, index) => {
             const metaList = tableType === 'RENT' ? rentingMetas : lendingMetas
             const nftStats = (item?.expires || 0) > timestamp ? 'renting' : 'lending'
+            let metadata
+            try {
+              if (metaList[[item.nftAddress, item.tokenId].join('-')]?.metadata) {
+                metadata = JSON.parse(metaList[[item.nftAddress, item.tokenId].join('-')]?.metadata)
+              }
+            } catch (err) {
+              console.error(err)
+            }
             return <TableRow key={index}>
               <TableCell>
                 <Box className={styles.nftBoxCell}>
@@ -193,9 +201,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
                   </Box>
                   <Stack sx={{ margin: 'auto 1rem' }}>
                     <Typography className={styles.nftCollectionName}>
-                      {
-                        metaList[[item.nftAddress, item.tokenId].join('-')]?.metadata && JSON.parse(metaList[[item.nftAddress, item.tokenId].join('-')]?.metadata).name
-                      }
+                      {metadata?.name}
                       &nbsp;#{item.tokenId}
                     </Typography>
                     <Typography className={styles.nftAddress}>

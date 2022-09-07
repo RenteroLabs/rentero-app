@@ -110,11 +110,14 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
     firstPay,
     firstTotalPay
   ]: any[] = useMemo(() => {
+    // TODO: 此处计算逻辑需更新
     if (!rentInfo) return []
     const dailyPrice = utils.formatUnits(BigNumber.from(rentInfo?.rentPerDay), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)
+
     const deposit = utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)
 
-    const totalPay = rentDay ? rentDay * parseFloat(dailyPrice) : 0
+    const totalPay = rentDay ? Math.round(rentDay * (parseFloat(dailyPrice) * 10000)) / 10000 : 0
+
     const firstPay = parseFloat(dailyPrice) * parseInt(rentInfo?.daysPerPeriod)
     const firstTotalPay = parseFloat(deposit) + firstPay
 
@@ -245,13 +248,14 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
               {rentInfo && parseFloat(firstTotalPay)}
             </Typography>
           </Box>
-          <Box>
-            <Typography variant="h5">Deposit</Typography>
-            <Typography className={styles.payListItemP}>
-              <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
-              {rentInfo && deposit}
-            </Typography>
-          </Box>
+          {deposit != 0 &&
+            <Box>
+              <Typography variant="h5">Deposit</Typography>
+              <Typography className={styles.payListItemP}>
+                <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+                {rentInfo && deposit}
+              </Typography>
+            </Box>}
           <Box>
             <Typography variant="h5">Pay daily (First Payment)</Typography>
             <Typography className={styles.payListItemP}>

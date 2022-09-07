@@ -45,7 +45,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [selectedSortBy, setSelectedSortBy] = useState<number>(0)
 
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(12)
+  const [pageSize, setPageSize] = useState<number>(18)
   const [leasesList, setLeasesList] = useState<LeaseItem[]>([])
   const [NFTList, setNFTList] = useState<Record<string, any>[]>([])
   const [NFTTotal, setNFTTotal] = useState<number>(0)

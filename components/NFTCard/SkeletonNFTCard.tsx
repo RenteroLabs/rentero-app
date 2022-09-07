@@ -5,11 +5,13 @@ import styles from './index.module.scss'
 const SkeletonNFTCard: React.FC = () => {
   return <Card className={styles.skeletonCard}>
     <Skeleton variant="rectangular" className={styles.nftImage} />
-    <Box sx={{ display: 'flex', mt: '1.33rem' }}>
+    <Box sx={{ display: 'flex', m: '1.33rem 1.33rem 1rem', alignItems: 'center' }}>
       <Skeleton variant="rectangular" className={styles.nftLogo} />
-      <Skeleton variant="text" sx={{ display: 'inline-block', width: '12rem', height: '2.67rem', ml: '1rem' }} />
+      <Skeleton variant="rectangular" sx={{ width: '70%', ml: '1rem' }} height="2rem" />
     </Box>
-    <Skeleton variant="rectangular" width="19.5rem" height="2.5rem" sx={{ mt: '1rem' }} />
+    <Skeleton variant="rectangular"
+      sx={{ margin: '0 1.33rem 0.5rem' }}
+      height="2rem" />
   </Card>
 }
 
