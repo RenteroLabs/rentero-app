@@ -12,6 +12,7 @@ import { BigNumber, utils } from 'ethers'
 import { getNFTInfo } from '../../services/market'
 import { useRequest } from 'ahooks'
 import RentNFTModal from '../RentNFT/RentNFTModal'
+import { useAccount } from 'wagmi'
 
 const cx = classNames.bind(styles)
 
@@ -23,6 +24,7 @@ interface NFTCardProps {
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
   const { nftInfo, mode = '@lease', reloadList } = props
+  const { address } = useAccount()
   const [metaInfo, setMetaInfo] = useState<Record<string, any>>({})
   const [attrList, setAttrList] = useState<Record<string, any>[]>([])
   const minMobileWidth = useMediaQuery("(max-width: 600px)")
@@ -122,7 +124,11 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
           </>
       }
       <Box className={styles.rentButtonBox} onClick={handleRentNow} >
-        {nftStatus === 'lending' && mode !== '@trial' && !minMobileWidth &&
+        {nftStatus === 'lending'
+          && mode !== '@trial'
+          && !minMobileWidth
+          && address?.toLowerCase() !== nftInfo.lender
+          &&
           <RentNFTModal
             trigger={< Box className={styles.rentButton} > Rent </Box>}
             rentInfo={nftInfo}

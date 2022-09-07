@@ -93,7 +93,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
   useEffect(() => {
     refetchLending()
     refetchRenting()
-  }, [])
+  }, [address])
 
   useEffect(() => {
     setRentingList([])
@@ -124,17 +124,15 @@ const Dashboard: React.FC<DashboardProps> = () => {
     }, {
       title: "Pay period"
     }, {
-      title: 'Deposit',
-      dataIndex: 'deposit',
-    }, {
       title: 'Expire time',
       dataIndex: 'orderTime',
+    }, {
+      title: 'Deposit',
+      dataIndex: 'deposit',
     }, {
       title: 'Manage'
     }
   ]
-
-  // TODO: dashboard页在调用合约操作之前需判断当前所处网络
 
   return <Box>
     <Box className={styles.tableSearch}>
@@ -217,6 +215,13 @@ const Dashboard: React.FC<DashboardProps> = () => {
               <TableCell>
                 {item?.daysPerPeriod}
               </TableCell>
+              <TableCell>
+                {
+                  item?.expires < (Number(new Date) / 1000).toFixed()
+                    ? '-'
+                    : dateFormat('YYYY-mm-dd HH:MM', new Date(parseInt(item?.expires) * 1000))
+                }
+              </TableCell>
               <TableCell >
                 {
                   parseInt(item.deposit) !== 0 ?
@@ -227,14 +232,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
                     '-'
                 }
               </TableCell>
-              <TableCell>
-                {
-                  item?.expires < (Number(new Date) / 1000).toFixed()
-                    ? '-'
-                    : dateFormat('YYYY-mm-dd', new Date(parseInt(item?.expires) * 1000))
-                }
-              </TableCell>
-
               <TableCell align="center">
                 {tableType === 'RENT' &&
                   <ReturnNFTModal

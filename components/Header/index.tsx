@@ -8,11 +8,11 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
-import { Avatar, Chip, ClickAwayListener, Menu, MenuItem,  Typography, Box, IconButton, Drawer, Stack, useMediaQuery } from '@mui/material'
+import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, Typography, Box, IconButton, Drawer, Stack, useMediaQuery, Button } from '@mui/material'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
-import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT } from '../../constants/contractABI'
+import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI'
 import { UserLoginParams } from '../../types/service'
 import { userLogin } from '../../services/dashboard'
 import { useLocalStorageState } from 'ahooks'
@@ -22,6 +22,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import CloseIcon from '@mui/icons-material/Close';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { BigNumber, ethers } from 'ethers'
 
 export default function Header() {
   const router = useRouter()
@@ -77,11 +78,27 @@ export default function Header() {
 
   const { data: signer } = useSigner()
 
-  const contract = useContract({
-    addressOrName: Ropsten_721_AXE_NFT,
-    contractInterface: Ropsten_721_AXE_NFT_ABI,
-    signerOrProvider: signer
+  const contractMarket = useContract({
+    addressOrName: '0x0b4c0e5e644b60f4a4c808adb431746de686b66c',
+    contractInterface: INSTALLMENT_MARKET_ABI,
+    signerOrProvider: signer,
   })
+  const contract20 = useContract({
+    addressOrName: '0x304af20ef7a8497aeed4a4a6ba4601988d5b11f6',
+    contractInterface: erc20ABI,
+    signerOrProvider: signer,
+  })
+
+  // const redeem = async () => {
+  //   const d = await contractMarket.reclaim("0x6fe2BD1C050F439705EcBf98130D7C9C784bbFd6", 224)
+  // }
+  // const approve = async () => {
+  //   const r = await contract20.approve('0x0b4c0e5e644b60f4a4c808adb431746de686b66c', ethers.constants.MaxUint256)
+  // }
+
+  // const rent = async () => {
+  //   const r = await contractMarket.rent("0x6fe2BD1C050F439705EcBf98130D7C9C784bbFd6", BigNumber.from(224), 10)
+  // }
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
     if (
@@ -122,6 +139,9 @@ export default function Header() {
         <a className={router.pathname === '/dashboard' ? styles.activeNavItem : undefined}>Dashboard</a>
       </Link>
     </nav>
+    {/* <Button onClick={rent}>rent</Button> */}
+    {/* <Button onClick={redeem}>redeem</Button> */}
+    {/* <Button onClick={approve}>approve</Button> */}
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {(isMounted && isConnected) &&
         <Chip
