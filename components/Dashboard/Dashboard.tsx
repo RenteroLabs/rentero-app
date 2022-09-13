@@ -122,7 +122,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     }, {
       title: 'Daily Price',
     }, {
-      title: "Pay period"
+      title: "Payment Cycle"
     }, {
       title: 'Expire time',
       dataIndex: 'orderTime',

@@ -17,6 +17,8 @@ export const GET_LEASES = gql`
         tokenId
         whitelist
         chain
+        paidExpires
+        start
     }
   }
 `
@@ -54,6 +56,8 @@ export const GET_LEASES_BY_GAME = gql`
         tokenId
         whitelist
         chain
+        paidExpires
+        start
     } 
   }
 `
@@ -85,6 +89,8 @@ export const GET_LEASE_INFO = gql`
       tokenId
       whitelist
       chain
+      paidExpires
+      start
     }
   }
 `
@@ -110,6 +116,8 @@ export const GET_MORE_RECOMMENDED_FOUR = gql`
       tokenId
       whitelist
       chain
+      paidExpires
+      start
     }
   } 
 `
@@ -132,6 +140,8 @@ export const GET_MY_RENTING = gql`
         tokenId
         whitelist
         chain
+        paidExpires
+        start
     } 
   }
 `
@@ -153,6 +163,8 @@ export const GET_MY_LENDING = gql`
         tokenId
         whitelist
         chain
+        paidExpires
+        start
     }
   }
 `

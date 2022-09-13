@@ -110,16 +110,18 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
     firstPay,
     firstTotalPay
   ]: any[] = useMemo(() => {
-    // TODO: 此处计算逻辑需更新
     if (!rentInfo) return []
     const dailyPrice = utils.formatUnits(BigNumber.from(rentInfo?.rentPerDay), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)
 
-    const deposit = utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)
+    let deposit: string | number = utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)
+
+    const isMoreThanOneCircle = (rentDay || 0) > parseInt(rentInfo.daysPerPeriod)
+    deposit = isMoreThanOneCircle ? parseFloat(deposit) : 0
 
     const totalPay = rentDay ? Math.round(rentDay * (parseFloat(dailyPrice) * 10000)) / 10000 : 0
 
-    const firstPay = parseFloat(dailyPrice) * parseInt(rentInfo?.daysPerPeriod)
-    const firstTotalPay = parseFloat(deposit) + firstPay
+    const firstPay = parseFloat(dailyPrice) * (isMoreThanOneCircle ? parseInt(rentInfo?.daysPerPeriod) : (rentDay || 0))
+    const firstTotalPay = deposit + firstPay
 
     return [
       dailyPrice,

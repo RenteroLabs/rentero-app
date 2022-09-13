@@ -24,6 +24,8 @@ export interface LeaseItem {
   tokenId: string;
   whitelist: string;
   chain: string;
+  paidExpires: string;
+  start: string;
 }
 
 export interface TokenInfo {

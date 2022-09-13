@@ -49,12 +49,14 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
   // 计算一个周期内还未使用消耗的天数费用
   const [unUsedDaysInPeriod, totalReturn] = useMemo(() => {
     const currentTime = Math.round(Number(new Date()) / 1000)
+
     if (!rentInfo.expires || parseInt(rentInfo.expires) < currentTime) return [0, 0]
 
-    // TODO: 此处计算需使用 paidExpire 字段
-    const days = (parseInt(rentInfo.expires) - currentTime) / ONEDAY
+    // 已支付但未使用天数
+    const days = (parseInt(rentInfo.paidExpires) - currentTime) / ONEDAY
 
-    const unUsedDaysInPeriod = (Math.ceil(days) % Number(rentInfo.daysPerPeriod)) || Number(rentInfo.daysPerPeriod)
+    const unUsedDaysInPeriod = Math.ceil(days)
+
     const totalReturn = BigNumber.from(rentInfo.rentPerDay).mul(BigNumber.from(unUsedDaysInPeriod)).add(BigNumber.from(rentInfo.deposit))
 
     return [unUsedDaysInPeriod, totalReturn]
@@ -199,13 +201,14 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
                 {unUsedDaysInPeriod} * {utils.formatUnits(BigNumber.from(rentInfo?.rentPerDay), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)}
               </Box>
             </Box>
-            <Box>
-              <Box>Compensation To Renter</Box>
+            {Number(rentInfo.deposit) !== 0 &&
               <Box>
-                <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
-                {utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)}
-              </Box>
-            </Box>
+                <Box>Compensation To Renter</Box>
+                <Box>
+                  <img src={ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.logo} />
+                  {utils.formatUnits(BigNumber.from(rentInfo?.deposit), ADDRESS_TOKEN_MAP[rentInfo?.erc20Address]?.decimal)}
+                </Box>
+              </Box>}
           </Stack>
           {txError &&
             <Alert

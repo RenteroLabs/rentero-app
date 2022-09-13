@@ -229,7 +229,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
     <Box className={styles.installmentBox} component="form" >
       <Stack className={styles.lendForm}>
         <Box className={styles.lendFormItem}>
-          <Typography>Rent / Each Payment</Typography>
+          <Typography>Daily Price</Typography>
           <Stack direction="row" spacing="1.33rem" className={styles.rentDailyPrice}>
             <Box className={styles.rentFormValueBox}>
               <Box>
@@ -265,7 +265,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
         </Box>
 
         <Box className={styles.lendFormItem}>
-          <Typography>Duration</Typography>
+          <Typography>Rental Period</Typography>
           <Stack direction="row" spacing="1.33rem" sx={{ maxWidth: '40rem' }}>
             <Box className={styles.durationValueBox}>
               <Typography>Min</Typography>
@@ -299,7 +299,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
         </Box>
 
         <Box className={styles.lendFormItemBox}>
-          <Typography>Time Between Payment</Typography>
+          <Typography>Payment Cycle</Typography>
           <Box className={styles.billingCycle}>
             <InputNumber
               min={1}
@@ -343,7 +343,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
                 <span>Renter pays deposit</span>
                 <Switch checked={isNeedDeposit} onChange={(_, checked: boolean) => setNeedDeposit(checked)} />
               </Typography>
-              <Box>* The deposit amount is one cycle rent. It will compensate You  when the Renter defaults.</Box>
+              <Box>* The deposit amount is one day rent. It will compensate You  when the Renter defaults.</Box>
             </Box>
           </>
         }
