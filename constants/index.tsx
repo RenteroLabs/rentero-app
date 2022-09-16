@@ -51,10 +51,12 @@ const BSC_TEST: Chain = {
   }
 }
 
+// TODO: 后续需把其中的测试网移除
 const MAIN_NETWORK: Chain[] = [
   chain.mainnet,
   chain.rinkeby,
   BSC_CHAIN,
+  BSC_TEST
 ]
 
 export const SUPPORT_CHAINS =
@@ -78,7 +80,7 @@ export const CHAIN_NAME: Record<number, EtherscanChains> = {
 // service for thegraph chain value
 export const CHAIN_ID_MAP: Record<string | number, number | string> = {
   "rinkeby": 4,
-  "bsc-testnet": 97, // TODO: 判断 thegraph bsc 测试网络返回 chain 名称
+  "bsc-testnet": 97, 
   "bsc": 56,
   4: 'rinkeby',
   97: 'bsc-testnet',
@@ -92,7 +94,7 @@ export const ALCHEMY_RINKEBY_URL = `https://eth-rinkeby.alchemyapi.io/nft/v2/${p
 
 // backend api service
 const DEV_BASEAPI = 'https://devapi.rentero.io'
-const TEST_BASEAPI = 'https://testapi.rentero.io'
+const TEST_BASEAPI = 'https://devapi.rentero.io'
 export const BaseURL = process.env.NEXT_PUBLIC_ENV === 'TEST' ? TEST_BASEAPI : DEV_BASEAPI
 
 

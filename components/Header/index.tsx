@@ -13,8 +13,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
 import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI'
-import { UserLoginParams } from '../../types/service'
-import { userLogin } from '../../services/dashboard'
 import { useLocalStorageState } from 'ahooks'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import StoreIcon from '@mui/icons-material/Store';
@@ -44,21 +42,6 @@ export default function Header() {
 
   const { chain } = useNetwork()
   const { pendingChainId, switchNetwork } = useSwitchNetwork()
-
-  // const { signMessage } = useSignMessage({
-  //   message: 'Login Rentero',
-  //   onSuccess: async (data) => {
-  //     const params: UserLoginParams = {
-  //       signature: data,
-  //       timestamp: new Date().getTime(),
-  //       userAddress: address
-  //     }
-  //     const result = await userLogin(params)
-  //     // 存储 jwt token
-  //     setJwtToken(`${address}*${result.data.authToken}`)
-  //     router.push('/dashboard')
-  //   }
-  // })
 
   const isEth = useMemo(() => {
     if (chain && chain.id === 1) {
