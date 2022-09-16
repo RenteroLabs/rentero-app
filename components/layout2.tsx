@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { PropsWithChildren } from "react";
-import styles from '../styles/layout.module.css'
+import styles from '../styles/layout2.module.scss'
 
 import Footer from "./Footer";
 import Header from "./Header";

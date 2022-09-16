@@ -4,23 +4,26 @@ import Image from 'next/image'
 import styles from './index.module.scss'
 import RatioOff from '../../public/ratio_button_off.svg'
 import CheckIcon from '@mui/icons-material/Check';
-import { useNetwork } from 'wagmi'
 import { CHAIN_ICON } from '../../constants'
 
 interface NFTCardProps {
   nftImage: string;
   nftNumber: string;
   nftName: string;
+  nftAddress: string;
   selectedNFT: string;
+  chainId: number
   setSelectedNFT: (nftNumber: string) => any;
+  setContractAddress: (address: string) => any;
 }
 
 const NFTCard: React.FC<NFTCardProps> = (props) => {
-  const { nftImage, nftName, nftNumber, selectedNFT, setSelectedNFT } = props
-  const { chain } = useNetwork()
+  const { nftImage, nftName, nftNumber, selectedNFT, setSelectedNFT, chainId, setContractAddress, nftAddress } = props
 
   const handleClickNFT = () => {
     setSelectedNFT(selectedNFT !== nftNumber ? nftNumber : '')
+    console.log(nftAddress)
+    setContractAddress(nftAddress)
   }
 
   return <Box className={styles.nftCard} onClick={handleClickNFT} >
@@ -35,9 +38,8 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     <Typography variant='h3' className={styles.nftName}>{nftName}</Typography>
     <Typography variant="body2" className={styles.nftNumber} >
       #{nftNumber}
-      {chain && <Avatar
-        src={CHAIN_ICON[chain?.id]}
-        alt={chain?.name}
+      {chainId && <Avatar
+        src={CHAIN_ICON[chainId]}
         sx={{ width: '1.67rem', height: '1.67rem', marginLeft: '1rem' }}
       />}
     </Typography>

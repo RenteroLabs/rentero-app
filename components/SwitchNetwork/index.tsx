@@ -6,14 +6,15 @@ import styles from './styles.module.scss'
 
 interface SwitchNetworkProps {
   showDialog: boolean;
-  closeDialog: () => any;
-  callback: () => any;
   targetNetwork: number;
+  /** cancel callback */
+  closeDialog: () => any;
+  /** switched callback */
+  callback: () => any;
 }
 
 const SwitchNetwork: React.FC<SwitchNetworkProps> = (props) => {
   const { showDialog, closeDialog, targetNetwork, callback } = props
-  const [loading, setLoading] = useState<boolean>(false)
 
   const { isConnected } = useAccount()
   const { chain } = useNetwork()
@@ -22,7 +23,7 @@ const SwitchNetwork: React.FC<SwitchNetworkProps> = (props) => {
       console.error(error.message)
     },
     onSuccess() {
-      closeDialog()
+      callback()
     }
   })
 

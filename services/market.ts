@@ -25,7 +25,13 @@ export const getMarketNFTList = async (params: NFTListParams) => {
   return data.json()
 }
 
-export const getNFTDetail = async ({ skuId }: any) => {
-  const data = await fetch(`${BaseURL}/market/detail?skuId=${skuId}`)
+
+interface NFTInfoParams {
+  tokenId: number,
+  contractAddress: string
+}
+export const getNFTInfo = async (params: NFTInfoParams) => {
+  const { tokenId, contractAddress } = params
+  const data = await fetch(`${BaseURL}/nft/info?address=${contractAddress}&tokenId=${tokenId}`)
   return data.json()
 }

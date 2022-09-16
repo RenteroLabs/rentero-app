@@ -27,3 +27,18 @@ export function dateFormat(fmt: string, date: Date) {
   };
   return fmt;
 }
+
+export function moralisData2NFTdata(list: Record<string, any>[]) {
+  console.log(list)
+  return list.map((nftItem) => {
+    const item = nftItem._data
+    const image = item?.metadata?.image || 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3esgombq6j20m80m83yv.jpg'
+
+    return {
+      nftName: item?.name,
+      nftNumber: item?.tokenId,
+      nftAddress: item?.tokenAddress?._value,
+      nftImage: image
+    }
+  })
+}

@@ -1,5 +1,6 @@
 import React from 'react'
 import Document, { Html, Head, Main, NextScript } from 'next/document'
+import Script from 'next/script'
 
 export default class AppDocument extends Document {
   render() {
@@ -20,17 +21,19 @@ export default class AppDocument extends Document {
           />
           <link rel="preload" href="/font/Agrandir-GrandHeavy.otf" type="font/otf" as="font" crossOrigin="anonymous" />
           <link rel="preload" href="/font/MonumentExtended.otf" type="font/otf" as="font" crossOrigin="anonymous" />
-          <script async src="https://www.googletagmanager.com/gtag/js?id=G-RKM0TCB2X6"></script>
 
-          <script dangerouslySetInnerHTML={{
-            __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-RKM0TCB2X6');
-            `
-          }} />
+          <Script src="https://www.googletagmanager.com/gtag/js?id=G-RKM0TCB2X6" strategy="afterInteractive" />
+          <Script id="google-analytics" strategy="afterInteractive" >
+            {
+              `
+               window.dataLayer = window.dataLayer || [];
+               function gtag(){dataLayer.push(arguments);}
+               gtag('js', new Date());
+   
+               gtag('config', 'G-RKM0TCB2X6');
+               `
+            }
+          </Script>
         </Head>
         <body>
           <Main />

@@ -1,8 +1,6 @@
 // @ts-nocheck
 import styles from './index.module.scss'
-import Image from 'next/image'
 import Link from 'next/link'
-import Logo from '../../public/header_logo.svg'
 import ConnectWallet from '../ConnectWallet'
 import { useIsMounted } from '../../hooks'
 import { useAccount, useEnsAvatar, useEnsName, useDisconnect, useNetwork, chain, useContractWrite, erc20ABI, useProvider, useContract, useSigner, erc721ABI, useSignMessage, useSwitchNetwork } from 'wagmi'
@@ -10,17 +8,19 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { formatAddress } from '../../utils/format'
-import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, MenuList, Slide, Snackbar, Typography, Box, Button } from '@mui/material'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { TransitionProps } from '@mui/material/transitions'
+import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, Typography, Box, IconButton, Drawer, Stack, useMediaQuery, Button } from '@mui/material'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
-import { utils } from 'ethers'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
-import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT } from '../../constants/contractABI'
-import { UserLoginParams } from '../../types/service'
-import { userLogin } from '../../services/dashboard'
+import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI'
 import { useLocalStorageState } from 'ahooks'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import StoreIcon from '@mui/icons-material/Store';
+import MenuIcon from '@mui/icons-material/Menu';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import CloseIcon from '@mui/icons-material/Close';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { BigNumber, ethers } from 'ethers'
 
 export default function Header() {
   const router = useRouter()
@@ -29,31 +29,19 @@ export default function Header() {
     defaultValue: ''
   })
   const { address, isConnected } = useAccount()
+  const [showDrawer, setShowDrawer] = useState<boolean>(false)
+  const isMenuDrawer = useMediaQuery("(max-width: 900px)")
+  const isOperateSize = useMediaQuery("(max-width: 750px)")
 
-  useEffect(() => {
-    const [recordAddress] = jwtToken.split('*')
-    if (address !== recordAddress && router.pathname === '/dashboard') {
-      setTimeout(signMessage, 2000)
-    }
-  }, [address])
+  // useEffect(() => {
+  //   const [recordAddress] = jwtToken.split('*')
+  //   if (address !== recordAddress && router.pathname === '/dashboard') {
+  //     setTimeout(signMessage, 2000)
+  //   }
+  // }, [address])
 
   const { chain } = useNetwork()
   const { pendingChainId, switchNetwork } = useSwitchNetwork()
-
-  const { signMessage } = useSignMessage({
-    message: 'Login Rentero',
-    onSuccess: async (data) => {
-      const params: UserLoginParams = {
-        signature: data,
-        timestamp: new Date().getTime(),
-        userAddress: address
-      }
-      const result = await userLogin(params)
-      // 存储 jwt token
-      setJwtToken(`${address}*${result.data.authToken}`)
-      router.push('/dashboard')
-    }
-  })
 
   const isEth = useMemo(() => {
     if (chain && chain.id === 1) {
@@ -71,40 +59,29 @@ export default function Header() {
   const networkListAnchorRef = useRef<HTMLElement>(null)
   const [networkListOpen, setNetworkListOpen] = useState<boolean>(false)
 
-  const [showAlertMessage, setShowAlertMessage] = useState<boolean>(false)
-
-  // const provider = useProvider()
   const { data: signer } = useSigner()
 
-  const contract = useContract({
-    addressOrName: Ropsten_721_AXE_NFT,
-    contractInterface: Ropsten_721_AXE_NFT_ABI,
-    signerOrProvider: signer
+  const contractMarket = useContract({
+    addressOrName: '0x0b4c0e5e644b60f4a4c808adb431746de686b66c',
+    contractInterface: INSTALLMENT_MARKET_ABI,
+    signerOrProvider: signer,
+  })
+  const contract20 = useContract({
+    addressOrName: '0x304af20ef7a8497aeed4a4a6ba4601988d5b11f6',
+    contractInterface: erc20ABI,
+    signerOrProvider: signer,
   })
 
-  const mint721 = async () => {
-    try {
-      await contract.mint()
-    } catch (err: any) {
-      console.log(err.message)
-    }
-  }
-  // const updateURI = async () => {
-  //   try {
-  //     await contract.setBaseURI("ipfs://QmaV3ixoANZQcgTNnTFnXDtVR7wgBKQq7wX4JSrpYmkmer/")
-  //   } catch (err: any) {
-  //     console.log(err.message)
-  //   }
+  // const redeem = async () => {
+  //   const d = await contractMarket.reclaim("0x6fe2BD1C050F439705EcBf98130D7C9C784bbFd6", 224)
+  // }
+  // const approve = async () => {
+  //   const r = await contract20.approve('0x0b4c0e5e644b60f4a4c808adb431746de686b66c', ethers.constants.MaxUint256)
   // }
 
-  const transfer721 = async () => {
-    try {
-      await contract.transferFrom(address, '0x66567071D55A9FBE6B3944172592961c1C414075', 3)
-    } catch (err: any) {
-      console.log(err.message)
-
-    }
-  }
+  // const rent = async () => {
+  //   const r = await contractMarket.rent("0x6fe2BD1C050F439705EcBf98130D7C9C784bbFd6", BigNumber.from(224), 10)
+  // }
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
     if (
@@ -117,27 +94,9 @@ export default function Header() {
     setOpenSetting(false);
   }
 
-  const handleEnterDashboard = (event: Event | React.SyntheticEvent) => {
-    handleClose(event)
-    if (!jwtToken) {
-      signMessage()
-    } else {
-      const [recordAddress] = jwtToken.split('*')
-      if (recordAddress !== address) {
-        signMessage()
-      }
-    }
-    router.push('/dashboard')
-  }
-
   const handleLogout = (event: Event | React.SyntheticEvent) => {
     disconnect()
     handleClose(event)
-  }
-
-  const handleLinkToSupport = (event: Event) => {
-    event.preventDefault()
-    setShowAlertMessage(true)
   }
 
   const chooseSwitchNetwork = (id) => {
@@ -149,52 +108,121 @@ export default function Header() {
 
   return <header className={styles.header}>
     <div className={styles.logo}>
-      <a href='https://rentero.io' rel='noreferrer'>
+      <a href='https://app.rentero.io' rel='noreferrer'>
         <img src='/header_logo.svg' alt='Rentero Logo' />
       </a>
     </div>
     <nav className={styles.navList}>
       <Link href="/"  >
-        <a className={router.pathname === '/' || ['/detail'].some(item => item.indexOf(router.pathname) === 0) ? styles.activeNavItem : undefined}>Market</a></Link>
+        <a className={router.pathname === '/' || ['/detail'].some(item => router.pathname.indexOf(item) === 0) ? styles.activeNavItem : undefined}>Market</a></Link>
       <Link href="/lend">
-        <a className={router.pathname === '/lend' ? styles.activeNavItem : undefined}>Lend NFTs</a>
+        <a className={router.pathname === '/lend' ? styles.activeNavItem : undefined}>Lend</a>
       </Link>
-      <a className={styles.supportNav}>Support</a>
-      <Snackbar
-        open={showAlertMessage}
-        message="WIP: Coming soon！"
-        autoHideDuration={3000}
-        onClose={() => setShowAlertMessage(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        TransitionComponent={(props: TransitionProps) => <Slide {...props} direction="right" />}
-      />
+      <Link href="/dashboard">
+        <a className={router.pathname === '/dashboard' ? styles.activeNavItem : undefined}>Dashboard</a>
+      </Link>
     </nav>
-    {/* <button onClick={updateURI}>updateURI</button> */}
-    {/* <button onClick={mint721}>Click</button> */}
-    {/* <button onClick={transfer721}>Transfer</button> */}
-    {(isMounted && isConnected) &&
-      <Chip
-        avatar={<Avatar alt={chain?.name} className={styles.networkIcon} src={CHAIN_ICON[chain?.id || 1]} />}
-        label={chain?.name || "Ethereum"}
-        className={styles.networkList}
-        ref={networkListAnchorRef}
-        onDelete={() => setNetworkListOpen(true)}
-        deleteIcon={<KeyboardArrowDownOutlinedIcon className={styles.downIcon} />}
-        onClick={() => setNetworkListOpen(true)}
-      />}
+    {/* <Button onClick={rent}>rent</Button> */}
+    {/* <Button onClick={redeem}>redeem</Button> */}
+    {/* <Button onClick={approve}>approve</Button> */}
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      {(isMounted && isConnected) &&
+        <Chip
+          avatar={<Avatar alt={chain?.name} className={styles.networkIcon} src={CHAIN_ICON[chain?.id || 1]} />}
+          label={chain?.name || "Ethereum"}
+          className={styles.networkList}
+          ref={networkListAnchorRef}
+          onDelete={() => setNetworkListOpen(true)}
+          deleteIcon={<KeyboardArrowDownOutlinedIcon className={styles.downIcon} />}
+          onClick={() => setNetworkListOpen(true)}
+        />}
+
+      {(isMounted && isConnected) ?
+        <Chip
+          avatar={<AccountBalanceWalletIcon />}
+          label={<div className={styles.addressOrEns}>
+            {ensName ? ensName : formatAddress(address, 4)}
+            <KeyboardArrowDownOutlinedIcon className={styles.downIcon} />
+          </div>}
+          className={styles.accountBox}
+          onClick={() => setOpenSetting(true)}
+          ref={anchorRef}
+        /> : <ConnectWallet
+          trigger={<span className={styles.connectButton}>Connect Wallet</span>}
+        />
+      }
+      <Box
+        className={styles.drawerMenuIcon}
+        onClick={() => setShowDrawer(!showDrawer)}>
+        {
+          isMenuDrawer && showDrawer ?
+            <CloseIcon sx={{ fontSize: '2rem' }} />
+            : <MenuIcon sx={{ fontSize: '2rem' }} />
+        }
+      </Box>
+    </Box>
+
+    {/* 抽屉弹窗 */}
+    <Drawer
+      anchor="right"
+      open={showDrawer && isMenuDrawer}
+      onClose={() => setShowDrawer(false)}
+      className={styles.drawer}
+      key="header_drawer"
+      ModalProps={{ keepMounted: true }}
+    >
+      <Box
+        className={styles.drawerBox}
+        onClick={() => setShowDrawer(!showDrawer)}
+        onKeyDown={() => setShowDrawer(!showDrawer)}
+      >
+        {isConnected && isOperateSize && <Box className={styles.drawerHeader}>
+          {(isMounted && isConnected) &&
+            <Chip
+              avatar={<Avatar alt={chain?.name} className={styles.networkIcon} src={CHAIN_ICON[chain?.id || 1]} />}
+              label={chain?.name || "Ethereum"}
+              className={styles.drawerNetworkList}
+              ref={networkListAnchorRef}
+              onDelete={() => setNetworkListOpen(true)}
+              deleteIcon={<KeyboardArrowDownOutlinedIcon className={styles.downIcon} />}
+              onClick={(e: React.MouseEvent) => {
+                setNetworkListOpen(true)
+                e.stopPropagation()
+              }}
+            />}
+          <Chip
+            className={styles.drawerAccountBox}
+            avatar={<AccountBalanceWalletIcon />}
+            label={<div className={styles.addressOrEns}>
+              {ensName ? ensName : formatAddress(address, 6)}
+            </div>}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          />
+        </Box>}
+        <Stack className={styles.drawerMenuList} spacing="1rem">
+          <Link href="/"><Box><StoreIcon />Market</Box></Link>
+          <Link href="/lend"><Box><SwapHorizIcon />Lend</Box></Link>
+          {isConnected && <Link href="/dashboard"><Box><DashboardIcon /> Dashboard</Box></Link>}
+          {
+            isConnected
+              ? <Box onClick={handleLogout}><ExitToAppIcon /> Disconnect</Box>
+              : <ConnectWallet
+                trigger={<Box
+                  className={styles.connectButtonInner}
+                  closeCallback={() => setShowDrawer(false)}
+                >Connect Wallet</Box>} />
+          }
+        </Stack>
+      </Box>
+    </Drawer>
+
     <Menu
       anchorEl={networkListAnchorRef.current}
       open={networkListOpen}
       onClose={() => setNetworkListOpen(false)}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'center',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'center',
-      }}
-      sx={{ width: '200px' }}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+      sx={{ width: '200px', zIndex: 1600 }}
     >
       <MenuItem disabled>
         <Typography className={styles.networkListTitle}>Switch Network</Typography>
@@ -210,20 +238,6 @@ export default function Header() {
       }
     </Menu>
 
-    {(isMounted && isConnected) ?
-      <Chip
-        avatar={<AccountBalanceWalletIcon />}
-        label={<div className={styles.addressOrEns}>
-          {ensName ? ensName : formatAddress(address, 4)}
-          <KeyboardArrowDownOutlinedIcon className={styles.downIcon} />
-        </div>}
-        className={styles.accountBox}
-        onClick={() => setOpenSetting(true)}
-        ref={anchorRef}
-      /> : <ConnectWallet
-        trigger={<span className={styles.connectButton}>Connect Wallet</span>}
-      />
-    }
     <ClickAwayListener onClickAway={handleClose}>
       <Menu
         open={openSetting}
@@ -237,11 +251,8 @@ export default function Header() {
           vertical: 'top',
           horizontal: 'center',
         }}
+        sx={{ zIndex: 1600 }}
       >
-        <MenuItem onClick={handleEnterDashboard}>
-          <DashboardIcon />
-          <span className={styles.menuText}>Dashboard</span>
-        </MenuItem>
         <MenuItem onClick={handleLogout}>
           <LogoutIcon />
           <span className={styles.menuText}>Disconnect</span>
