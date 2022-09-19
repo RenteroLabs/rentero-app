@@ -126,7 +126,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
       const { hash } = await contractERC20.approve(INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]], totalReturn)
       setApproveTxHash(hash)
     } catch (err: any) {
-      setTxError(err.message)
+      setTxError(err?.error?.message || err.message)
       setButtonLoading(false)
       setShowTxDialog(false)
     }
@@ -141,7 +141,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
       const { hash } = await contractMarket.reclaim(rentInfo.nftAddress, parseInt(rentInfo.tokenId))
       setRedeemTxHash(hash)
     } catch (err: any) {
-      setTxError(err.message)
+      setTxError(err?.error?.message || err.message)
       setButtonLoading(false)
       setShowTxDialog(false)
     }

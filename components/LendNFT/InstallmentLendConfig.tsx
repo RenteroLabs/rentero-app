@@ -169,7 +169,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
       // 等待交易被打包上链
       setListMarketTxHash(hash)
     } catch (err: any) {
-      setErrorMessage(err?.message)
+      setErrorMessage(err?.error?.message || err?.message)
       setIsLoading(false)
       setShowTxDialog(false)
     }
@@ -202,7 +202,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
       )
       setUpdateOrderTxHash(hash)
     } catch (err: any) {
-      setErrorMessage(err?.message)
+      setErrorMessage(err?.error?.message || err?.message)
       setIsLoading(false)
       setShowTxDialog(false)
     }
@@ -219,7 +219,7 @@ const InstallmentLendConfig: React.FC<LendConfigProps> = (props) => {
       const { hash } = await contractERC721.setApprovalForAll(INSTALLMENT_MARKET[CHAIN_ID_MAP[nftInfo.chain]], true)
       setApproveTxHash(hash)
     } catch (err: any) {
-      setErrorMessage(err?.message)
+      setErrorMessage(err?.error?.message || err?.message)
       setIsLoading(false)
       setShowTxDialog(false)
     }

@@ -140,7 +140,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
       const { hash } = await contractERC20.approve(INSTALLMENT_MARKET[CHAIN_ID_MAP[rentInfo.chain]], ethers.constants.MaxUint256)
       setApproveTxHash(hash)
     } catch (err: any) {
-      setTxError(err.message)
+      setTxError(err?.error?.message || err.message)
       setButtonLoading(false)
       setShowTxDialog(false)
     }
@@ -161,7 +161,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
       const { hash } = await contractMarket.rent(rentInfo?.nftAddress, rentInfo?.tokenId, rentDay)
       setRentTxHash(hash)
     } catch (err: any) {
-      setTxError(err.message)
+      setTxError(err?.error?.message || err.message)
       setButtonLoading(false)
       setShowTxDialog(false)
     }

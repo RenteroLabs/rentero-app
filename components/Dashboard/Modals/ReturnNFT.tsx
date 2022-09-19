@@ -66,7 +66,7 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
       const { hash } = await contractMarket.abort(nftAddress, parseInt(tokenId))
       setAbortTxHash(hash)
     } catch (err: any) {
-      setTxError(err.message)
+      setTxError(err?.error?.message || err.message)
       setIsLoading(false)
       setShowTxDialog(false)
     }

@@ -35,7 +35,7 @@ const TakeOffNFTModal: React.FC<TakeOffNFTModalProps> = (props) => {
       // TODO: 弹框提示：当前 NFT 将在几分钟内被下架
 
     } catch (err: any) {
-      setTxError(err.message)
+      setTxError(err?.error?.message || err.message)
     }
     setIsLoading(false)
   }

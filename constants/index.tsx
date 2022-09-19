@@ -94,7 +94,7 @@ export const ALCHEMY_RINKEBY_URL = `https://eth-rinkeby.alchemyapi.io/nft/v2/${p
 
 // backend api service
 const DEV_BASEAPI = 'https://devapi.rentero.io'
-const TEST_BASEAPI = 'https://devapi.rentero.io'
+const TEST_BASEAPI = 'https://devapi.rentero.io' // production api
 export const BaseURL = process.env.NEXT_PUBLIC_ENV === 'TEST' ? TEST_BASEAPI : DEV_BASEAPI
 
 
