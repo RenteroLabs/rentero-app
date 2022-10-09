@@ -13,6 +13,7 @@ const nextConfig = {
     ],
     loader: 'akamai',
     path: '',
+    deviceSizes: [300]
   },
   plugins: [
     new webpack.IgnorePlugin({

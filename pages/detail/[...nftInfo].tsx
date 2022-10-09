@@ -26,6 +26,7 @@ import { BigNumber, utils } from "ethers";
 import SkeletonNFTCard from "../../components/NFTCard/SkeletonNFTCard";
 import UpdateNFTModal from "../../components/UpdateNFT";
 import { GRAPH_SERVICE_MAP } from '../../services/graphql'
+import Image from 'next/image'
 
 interface DetailCardBoxProps {
   title: React.ReactElement
@@ -144,6 +145,19 @@ const Detail: NextPageWithLayout = () => {
     }
   }, [nftAddress, tokenId])
 
+  const imageKitLoader = ({ src, width = 400, quality = 90 }: any) => {
+    const params = [`w-${width}`];
+    if (quality) {
+      params.push(`q-${quality}`);
+    }
+    const paramsString = params.join(",");
+    var urlEndpoint = "https://ik.imagekit.io/jnznr24q9";
+    const imagePaths = src.split('/')
+    const imageHash = imagePaths[imagePaths.length - 1]
+  
+    return `${urlEndpoint}/${imageHash}?tr=${paramsString}`
+  }
+
   return <Box>
     <Head>
       <title>NFT Detail | Rentero</title>
@@ -161,7 +175,8 @@ const Detail: NextPageWithLayout = () => {
       <Box className={styles.leftBox}>
         <Stack spacing="1.67rem">
           <Paper className={styles.itemCover} >
-            {(metaInfo?.imageUrl) && <img src={metaInfo?.imageUrl} />}
+            {/* {(metaInfo?.imageUrl) && <img src={metaInfo?.imageUrl} />} */}
+            { (metaInfo?.imageUrl) && <Image src={metaInfo?.imageUrl} loader={imageKitLoader}  layout="fill" />}
           </Paper>
 
           <DetailCardBox title={<Box>About {NFT_COLLECTIONS[nftAddress]}</Box>}>

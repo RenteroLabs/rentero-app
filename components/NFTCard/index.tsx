@@ -58,6 +58,19 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     e.stopPropagation()
   }
 
+  const imageKitLoader = ({ src, width = 400, quality = 75 }: any) => {
+    const params = [`w-${width}`];
+    if (quality) {
+      params.push(`q-${quality}`);
+    }
+    const paramsString = params.join(",");
+    var urlEndpoint = "https://ik.imagekit.io/jnznr24q9";
+    const imagePaths = src.split('/')
+    const imageHash = imagePaths[imagePaths.length - 1]
+  
+    return `${urlEndpoint}/${imageHash}?tr=${paramsString}`
+  }
+
   // detail page path: /detail/<network>/<contractAddress>/<tokenId>
   return <Link href={`/detail/${CHAIN_ID_MAP[nftInfo.chain]}/${nftInfo.nftAddress}/${nftInfo.tokenId}`}  >
     <Box
@@ -65,7 +78,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     >
       <Box className={styles.nftImage}>
         {metaInfo?.imageUrl &&
-          <Image src={metaInfo?.imageUrl} layout="fill" />}
+          <Image src={metaInfo?.imageUrl} layout="fill" loader={imageKitLoader} />}
         {nftStatus === 'renting' &&
           <Box className={styles.imageCover}>
             <Stack direction="column" className={styles.lockCoverInfo}>
