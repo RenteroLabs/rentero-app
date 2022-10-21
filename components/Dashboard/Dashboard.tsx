@@ -19,7 +19,7 @@ import { useLazyQuery, useQuery } from "@apollo/client"
 import { LeaseItem } from "../../types"
 import { getNFTInfo } from "../../services/market"
 import { BigNumber, ethers } from "ethers"
-import { rinkebyGraph, bsctestGraph } from '../../services/graphql'
+import { bsctestGraph, goerliGraph } from '../../services/graphql'
 
 const cx = classNames.bind(styles)
 
@@ -31,7 +31,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const [tableType, setTableType] = useState<"RENT" | "LEND">('RENT')
 
   const [targetChain, setTargetChainId] = useState<number>(SUPPORT_CHAINS[0].id)
-  const [graphService, setGraphService] = useState<any>(rinkebyGraph)
+  const [graphService, setGraphService] = useState<any>(goerliGraph)
 
   const [lendTotal, setLendTotal] = useState<number>(0)
   const [borrowerTotal, setBorrowerTotal] = useState<number>(0)
@@ -101,14 +101,14 @@ const Dashboard: React.FC<DashboardProps> = () => {
     switch (targetChain) {
       case 1:
       case 4:
-        setGraphService(rinkebyGraph);
+        setGraphService(goerliGraph);
         break;
       case 56:
       case 97:
         setGraphService(bsctestGraph);
         break;
       default:
-        setGraphService(rinkebyGraph)
+        setGraphService(goerliGraph)
         break;
     }
     refetchRenting({ variables: { renter: address, timestamp } })

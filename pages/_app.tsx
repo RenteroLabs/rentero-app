@@ -16,7 +16,7 @@ import { NextPage } from 'next/types'
 import type { ReactElement, ReactNode } from 'react'
 import Layout2 from '../components/layout2'
 import { ApolloProvider } from '@apollo/client'
-import { rinkebyGraph } from '../services/graphql'
+import { goerliGraph } from '../services/graphql'
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
 
@@ -59,7 +59,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
       <CssBaseline />
       <WagmiConfig client={client}>
-        <ApolloProvider client={rinkebyGraph}>
+        <ApolloProvider client={goerliGraph}>
           <Layout2><Component {...pageProps} /></Layout2>
         </ApolloProvider>
       </WagmiConfig>

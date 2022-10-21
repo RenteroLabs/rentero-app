@@ -23,7 +23,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import classNames from 'classnames/bind';
 import { GAME_CONTRACTS, GAME_LOGOS, GAME_NAMES } from '../constants';
 import { useRouter } from 'next/router';
-import { rinkebyGraph, bsctestGraph } from '../services/graphql'
+import { bsctestGraph, goerliGraph } from '../services/graphql'
 
 const cx = classNames.bind(styles)
 
@@ -34,7 +34,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [showLeftBar, setShowLeftBar] = useState<boolean>(true)
   const router = useRouter()
 
-  const [graphService, setGraphService] = useState<any>(rinkebyGraph)
+  const [graphService, setGraphService] = useState<any>(goerliGraph)
   const [gameContracts, setGameContracts] = useState<string[]>(GAME_CONTRACTS[0])
 
   const chainTypeRef = useRef<HTMLElement>()
@@ -110,7 +110,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
     setLeasesList([])
     switch (currentGame) {
       case 0:
-        setGraphService(rinkebyGraph);
+        setGraphService(goerliGraph);
         reloadTotal();
         break;
       case 1:
@@ -119,7 +119,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
         getGameLeaseCount();
         break;
       default:
-        setGraphService(rinkebyGraph); break;
+        setGraphService(goerliGraph); break;
     }
     getLeasesList();
 
@@ -129,7 +129,7 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   //   setCurrentGame(0)
   //   setCurrentPage(1)
   //   setLeasesList([])
-  //   setGraphService(rinkebyGraph);
+  //   setGraphService(goerliGraph);
   //   reloadTotal();
   //   getLeasesList();
   // }

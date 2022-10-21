@@ -6,7 +6,7 @@ export interface GameItem {
   gameCover: string;
   gameStatus: 0 | 1 | 2; // 0：正常集成中，1：Coming soon
   gameNFTCollection: string[]; // 游戏 NFT Collection 合约地址
-  chainId: 1 | 4 | 137 | 97
+  chainId: number
 }
 
 export interface LeaseItem {

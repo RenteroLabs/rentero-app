@@ -15,7 +15,7 @@ export const CHAIN_ICON: Record<number, string> = {
 
 const BSC_CHAIN: Chain = {
   id: 56,
-  name: 'BNB Smart Chain',
+  name: 'BNB Chain',
   network: 'Binance Smart Chain Mainnet',
   nativeCurrency: {
     decimals: 18,
@@ -169,7 +169,7 @@ const ETH_USDT = '0xdac17f958d2ee523a2206206994597c13d831ec7'
 const ETH_USDC = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 const ETH_DAI = '0x6b175474e89094c44da98b954eedeac495271d0f'
 
-const DEV_TOKEN = '0x197fadc42067f43a32dad11c53962ede0c83e0ab'
+const DEV_TOKEN = '0xeBaEE8E37dae9e95e6Ff7a8242d9C958C8D312eB'
 
 const BSC_USDT = '0x55d398326f99059ff775485246999027b3197955'
 const BSC_USDC = '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'
@@ -255,6 +255,9 @@ export const SUPPORT_TOKENS: Record<number, TokenInfo[]> = {
     TOKEN_LIST['ETH-DAI'],
     TOKEN_LIST['ETH-WETH'],
   ],
+  5: [
+    TOKEN_LIST['ETH-WETH'],
+  ],
   56: [ // BSC 
     TOKEN_LIST['BSC-USDT'],
     TOKEN_LIST['BSC-USDC'],
@@ -314,6 +317,8 @@ export const GAME_CONTRACTS = [
 ]
 
 
+
+// SUPPORT LEND GAMES
 export const GameList: GameItem[] = [
   {
     gameName: 'Axe Game',
@@ -322,7 +327,7 @@ export const GameList: GameItem[] = [
     gameLogo: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3yth290wij20690693yk.jpg',
     gameStatus: 0,
     gameNFTCollection: GAME_CONTRACTS[0],
-    chainId: 4,
+    chainId: 5,
   }, {
     gameName: 'Metaline',
     gameDesc: '',
