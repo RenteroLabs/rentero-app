@@ -457,10 +457,6 @@ export const Ropsten_721_AXE_NFT_ABI = [
   }
 ]
 
-const DEV_WRAP_NFT = '0xfddDFCed4e553319eb17c79EcF439FB670AEcDE5'
-const TEST_WRAP_NFT = '0x5A6E1d2d40c85dB942246Ad7cf1025b380FfcC40'
-export const Ropsten_WrapNFT = process.env.NEXT_PUBLIC_ENV === 'TEST' ? TEST_WRAP_NFT : DEV_WRAP_NFT
-
 
 // BSC testnet 
 export const AXE_NFT_BSC_TEST = '0x6AaDFE9441c35645D452bc7050cd53E43d104C18'
