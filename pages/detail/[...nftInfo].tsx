@@ -11,7 +11,7 @@ import { useCopyToClipboard, useIsMounted } from "../../hooks";
 import RentNFTModal from "../../components/RentNFT/RentNFTModal";
 import { PropsWithChildren, ReactElement, useEffect, useMemo, useState } from "react";
 import { useRequest } from "ahooks";
-import { getNFTInfo } from "../../services/market";
+import { getNFTInfo, getNFTInfoByMoralis } from "../../services/market";
 import { formatAddress } from "../../utils/format";
 import { ADDRESS_TOKEN_MAP, CHAIN_NAME, NFT_COLLECTIONS, ZERO_ADDRESS } from "../../constants";
 import Head from "next/head";
@@ -134,7 +134,26 @@ const Detail: NextPageWithLayout = () => {
 
   const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
     manual: true,
-    onSuccess: ({ data }) => { setMetaInfo(data) }
+    onSuccess: async ({ data, code }) => {
+      setMetaInfo(data)
+
+      // 中心化存储接口请求失败后逻辑
+      if (code !== 200) {
+        const res = await getNFTInfoByMoralis({
+          tokenId: parseInt(tokenId),
+          contractAddress: nftAddress,
+          chainId: "0x" + Number(chainId).toString(16)
+        })
+        try {
+          if (res?.metadata) {
+            const metaJson = JSON.parse(res.metadata)
+            setMetaInfo({ ...data, imageUrl: metaJson.image })
+          }
+        } catch (err) {
+          console.error(err)
+        }
+      }
+    }
   })
 
   useEffect(() => {
@@ -154,7 +173,7 @@ const Detail: NextPageWithLayout = () => {
     var urlEndpoint = "https://ik.imagekit.io/jnznr24q9";
     const imagePaths = src.split('/')
     const imageHash = imagePaths[imagePaths.length - 1]
-  
+
     return `${urlEndpoint}/${imageHash}?tr=${paramsString}`
   }
 
@@ -176,7 +195,12 @@ const Detail: NextPageWithLayout = () => {
         <Stack spacing="1.67rem">
           <Paper className={styles.itemCover} >
             {/* {(metaInfo?.imageUrl) && <img src={metaInfo?.imageUrl} />} */}
-            { (metaInfo?.imageUrl) && <Image src={metaInfo?.imageUrl} loader={imageKitLoader}  layout="fill" />}
+            {(metaInfo?.imageUrl) &&
+              <Image
+                src={metaInfo?.imageUrl}
+                // TODO: 暂时移除 loader
+                // loader={imageKitLoader}
+                layout="fill" />}
           </Paper>
 
           <DetailCardBox title={<Box>About {NFT_COLLECTIONS[nftAddress]}</Box>}>

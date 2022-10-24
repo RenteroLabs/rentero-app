@@ -9,7 +9,7 @@ import classNames from 'classnames/bind'
 import { dateFormat } from "../../utils/format"
 import { LeaseItem } from '../../types'
 import { BigNumber, utils } from 'ethers'
-import { getNFTInfo } from '../../services/market'
+import { getNFTInfo, getNFTInfoByMoralis } from '../../services/market'
 import { useRequest } from 'ahooks'
 import RentNFTModal from '../RentNFT/RentNFTModal'
 import { useAccount } from 'wagmi'
@@ -36,7 +36,9 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
 
   const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
     manual: true,
-    onSuccess: ({ data }) => {
+    onSuccess: async ({ data, code }) => {
+
+
       setMetaInfo(data)
       let attrs = []
       try {
@@ -47,6 +49,28 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
         console.error(err)
       }
       setAttrList(attrs)
+
+      // 中心化存储接口请求失败后逻辑
+      if (code !== 200) {
+        const res = await getNFTInfoByMoralis({
+          tokenId: parseInt(nftInfo.tokenId),
+          contractAddress: nftInfo.nftAddress,
+          chainId: nftInfo.chain
+        })
+
+        let attrs = []
+        try {
+          if (res?.metadata) {
+            const metaJson = JSON.parse(res.metadata)
+            attrs = metaJson?.attributes || []
+            setMetaInfo({ ...data, imageUrl: metaJson.image })
+          }
+        } catch (err) {
+          console.error(err)
+        }
+        setAttrList(attrs)
+      }
+
     }
   })
 
@@ -67,7 +91,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     var urlEndpoint = "https://ik.imagekit.io/jnznr24q9";
     const imagePaths = src.split('/')
     const imageHash = imagePaths[imagePaths.length - 1]
-  
+
     return `${urlEndpoint}/${imageHash}?tr=${paramsString}`
   }
 
@@ -78,7 +102,12 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     >
       <Box className={styles.nftImage}>
         {metaInfo?.imageUrl &&
-          <Image src={metaInfo?.imageUrl} layout="fill" loader={imageKitLoader} />}
+          <Image
+            src={metaInfo?.imageUrl}
+            layout="fill"
+            // TODO: 暂时移除 imageloader
+            // loader={imageKitLoader}
+          />}
         {nftStatus === 'renting' &&
           <Box className={styles.imageCover}>
             <Stack direction="column" className={styles.lockCoverInfo}>

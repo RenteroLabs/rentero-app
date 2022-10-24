@@ -12,7 +12,7 @@ import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, Typography, Box, IconB
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
-import { Ropsten_721_AXE_NFT_ABI, Ropsten_721_AXE_NFT, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI'
+import {  Ropsten_721_AXE_NFT, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI'
 import { useLocalStorageState } from 'ahooks'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import StoreIcon from '@mui/icons-material/Store';

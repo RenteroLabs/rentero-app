@@ -33,5 +33,24 @@ interface NFTInfoParams {
 export const getNFTInfo = async (params: NFTInfoParams) => {
   const { tokenId, contractAddress } = params
   const data = await fetch(`${BaseURL}/nft/info?address=${contractAddress}&tokenId=${tokenId}`)
+
+  return data.json()
+}
+
+
+interface MoralisNFTINFOParams {
+  tokenId: number,
+  contractAddress: string,
+  chainId: string | number 
+}
+export const getNFTInfoByMoralis = async (params: MoralisNFTINFOParams) => {
+  const { tokenId, contractAddress, chainId } = params
+  const data = await fetch(`https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=${chainId}&format=decimal`, {
+    headers: {
+      "X-API-Key": "DewBAeYa9EmQh3WWko5vErjAEJjWysKjagsPJzxGIV3jV9XZuQ39MnPiUurtsSZj",
+      "accept": "application/json"
+    }
+  })
+
   return data.json()
 }

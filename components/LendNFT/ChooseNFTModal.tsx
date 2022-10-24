@@ -2,7 +2,8 @@ import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Gri
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import { chain, erc20ABI, erc721ABI, useAccount, useContract, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from 'wagmi'
-import { Ropsten_721_AXE_NFT, Ropsten_721_AXE_NFT_ABI } from '../../constants/contractABI'
+import { Ropsten_721_AXE_NFT } from '../../constants/contractABI'
+import { Ropsten_721_AXE_NFT_ABI } from '../../constants/abi'
 import NFTCard from '../IntegrationCard/NFTCard'
 import styles from './style.module.scss'
 import LoadingButton from '@mui/lab/LoadingButton';
