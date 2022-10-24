@@ -42,3 +42,16 @@ export function moralisData2NFTdata(list: Record<string, any>[]) {
     }
   })
 }
+
+export function rangersData2NFTdata(list: number[], contractAddress: string) {
+  console.log(list)
+
+  return list.map(item => {
+    return {
+      nftName: "DeHero",
+      nftNumber: item,
+      nftAddress: contractAddress,
+      nftImage: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3esgombq6j20m80m83yv.jpg'
+    }
+  })
+}

@@ -137,10 +137,12 @@ export const CHAIN_ID_MAP: Record<string | number, number | string> = {
   "goerli": 5,
   "bsc-testnet": 97,
   "bsc": 56,
+  "rangers-testnet": 9527,
   4: 'rinkeby',
   5: "goerli",
   97: 'bsc-testnet',
-  56: 'bsc'
+  56: 'bsc',
+  9527: 'rangers-testnet',
 }
 
 export const ALCHEMY_POLYGON_URL = `https://polygon-mainnet.g.alchemy.com/nft/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`
@@ -239,7 +241,7 @@ export const TOKEN_LIST: Record<string, TokenInfo> = {
     name: "RPG-DEV",
     address: RANGERS_DEV_TOKEN,
     logo: SUPPORT_TOKEN_ICONS["WETH"],
-    decimal: 18, 
+    decimal: 18,
   }
 }
 
@@ -353,3 +355,9 @@ export const GameList: GameItem[] = [
     chainId: 9527
   }
 ]
+
+
+
+
+
+export const MORALIS_SUPPORT_CHAINS: number[] = [1, 5, 11155111, 137, 80001, 56, 97, 43114, 43113, 250, 25, 338]

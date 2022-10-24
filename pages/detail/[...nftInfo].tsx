@@ -147,7 +147,7 @@ const Detail: NextPageWithLayout = () => {
         try {
           if (res?.metadata) {
             const metaJson = JSON.parse(res.metadata)
-            setMetaInfo({ ...data, imageUrl: metaJson.image })
+            setMetaInfo({ ...res, imageUrl: metaJson.image })
           }
         } catch (err) {
           console.error(err)
