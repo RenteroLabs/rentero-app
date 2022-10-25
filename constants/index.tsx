@@ -56,7 +56,7 @@ const BSC_TEST: Chain = {
 
 const RANGERS_TEST_CHAIN: Chain = {
   id: 9527,
-  name: 'Rangers Test',
+  name: 'RangersTest',
   network: "Rangers Robin testnet",
   nativeCurrency: {
     name: "RPG",
@@ -109,11 +109,11 @@ const MAIN_NETWORK: Chain[] = [
 ]
 
 const ALL_NETWORK: Chain[] = [
-  chain.mainnet,
+  // chain.mainnet,
   chain.goerli,
-  BSC_CHAIN,
+  // BSC_CHAIN,
   BSC_TEST,
-  RANGERS_CHAIN,
+  // RANGERS_CHAIN,
   RANGERS_TEST_CHAIN
 ]
 
@@ -137,12 +137,12 @@ export const CHAIN_ID_MAP: Record<string | number, number | string> = {
   "goerli": 5,
   "bsc-testnet": 97,
   "bsc": 56,
-  "rangers-testnet": 9527,
+  "rpg-testnet": 9527,
   4: 'rinkeby',
   5: "goerli",
   97: 'bsc-testnet',
   56: 'bsc',
-  9527: 'rangers-testnet',
+  9527: 'rpg-testnet',
 }
 
 export const ALCHEMY_POLYGON_URL = `https://polygon-mainnet.g.alchemy.com/nft/v2/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`
@@ -180,7 +180,7 @@ const BSC_DAI = '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3'
 
 const BSC_DEV_TOKEN = '0x304af20ef7a8497aeed4a4a6ba4601988d5b11f6'
 
-const RANGERS_DEV_TOKEN = "0x55b4c4ee5e4c2db29177cb919572e5127a302963"
+export const RANGERS_DEV_TOKEN = "0x55b4c4ee5e4c2db29177cb919572e5127a302963"
 
 export const TOKEN_LIST: Record<string, TokenInfo> = {
   'ETH-USDT': {
@@ -297,17 +297,20 @@ export const NFT_COLLECTIONS: Record<string, string> = {
   "0x6fe2bd1c050f439705ecbf98130d7c9c784bbfd6": 'Metaline Heroes',
   "0x7e2997174d717b15fe029954ad1f380c5eb23169": "Axe Game",
   "0x9ee72a87d3bed794616ab4a0ad28a25732cac0c1": "Axe Game | Goerli",
-  "0x6aadfe9441c35645d452bc7050cd53e43d104c18": "Axe Game | Rangers"
+  "0x6aadfe9441c35645d452bc7050cd53e43d104c18": "Axe Game | Rangers",
+  "0x6f71dd919192eedc50cd40177b5f7de51aa30d3c": "DeHero Heroes"
 }
 
 export const GAME_LOGOS: Record<string, string> = {
   '0': '/rentero_logo_big.png',
   "1": '/metaline_logo.png',
+  "2": "/dehero-logo.png"
 }
 
 
 export const GAME_NAMES: Record<string, string> = {
-  METALINE: 'metaline',
+  METALINE: 'Metaline',
+  DEHERO: "DeHero"
 }
 
 

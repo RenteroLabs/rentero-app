@@ -1,4 +1,4 @@
-import { Box, Dialog, DialogTitle, Grid, IconButton } from '@mui/material'
+import { Box, Dialog, DialogTitle, Grid, IconButton, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
 import IntegrationCard from '../IntegrationCard'
@@ -39,7 +39,7 @@ const LendNFTModal: React.FC<LendNFTModalProps> = (props) => {
     </div>
     <Dialog open={visibile} className={styles.container} >
       <DialogTitle className={styles.gameModalTitle} sx={{ width: 'auto' }}>
-        Choose Game
+        <Typography>Choose Game</Typography>
         <IconButton
           aria-label="close"
           onClick={() => changeVisibile(false)}

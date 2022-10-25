@@ -5,6 +5,7 @@ import styles from './index.module.scss'
 import RatioOff from '../../public/ratio_button_off.svg'
 import CheckIcon from '@mui/icons-material/Check';
 import { CHAIN_ICON } from '../../constants'
+import { formatTokenId } from '../../utils/format'
 
 interface NFTCardProps {
   nftImage: string;
@@ -37,7 +38,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     }
     <Typography variant='h3' className={styles.nftName}>{nftName}</Typography>
     <Typography variant="body2" className={styles.nftNumber} >
-      #{nftNumber}
+      #{formatTokenId(nftNumber)}
       {chainId && <Avatar
         src={CHAIN_ICON[chainId]}
         sx={{ width: '1.67rem', height: '1.67rem', marginLeft: '1rem' }}

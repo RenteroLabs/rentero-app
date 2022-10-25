@@ -6,13 +6,13 @@ import { useQuery, useLazyQuery } from '@apollo/client'
 import styles from '../../styles/detail.module.scss'
 import NFTCard from "../../components/NFTCard";
 import ConnectWallet from "../../components/ConnectWallet";
-import { etherscanBlockExplorers, useAccount } from "wagmi";
+import { erc721ABI, etherscanBlockExplorers, useAccount, useContractRead } from "wagmi";
 import { useCopyToClipboard, useIsMounted } from "../../hooks";
 import RentNFTModal from "../../components/RentNFT/RentNFTModal";
 import { PropsWithChildren, ReactElement, useEffect, useMemo, useState } from "react";
 import { useRequest } from "ahooks";
 import { getNFTInfo, getNFTInfoByMoralis } from "../../services/market";
-import { formatAddress } from "../../utils/format";
+import { formatAddress, formatTokenId } from "../../utils/format";
 import { ADDRESS_TOKEN_MAP, CHAIN_NAME, NFT_COLLECTIONS, ZERO_ADDRESS } from "../../constants";
 import Head from "next/head";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -27,6 +27,7 @@ import SkeletonNFTCard from "../../components/NFTCard/SkeletonNFTCard";
 import UpdateNFTModal from "../../components/UpdateNFT";
 import { GRAPH_SERVICE_MAP } from '../../services/graphql'
 import Image from 'next/image'
+import { isEmpty } from 'lodash'
 
 interface DetailCardBoxProps {
   title: React.ReactElement
@@ -90,7 +91,6 @@ const Detail: NextPageWithLayout = () => {
   const { isConnected, address } = useAccount()
   const isMounted = useIsMounted()
   const minMobileWidth = useMediaQuery("(max-width: 600px)")
-  const timestamp = (Number(new Date) / 1000).toFixed()
 
   const [baseInfo, setBaseInfo] = useState<Record<string, any>>({})
   const [nftList, setNFTList] = useState<Record<string, any>[]>([])
@@ -100,6 +100,8 @@ const Detail: NextPageWithLayout = () => {
   const [_, copyAddress] = useCopyToClipboard()
   const [isCopyed, setIsCopyed] = useState<boolean>(false)
   const [isRenterCopyed, setRenterCopyed] = useState<boolean>(false)
+
+  const timestamp = useMemo(() => (Number(new Date) / 1000).toFixed(), [])
 
   const contractBlockExplore = useMemo(() => {
     return `${etherscanBlockExplorers[CHAIN_NAME[3]]?.url}/address/${nftAddress}`
@@ -132,6 +134,14 @@ const Detail: NextPageWithLayout = () => {
     onCompleted(data) { setNFTList(data.leases) }
   })
 
+  const { data: baseurl } = useContractRead({
+    addressOrName: nftAddress,
+    contractInterface: erc721ABI,
+    functionName: "tokenURI",
+    args: [tokenId && BigNumber.from(tokenId)],
+    enabled: chainId === "9527"
+  })
+
   const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
     manual: true,
     onSuccess: async ({ data, code }) => {
@@ -139,18 +149,26 @@ const Detail: NextPageWithLayout = () => {
 
       // 中心化存储接口请求失败后逻辑
       if (code !== 200) {
-        const res = await getNFTInfoByMoralis({
-          tokenId: parseInt(tokenId),
-          contractAddress: nftAddress,
-          chainId: "0x" + Number(chainId).toString(16)
-        })
-        try {
-          if (res?.metadata) {
-            const metaJson = JSON.parse(res.metadata)
-            setMetaInfo({ ...res, imageUrl: metaJson.image })
+        // 从 Ranger 测试网络获取
+        if (chainId === '9527') {
+          const metadata = await fetch(baseurl as unknown as string)
+          const metaJson = await metadata.json()
+          setMetaInfo({ ...metaJson, imageUrl: metaJson.image, metadata: JSON.stringify(metaJson) })
+        } else {
+          // 从第三方服务获取
+          const res = await getNFTInfoByMoralis({
+            tokenId: parseInt(tokenId),
+            contractAddress: nftAddress,
+            chainId: "0x" + Number(chainId).toString(16)
+          })
+          try {
+            if (res?.metadata) {
+              const metaJson = JSON.parse(res.metadata)
+              setMetaInfo({ ...res, imageUrl: metaJson.image })
+            }
+          } catch (err) {
+            console.error(err)
           }
-        } catch (err) {
-          console.error(err)
         }
       }
     }
@@ -228,7 +246,7 @@ const Detail: NextPageWithLayout = () => {
               </Box>
               <Box>
                 <Box>Token ID</Box>
-                <Box className={styles.linkAddress}>{tokenId}</Box>
+                <Box className={styles.linkAddress}>{formatTokenId(tokenId)}</Box>
               </Box>
               <Box>
                 <Box>Token Standard</Box>
@@ -260,7 +278,9 @@ const Detail: NextPageWithLayout = () => {
                 }
               </Box>
             </Box>
-            <Typography variant="h2">{NFT_COLLECTIONS[nftAddress]} #{rentInfo?.tokenId}</Typography>
+            <Typography variant="h2">
+              {NFT_COLLECTIONS[nftAddress]} #{formatTokenId(rentInfo?.tokenId as string)}
+            </Typography>
             <Stack direction={minMobileWidth ? 'column' : 'row'} spacing={minMobileWidth ? '10px' : '4.83rem'} className={styles.addressInfo}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography >Owner</Typography>
@@ -373,7 +393,7 @@ const Detail: NextPageWithLayout = () => {
             <Stack className={styles.statusAttrList} spacing="1.33rem">
               {
                 metaInfo?.metadata &&
-                JSON.parse(metaInfo?.metadata).attributes.map(({ value, trait_type }: any, index: number) => <Box key={index}>
+                JSON.parse(metaInfo?.metadata)?.attributes.map(({ value, trait_type }: any, index: number) => <Box key={index}>
                   <Box>{trait_type}:</Box>
                   <Box className={styles.attrValue}>{value}</Box>
                 </Box>
@@ -394,19 +414,18 @@ const Detail: NextPageWithLayout = () => {
         <Link href="/"><Typography>More &nbsp;&nbsp;<ChevronRightIcon /></Typography></Link>
       </Box>
       <Box sx={{ overflowX: 'scroll' }}>
-        {nftList && isMounted &&
+        {isMounted &&
           <Stack direction="row" className={styles.cardList} spacing="1rem">
             {
-              nftList.map((item: any, index: number) =>
-                <NFTCard nftInfo={item} key={index} />)
-            }
-            {
-              loading && <>
-                <SkeletonNFTCard />
-                <SkeletonNFTCard />
-                <SkeletonNFTCard />
-                <SkeletonNFTCard />
-              </>
+              loading ?
+                <>
+                  <SkeletonNFTCard />
+                  <SkeletonNFTCard />
+                  <SkeletonNFTCard />
+                  <SkeletonNFTCard />
+                </> :
+                nftList.map((item: any, index: number) =>
+                  <NFTCard nftInfo={item} key={index} />)
             }
           </Stack>}
       </Box>

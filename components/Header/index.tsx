@@ -12,7 +12,7 @@ import { Avatar, Chip, ClickAwayListener, Menu, MenuItem, Typography, Box, IconB
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { CHAIN_ICON, SUPPORT_CHAINS } from '../../constants'
-import {  Ropsten_721_AXE_NFT, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI'
+import { Ropsten_721_AXE_NFT, INSTALLMENT_MARKET_ABI } from '../../constants/contractABI'
 import { useLocalStorageState } from 'ahooks'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import StoreIcon from '@mui/icons-material/Store';
@@ -20,7 +20,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import CloseIcon from '@mui/icons-material/Close';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber, ethers, utils } from 'ethers'
+import { RANGERS_DEV_TOKEN } from '../../constants/index'
+import { DEV_20TOKEN_ABI } from '../../constants/abi'
 
 export default function Header() {
   const router = useRouter()
@@ -67,10 +69,16 @@ export default function Header() {
     signerOrProvider: signer,
   })
   const contract20 = useContract({
-    addressOrName: '0x304af20ef7a8497aeed4a4a6ba4601988d5b11f6',
-    contractInterface: erc20ABI,
+    addressOrName: RANGERS_DEV_TOKEN,
+    contractInterface: DEV_20TOKEN_ABI,
     signerOrProvider: signer,
   })
+
+  const mintRangersTentToken = async () => {
+    // console.log(utils.parseEther('1000'))
+    // const r = await contract20.totalSupply()
+    const r = await contract20.mint("0x431B4CA18E269Fc7e1F5AF49B9F4E2AF683f6207", utils.parseEther('1000'))
+  }
 
   // const redeem = async () => {
   //   const d = await contractMarket.reclaim("0x6fe2BD1C050F439705EcBf98130D7C9C784bbFd6", 224)
@@ -122,6 +130,7 @@ export default function Header() {
         <a className={router.pathname === '/dashboard' ? styles.activeNavItem : undefined}>Dashboard</a>
       </Link>
     </nav>
+    {/* <Button onClick={mintRangersTentToken}>Mint</Button> */}
     {/* <Button onClick={rent}>rent</Button> */}
     {/* <Button onClick={redeem}>redeem</Button> */}
     {/* <Button onClick={approve}>approve</Button> */}

@@ -23,7 +23,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import classNames from 'classnames/bind';
 import { GAME_CONTRACTS, GAME_LOGOS, GAME_NAMES } from '../constants';
 import { useRouter } from 'next/router';
-import { bsctestGraph, goerliGraph } from '../services/graphql'
+import { bsctestGraph, goerliGraph, rangersTestGraph } from '../services/graphql'
 
 const cx = classNames.bind(styles)
 
@@ -118,6 +118,11 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
         setGameContracts(GAME_CONTRACTS[1]);
         getGameLeaseCount();
         break;
+      case 2:
+        setGraphService(rangersTestGraph)
+        setGameContracts(GAME_CONTRACTS[2])
+        getGameLeaseCount(); 
+        break;
       default:
         setGraphService(goerliGraph); break;
     }
@@ -206,15 +211,15 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
             {showLeftBar && <Typography>Metaline</Typography>}
           </Box>
           {/* </Link> */}
-          {/* <Box className={cx({
+          <Box className={cx({
             'gameItem': true,
             'activeItem': currentGame == 2
           })}
             onClick={() => setCurrentGame(2)}
           >
-            <img src='/stepn-logo.jpeg' alt='game_logo_stepn' />
-            {showLeftBar && <Typography>Stepn</Typography>}
-          </Box> */}
+            <img src={GAME_LOGOS['2']} alt={GAME_NAMES.DEHERO} />
+            {showLeftBar && <Typography>DeHero</Typography>}
+          </Box>
         </Stack>
       </div>
       <div className={styles.contentBox}>

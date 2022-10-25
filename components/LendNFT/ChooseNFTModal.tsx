@@ -13,14 +13,14 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { web3GetNFTS } from '../../services/web3NFT';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SwitchNetwork from '../SwitchNetwork';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import SliptModeLendConfig from './SliptModeLendConfig';
 import { CHAIN_ID_MAP, MORALIS_SUPPORT_CHAINS } from '../../constants';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import TrialModeLendConfig from './TrialModeLendConfig';
 import InstallmentLendConfig from './InstallmentLendConfig';
 import Moralis from 'moralis'
-import { moralisData2NFTdata, rangersData2NFTdata } from '../../utils/format';
+import { formatTokenId, moralisData2NFTdata, rangersData2NFTdata } from '../../utils/format';
 import { getNFTsByAddressFromRangers } from '../../services/rangers';
 
 Moralis.start({
@@ -69,6 +69,12 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
     signerOrProvider: signer
   })
 
+  const contract721_New = useContract({
+    addressOrName: gameNFTCollection[0],
+    contractInterface: erc721ABI,
+    signerOrProvider: signer
+  })
+
   // 查询用户钱包地址所拥有的当前游戏 NFT 信息
   const queryWalletNFT2 = async () => {
     setIsRequestingNFT(true)
@@ -91,7 +97,17 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
           contractAddress: gameNFTCollection[0],
         })
         console.log(result)
-        setNFTList(rangersData2NFTdata(result.data, gameNFTCollection[0]))
+
+        let metaList: Record<string, any>[] = []
+        const tokenList: any[] = result?.data || []
+        for (let i = 0; i < tokenList.length; i++) {
+          const baseurl = await contract721_New.tokenURI(BigNumber.from(tokenList[i]))
+          const metadata = await fetch(baseurl)
+          const metaJson = await metadata.json()
+          metaList.push({ ...metaJson, tokenId: tokenList[i] })
+        }
+
+        setNFTList(rangersData2NFTdata(metaList, gameNFTCollection[0]))
       } catch (err) {
         console.error(err)
       }
@@ -168,7 +184,9 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
           <ChevronLeftIcon />
           Back
         </Box>
-        {isChooseNFT ? 'Choose NFT to deposit' : `Lending #${selectedNFT}`}
+        <Typography>
+          {isChooseNFT ? 'Choose NFT to deposit' : `Lending #${formatTokenId(selectedNFT)}`}
+        </Typography>
         <IconButton
           aria-label="close"
           onClick={() => setVisibile(false)}

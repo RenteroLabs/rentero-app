@@ -8,6 +8,18 @@ export function formatAddress(address: string | undefined, length: number) {
   )}`
 }
 
+export function formatTokenId(tokenId: number | string, showCount?: number) {
+  showCount = showCount || 3
+  const tokenStr = String(tokenId)
+  const leng = tokenStr.length
+  if (leng <= 5) {
+    return tokenId
+  }
+  const pre = tokenStr.slice(0, showCount)
+  const suf = tokenStr.slice(leng - showCount)
+  return `${pre}...${suf}`
+}
+
 export function dateFormat(fmt: string, date: Date) {
   let ret;
   const opt: Record<string, any> = {
@@ -43,15 +55,14 @@ export function moralisData2NFTdata(list: Record<string, any>[]) {
   })
 }
 
-export function rangersData2NFTdata(list: number[], contractAddress: string) {
-  console.log(list)
+export function rangersData2NFTdata(list: any[], contractAddress: string) {
 
-  return list.map(item => {
+  return list.map((item: Record<string, any>) => {
     return {
-      nftName: "DeHero",
-      nftNumber: item,
+      nftName: item?.name,
+      nftNumber: item?.tokenId,
       nftAddress: contractAddress,
-      nftImage: 'https://tva1.sinaimg.cn/large/e6c9d24egy1h3esgombq6j20m80m83yv.jpg'
+      nftImage: item?.image
     }
   })
 }

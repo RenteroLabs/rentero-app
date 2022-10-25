@@ -6,13 +6,13 @@ import NFT_RENTED from '../../public/nft_rented.png'
 import { ADDRESS_TOKEN_MAP, CHAIN_ID_MAP, NFT_COLLECTIONS, ZERO_ADDRESS } from '../../constants'
 import styles from './index.module.scss'
 import classNames from 'classnames/bind'
-import { dateFormat } from "../../utils/format"
+import { dateFormat, formatTokenId } from "../../utils/format"
 import { LeaseItem } from '../../types'
 import { BigNumber, utils } from 'ethers'
 import { getNFTInfo, getNFTInfoByMoralis } from '../../services/market'
 import { useRequest } from 'ahooks'
 import RentNFTModal from '../RentNFT/RentNFTModal'
-import { useAccount } from 'wagmi'
+import { erc721ABI, useAccount, useContract, useContractRead } from 'wagmi'
 
 const cx = classNames.bind(styles)
 
@@ -34,10 +34,18 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     return nftInfo.expires > current ? 'renting' : 'lending'
   }, [nftInfo])
 
+
+  const { data: baseurl } = useContractRead({
+    addressOrName: nftInfo.nftAddress,
+    contractInterface: erc721ABI,
+    functionName: "tokenURI",
+    args: [BigNumber.from(nftInfo.tokenId)],
+    enabled: nftInfo.chain === "rpg-testnet"
+  })
+
   const { run: fetchNFTInfo } = useRequest(getNFTInfo, {
     manual: true,
     onSuccess: async ({ data, code }) => {
-
 
       setMetaInfo(data)
       let attrs = []
@@ -52,25 +60,35 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
 
       // 中心化存储接口请求失败后逻辑
       if (code !== 200) {
-        const res = await getNFTInfoByMoralis({
-          tokenId: parseInt(nftInfo.tokenId),
-          contractAddress: nftInfo.nftAddress,
-          chainId: nftInfo.chain
-        })
 
-        let attrs = []
-        try {
-          if (res?.metadata) {
-            const metaJson = JSON.parse(res.metadata)
-            attrs = metaJson?.attributes || []
-            setMetaInfo({ ...data, imageUrl: metaJson.image })
+        if (nftInfo.chain === 'rpg-testnet') {
+          // 获取 JSON
+          const metadata = await fetch(baseurl as unknown as string )
+          const metaJson = await metadata.json()
+          setMetaInfo({...metaJson, imageUrl: metaJson.image})
+          setAttrList(metaJson.attributes)
+
+        } else {
+          // 通过第三方 Moralis 服务获取 NFT metadata 数据
+          const res = await getNFTInfoByMoralis({
+            tokenId: parseInt(nftInfo.tokenId),
+            contractAddress: nftInfo.nftAddress,
+            chainId: nftInfo.chain
+          })
+
+          let attrs = []
+          try {
+            if (res?.metadata) {
+              const metaJson = JSON.parse(res.metadata)
+              attrs = metaJson?.attributes || []
+              setMetaInfo({ ...data, imageUrl: metaJson.image })
+            }
+          } catch (err) {
+            console.error(err)
           }
-        } catch (err) {
-          console.error(err)
+          setAttrList(attrs)
         }
-        setAttrList(attrs)
       }
-
     }
   })
 
@@ -105,8 +123,8 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
           <Image
             src={metaInfo?.imageUrl}
             layout="fill"
-            // TODO: 暂时移除 imageloader
-            // loader={imageKitLoader}
+          // TODO: 暂时移除 imageloader
+          // loader={imageKitLoader}
           />}
         {nftStatus === 'renting' &&
           <Box className={styles.imageCover}>
@@ -137,7 +155,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
       </Box>
       <Box className={styles.cardTitle}>
         <Box className={styles.nftName}>{NFT_COLLECTIONS[nftInfo.nftAddress]}</Box>
-        <Box className={styles.nftNumber}>#{nftInfo.tokenId}</Box>
+        <Box className={styles.nftNumber}>#{formatTokenId(nftInfo.tokenId)}</Box>
       </Box>
       {
         mode === '@trial' ? <Box className={styles.trialDayTag}>7 Days Trial</Box> :

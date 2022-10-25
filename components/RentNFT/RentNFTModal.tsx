@@ -13,6 +13,7 @@ import { LeaseItem } from '../../types';
 import TxLoadingDialog from '../TxLoadingDialog';
 import ConnectWallet from '../ConnectWallet';
 import SwitchNetwork from '../SwitchNetwork'
+import { formatTokenId } from '../../utils/format';
 
 const cx = classNames.bind(styles)
 
@@ -188,7 +189,7 @@ const RentNFTModal: React.FC<RentNFTModalProps> = (props) => {
       onClose={() => setVisibile(false)}
     >
       <DialogTitle className={styles.dialogTitle} >
-        <Typography>Renting #{rentInfo?.tokenId}</Typography>
+        <Typography>Renting #{formatTokenId(rentInfo?.tokenId)}</Typography>
         <IconButton
           aria-label="close"
           onClick={() => setVisibile(false)}
