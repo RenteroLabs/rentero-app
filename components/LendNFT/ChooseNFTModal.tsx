@@ -1,7 +1,7 @@
 import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, Divider, Grid, IconButton, InputBase, Stack, Step, StepButton, StepContent, StepLabel, Stepper, Tabs, Tab, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
-import { chain, erc20ABI, erc721ABI, useAccount, useContract, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from 'wagmi'
+import { chain, erc20ABI, erc721ABI, useAccount, useContract, useContractRead, useNetwork, useSigner, useSwitchNetwork, useWaitForTransaction } from 'wagmi'
 import { Ropsten_721_AXE_NFT } from '../../constants/contractABI'
 import { Ropsten_721_AXE_NFT_ABI } from '../../constants/abi'
 import NFTCard from '../IntegrationCard/NFTCard'
@@ -72,8 +72,18 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
   const contract721_New = useContract({
     addressOrName: gameNFTCollection[0],
     contractInterface: erc721ABI,
-    signerOrProvider: signer
+    signerOrProvider: signer,
   })
+
+  useEffect(() => {
+    // 在 Hehero 必须是在正确的测试链上
+    if (targetChainId && targetChainId === 9527) {
+      if (chain?.id !== targetChainId) {
+        setShowSwitchNetworkDialog(true)
+      }
+    }
+  }, [targetChainId])
+
 
   // 查询用户钱包地址所拥有的当前游戏 NFT 信息
   const queryWalletNFT2 = async () => {
@@ -234,12 +244,13 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
                 <Typography sx={{ opacity: 0.8, textAlign: 'center', margin: '1rem auto', fontSize: '1.2rem' }}>
                   No {gameName} NFT found in current wallet address or not connect wallet
                   <br />
-                  <Button
+                  {/* TODO: 仅方便测试功能 */}
+                  {gameName === 'Axe Game' && <Button
                     sx={{ marginTop: '1rem' }}
                     variant="contained"
                     onClick={mint721WhenEmpty}>
                     Mint a Axe NFT to have a try !
-                  </Button>
+                  </Button>}
                 </Typography>
               </Stack>
             }
@@ -260,8 +271,9 @@ const ChooseNFTModal: React.FC<ChooseNFTModalProps> = (props) => {
         <SwitchNetwork
           showDialog={showSwitchNetworkDialog}
           closeDialog={() => setShowSwitchNetworkDialog(false)}
-          callback={() => {
+          callback={async () => {
             setShowSwitchNetworkDialog(false)
+            await queryWalletNFT2()
           }}
           targetNetwork={targetChainId}
         />
