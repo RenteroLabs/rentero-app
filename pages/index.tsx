@@ -24,6 +24,9 @@ import classNames from 'classnames/bind';
 import { GAME_CONTRACTS, GAME_LOGOS, GAME_NAMES } from '../constants';
 import { useRouter } from 'next/router';
 import { bsctestGraph, goerliGraph, rangersTestGraph } from '../services/graphql'
+import useUrlState from '@ahooksjs/use-url-state';
+// import useQueryString from 'use-query-string';
+import {useQueryParam, StringParam, withDefault} from 'use-query-params';
 
 const cx = classNames.bind(styles)
 
@@ -54,21 +57,26 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
   const [whitelistNums, setWhitelistNums] = useState<number>(0)
   const [whitelistLists, setWhitelistLists] = useState<Record<string, any>[]>([])
 
+  const [name, setName] = useQueryParam('game', withDefault(StringParam, 'all'));
+
   const currentGameInfo = useMemo(() => {
     return gamesInfo[currentGame] || {}
   }, [currentGame, gamesInfo])
 
   // 识别页面初始选中游戏
-  // useEffect(() => {
-  //   switch (router.query?.game) {
-  //     case GAME_NAMES.METALINE:
-  //       setCurrentGame(1);
-  //       break;
-  //     default:
-  //       // setCurrentGame(0);
-  //       break;
-  //   }
-  // }, [router])
+  useEffect(() => {
+    switch (router.query?.game) {
+      case GAME_NAMES.METALINE:
+        setCurrentGame(1);
+        break;
+      case GAME_NAMES.DEHERO:
+        setCurrentGame(2);
+        break
+      default:
+        setCurrentGame(0);
+        break;
+    }
+  }, [router])
 
   const { refetch: reloadTotal } = useQuery(GET_TOTAL_LEASES, {
     variables: { id: "all" },
@@ -117,11 +125,13 @@ const Home: NextPage<{ gamesInfo: Record<string, any>[] }> = ({ gamesInfo }) => 
         setGraphService(bsctestGraph);
         setGameContracts(GAME_CONTRACTS[1]);
         getGameLeaseCount();
+        setName(GAME_NAMES.METALINE)
         break;
       case 2:
         setGraphService(rangersTestGraph)
         setGameContracts(GAME_CONTRACTS[2])
         getGameLeaseCount(); 
+        setName(GAME_NAMES.DEHERO)
         break;
       default:
         setGraphService(goerliGraph); break;

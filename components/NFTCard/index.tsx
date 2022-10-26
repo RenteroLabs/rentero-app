@@ -39,6 +39,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
     addressOrName: nftInfo.nftAddress,
     contractInterface: erc721ABI,
     functionName: "tokenURI",
+    chainId: 9527,
     args: [BigNumber.from(nftInfo.tokenId)],
     enabled: nftInfo.chain === "rpg-testnet"
   })
@@ -61,7 +62,7 @@ const NFTCard: React.FC<NFTCardProps> = (props) => {
       // 中心化存储接口请求失败后逻辑
       if (code !== 200) {
 
-        if (nftInfo.chain === 'rpg-testnet') {
+        if (nftInfo.chain === 'rpg-testnet' && baseurl) {
           // 获取 JSON
           const metadata = await fetch(baseurl as unknown as string )
           const metaJson = await metadata.json()

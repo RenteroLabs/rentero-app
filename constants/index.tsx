@@ -109,11 +109,11 @@ const MAIN_NETWORK: Chain[] = [
 ]
 
 const ALL_NETWORK: Chain[] = [
-  // chain.mainnet,
+  chain.mainnet,
   chain.goerli,
-  // BSC_CHAIN,
+  BSC_CHAIN,
   BSC_TEST,
-  // RANGERS_CHAIN,
+  RANGERS_CHAIN,
   RANGERS_TEST_CHAIN
 ]
 

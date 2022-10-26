@@ -138,6 +138,7 @@ const Detail: NextPageWithLayout = () => {
     addressOrName: nftAddress,
     contractInterface: erc721ABI,
     functionName: "tokenURI",
+    chainId: 9527,
     args: [tokenId && BigNumber.from(tokenId)],
     enabled: chainId === "9527"
   })

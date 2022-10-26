@@ -18,6 +18,9 @@ import Layout2 from '../components/layout2'
 import { ApolloProvider } from '@apollo/client'
 import { goerliGraph } from '../services/graphql'
 
+import { NextAdapter } from 'next-query-params';
+import { QueryParamProvider } from 'use-query-params';
+
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
 
 const { chains, provider, webSocketProvider } = configureChains(SUPPORT_CHAINS, [
@@ -58,11 +61,13 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <CssBaseline />
-      <WagmiConfig client={client}>
-        <ApolloProvider client={goerliGraph}>
-          <Layout2><Component {...pageProps} /></Layout2>
-        </ApolloProvider>
-      </WagmiConfig>
+      <QueryParamProvider adapter={NextAdapter}>
+        <WagmiConfig client={client}>
+          <ApolloProvider client={goerliGraph}>
+            <Layout2><Component {...pageProps} /></Layout2>
+          </ApolloProvider>
+        </WagmiConfig>
+      </QueryParamProvider>
     </StyledEngineProvider>
   </ThemeProvider>
 }
