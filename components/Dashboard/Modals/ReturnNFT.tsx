@@ -8,6 +8,8 @@ import DefaultButton from '../../Buttons/DefaultButton'
 import styles from './modal.module.scss'
 import { CHAIN_ID_MAP } from '../../../constants'
 import SwitchNetwork from '../../SwitchNetwork'
+import { formatTokenId } from '../../../utils/format'
+import { BigNumber } from 'ethers'
 
 interface ReturnNFTModalProps {
   trigger: React.ReactElement,
@@ -63,7 +65,7 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
     setShowTxDialog(true)
     setTxError('')
     try {
-      const { hash } = await contractMarket.abort(nftAddress, parseInt(tokenId))
+      const { hash } = await contractMarket.abort(nftAddress, BigNumber.from(tokenId))
       setAbortTxHash(hash)
     } catch (err: any) {
       setTxError(err?.error?.message || err.message)
@@ -73,7 +75,7 @@ const ReturnNFTModal: React.FC<ReturnNFTModalProps> = (props) => {
   }
 
   return <AppDialog
-    title={`Return NFT #${tokenId}`}
+    title={`Return NFT #${formatTokenId(tokenId)}`}
     trigger={trigger}
     hiddenDialog={showDialog}
   >

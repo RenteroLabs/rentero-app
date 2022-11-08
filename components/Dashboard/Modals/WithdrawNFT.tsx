@@ -10,7 +10,7 @@ import { LeaseItem } from '../../../types';
 import { BigNumber, ethers, utils } from 'ethers';
 import TxLoadingDialog from '../../TxLoadingDialog';
 import { ADDRESS_TOKEN_MAP, CHAIN_ID_MAP, ONEDAY, ZERO_ADDRESS } from '../../../constants';
-import { dateFormat } from '../../../utils/format';
+import { dateFormat, formatTokenId } from '../../../utils/format';
 import SwitchNetwork from '../../SwitchNetwork';
 
 const cx = classNames.bind(styles)
@@ -138,7 +138,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
     setTxError('')
     setShowTxDialog(true)
     try {
-      const { hash } = await contractMarket.reclaim(rentInfo.nftAddress, parseInt(rentInfo.tokenId))
+      const { hash } = await contractMarket.reclaim(rentInfo.nftAddress, BigNumber.from(rentInfo.tokenId))
       setRedeemTxHash(hash)
     } catch (err: any) {
       setTxError(err?.error?.message || err.message)
@@ -149,7 +149,7 @@ const WithdrawNFTModal: React.FC<WithdrawNFTModalProps> = (props) => {
 
   return <AppDialog
     trigger={trigger}
-    title={`Redeeming NFT #${rentInfo.tokenId}`}
+    title={`Redeeming NFT #${formatTokenId(rentInfo.tokenId)}`}
     hiddenDialog={hiddenDialog}
   >
     {

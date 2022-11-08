@@ -77,7 +77,7 @@ export default function Header() {
   const mintRangersTentToken = async () => {
     // console.log(utils.parseEther('1000'))
     // const r = await contract20.totalSupply()
-    const r = await contract20.mint("0x431B4CA18E269Fc7e1F5AF49B9F4E2AF683f6207", utils.parseEther('1000'))
+    const r = await contract20.mint("0x2595C561B52B95aE4baCB5bc4Ad28C810607f88F", utils.parseEther('1000'))
   }
 
   // const redeem = async () => {

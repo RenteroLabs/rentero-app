@@ -8,7 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useMemo, useState } from "react"
 import ReturnNFTModal from "./Modals/ReturnNFT"
 import WithdrawNFTModal from "./Modals/WithdrawNFT"
-import { dateFormat, formatAddress } from "../../utils/format"
+import { dateFormat, formatAddress, formatTokenId } from "../../utils/format"
 import { useAccount, useContract, useSigner } from "wagmi"
 import TakeOffNFTModal from "./Modals/TakeOffNFT"
 import LendConfig from "../LendNFT/SliptModeLendConfig"
@@ -19,7 +19,7 @@ import { useLazyQuery, useQuery } from "@apollo/client"
 import { LeaseItem } from "../../types"
 import { getNFTInfo } from "../../services/market"
 import { BigNumber, ethers } from "ethers"
-import { bsctestGraph, goerliGraph } from '../../services/graphql'
+import { bsctestGraph, goerliGraph, rangersTestGraph } from '../../services/graphql'
 
 const cx = classNames.bind(styles)
 
@@ -106,6 +106,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
       case 56:
       case 97:
         setGraphService(bsctestGraph);
+        break;
+      case 2025:
+      case 9527:
+        setGraphService(rangersTestGraph);
         break;
       default:
         setGraphService(goerliGraph)
@@ -202,7 +206,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
                   <Stack sx={{ margin: 'auto 1rem' }}>
                     <Typography className={styles.nftCollectionName}>
                       {metadata?.name}
-                      &nbsp;#{item.tokenId}
+                      &nbsp;#{formatTokenId(item.tokenId)}
                     </Typography>
                     <Typography className={styles.nftAddress}>
                       {tableType === 'LEND' && nftStats === 'lending'
